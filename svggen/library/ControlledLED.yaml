@@ -1,0 +1,24 @@
+connections:
+- - [led, control]
+  - [toggle, curState]
+  - {}
+interfaces:
+  ground: {interface: ground, subcomponent: led}
+  newToggleState: {interface: newState, subcomponent: toggle}
+  signal: {interface: signal, subcomponent: led}
+parameters: {controller: null, controllerPin: null, label: null, led.autoPoll: null,
+  toggle.autoPoll: null, type: null}
+subcomponents:
+  led:
+    object: LED
+    parameters:
+      autoPoll: {parameter: led.autoPoll}
+      controller: {parameter: controller}
+      controllerPin: {parameter: controllerPin}
+      type: {parameter: type}
+  toggle:
+    object: UIToggle
+    parameters:
+      controller: {parameter: controller}
+      label: {parameter: label}
+      newState.autoPoll: {parameter: toggle.autoPoll}

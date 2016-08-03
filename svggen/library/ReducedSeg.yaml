@@ -1,0 +1,64 @@
+connections:
+- - [beam, face0]
+  - [rightmotor, mount]
+  - {}
+- - [rightmotor, shaft]
+  - [rightwheel, origin]
+  - {}
+- - [beam, face2]
+  - [leftmotor, mount]
+  - {}
+- - [leftmotor, shaft]
+  - [leftwheel, origin]
+  - {}
+- - [beam, botedge1]
+  - [tail, t]
+  - {angle: -90}
+- - [sim, sim]
+  - [leftmotor, input]
+  - {input: true}
+- - [sim, sim]
+  - [rightmotor, input]
+  - {input: true}
+- - [sim, sim]
+  - [tail, b]
+  - {ground: true}
+- - [sim, sim]
+  - [leftwheel, wheel]
+  - {ground: true, noslip: true}
+- - [sim, sim]
+  - [rightwheel, wheel]
+  - {ground: true, noslip: true}
+constants: {}
+constraints: []
+interfaces: {}
+parameters: {}
+subcomponents:
+  beam:
+    class: RectBeam
+    constants: {}
+    parameters: {}
+  leftmotor:
+    class: ServoDevice
+    constants: {continuous: true}
+    parameters: {}
+  leftwheel:
+    class: Wheel
+    constants: {n: 6}
+    parameters: {}
+  rightmotor:
+    class: ServoDevice
+    constants: {continuous: true}
+    parameters: {}
+  rightwheel:
+    class: Wheel
+    constants: {n: 6}
+    parameters: {}
+  sim:
+    class: Simulation
+    constants: {}
+    parameters: {}
+  tail:
+    class: Rectangle
+    constants: {}
+    parameters: {}

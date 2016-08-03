@@ -1,0 +1,44 @@
+connections:
+- - [servo, shaft]
+  - [wheel, origin]
+  - {}
+constants: {}
+constraints: []
+interfaces:
+  angle: {interface: angle, subcomponent: servo}
+  botedge0: {interface: botedge0, subcomponent: servo}
+  botedge1: {interface: botedge1, subcomponent: servo}
+  botedge2: {interface: botedge2, subcomponent: servo}
+  botedge3: {interface: botedge3, subcomponent: servo}
+  botface: {interface: botface, subcomponent: servo}
+  face: {interface: face, subcomponent: wheel}
+  face0: {interface: face0, subcomponent: servo}
+  face1: {interface: face1, subcomponent: servo}
+  face2: {interface: face2, subcomponent: servo}
+  face3: {interface: face3, subcomponent: servo}
+  horn: {interface: horn, subcomponent: servo}
+  input: {interface: input, subcomponent: servo}
+  origin: {interface: origin, subcomponent: wheel}
+  shaft: {interface: shaft, subcomponent: servo}
+  topedge0: {interface: topedge0, subcomponent: servo}
+  topedge1: {interface: topedge1, subcomponent: servo}
+  topedge2: {interface: topedge2, subcomponent: servo}
+  topedge3: {interface: topedge3, subcomponent: servo}
+  topface: {interface: topface, subcomponent: servo}
+  wheel: {interface: wheel, subcomponent: wheel}
+  wheelpt0: {interface: wheelpt0, subcomponent: wheel}
+  wheelpt1: {interface: wheelpt1, subcomponent: wheel}
+  wheelpt2: {interface: wheelpt2, subcomponent: wheel}
+  wheelpt3: {interface: wheelpt3, subcomponent: wheel}
+  wheelpt4: {interface: wheelpt4, subcomponent: wheel}
+  wheelpt5: {interface: wheelpt5, subcomponent: wheel}
+parameters: {}
+subcomponents:
+  servo:
+    class: Servo
+    constants: {continuous: true}
+    parameters: {}
+  wheel:
+    class: Wheel
+    constants: {n: 6}
+    parameters: {}

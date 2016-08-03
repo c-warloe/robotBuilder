@@ -1,0 +1,19 @@
+connections: []
+interfaces:
+  RX: {interface: RX, subcomponent: device}
+  TX: {interface: TX, subcomponent: device}
+  VCC: {interface: VCC, subcomponent: device}
+  ground: {interface: ground, subcomponent: device}
+parameters: {RX.controllerPin: null, TX.controllerPin: null, controller: null}
+subcomponents:
+  device:
+    object: BluetoothModuleDevice
+    parameters:
+      RX.controllerPin: {parameter: RX.controllerPin}
+      TX.controllerPin: {parameter: TX.controllerPin}
+      controller: {parameter: controller}
+  driver:
+    object: BluetoothModuleDriver
+    parameters:
+      controller: {parameter: controller}
+      drivenComponent: device

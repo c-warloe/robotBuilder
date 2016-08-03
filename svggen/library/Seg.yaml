@@ -1,0 +1,118 @@
+connections:
+- - [slider, curPosition]
+  - [right, servoControl]
+  - {}
+- - [slider, curPosition]
+  - [left, servoControl]
+  - {}
+- - [brain, topedge2]
+  - [right, topedge0]
+  - {angle: -180}
+- - [brain, botedge0]
+  - [left, topedge0]
+  - {angle: -180}
+- - [left, botedge0]
+  - [brain, topedge0]
+  - {angle: -180, tabWidth: 10}
+- - [right, botedge2]
+  - [tail, rightedge]
+  - {angle: 90}
+- - [tail, leftedge]
+  - [left, topedge2]
+  - {angle: 90, tabWidth: 10}
+interfaces: {}
+parameters: {autoPoll: null, center: false, controller: null, controllerPin: null,
+  curPosition.autoPoll: null, default: 50, depth: null, driveservo: null, faces: null,
+  flip: false, height: null, label: generic, length: null, max: 100, min: 0, motionType: null,
+  newPosition.autoPoll: null, phase: 1, protocol: bluetooth, servo: null, servoFunction: null,
+  tailservo: null, width: null}
+subcomponents:
+  bluetooth:
+    object: BluetoothModule
+    parameters:
+      RX.controllerPin: 10
+      TX.controllerPin: 11
+      controller: {parameter: controller}
+  brain:
+    object: Brains
+    parameters:
+      brain: {parameter: controller}
+      depth:
+        function: max(x[0].getDimension('height'), x[1].getParameter('motorwidth'))
+        parameter: [controller, driveservo]
+      length: {parameter: length}
+  left:
+    object: Servo
+    parameters:
+      autoPoll: {parameter: autoPoll}
+      center: {parameter: center}
+      controller: {parameter: controller}
+      controllerPin: 9
+      curPosition.autoPoll: {parameter: curPosition.autoPoll}
+      default: 0
+      depth:
+        function: max(x[0].getDimension('height'), x[1].getParameter('motorwidth'))
+        parameter: [controller, driveservo]
+      faces: {parameter: faces}
+      flip: true
+      label: Left Wheel
+      length: {parameter: length}
+      max: 50
+      min: -50
+      motionType: continuous
+      newPosition.autoPoll: {parameter: newPosition.autoPoll}
+      phase: {parameter: phase}
+      protocol: {parameter: protocol}
+      servo: {parameter: driveservo}
+      servoFunction: input*-1
+      width: {parameter: width}
+  right:
+    object: Servo
+    parameters:
+      autoPoll: {parameter: autoPoll}
+      center: {parameter: center}
+      controller: {parameter: controller}
+      controllerPin: 3
+      curPosition.autoPoll: {parameter: curPosition.autoPoll}
+      default: 0
+      depth:
+        function: max(x[0].getDimension('height'), x[1].getParameter('motorwidth'))
+        parameter: [controller, driveservo]
+      faces: {parameter: faces}
+      flip: {parameter: flip}
+      label: Right Wheel
+      length: {parameter: length}
+      max: 50
+      min: -50
+      motionType: continuous
+      newPosition.autoPoll: {parameter: newPosition.autoPoll}
+      phase: {parameter: phase}
+      protocol: {parameter: protocol}
+      servo: {parameter: driveservo}
+      servoFunction: {parameter: servoFunction}
+      width: {parameter: width}
+  slider:
+    object: UISlider
+    parameters:
+      controller: {parameter: controller}
+      default: 0
+      label: Both Wheels
+      max: 50
+      min: -50
+  tail:
+    object: SegTail
+    parameters:
+      controller: {parameter: controller}
+      controllerPin: 5
+      default: 90
+      edgelen: {function: x.getParameter('motorwidth'), parameter: driveservo}
+      height: {parameter: height}
+      label: Tail Servo
+      length:
+        function: x[0].getDimension('width') + x[1].getParameter('motorheight') *
+          2
+        parameter: [controller, driveservo]
+      max: 180
+      min: 0
+      motionType: angle
+      servo: {parameter: tailservo}

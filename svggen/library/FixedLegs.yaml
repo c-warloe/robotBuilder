@@ -1,0 +1,68 @@
+connections:
+- - [bar, slotedge]
+  - [barsplit, botedge0]
+  - {angle: 0}
+- - [bar, tabedge]
+  - [legsplit, botedge0]
+  - {angle: 0}
+- - [legsplit, topedge2]
+  - [leg1, front]
+  - {angle: 0}
+- - [legsplit, topedge0]
+  - [leg2, right]
+  - {angle: 0}
+- - [leg1, right]
+  - [bar, botedge0]
+  - {angle: 90, tabWidth: 6}
+- - [leg2, front]
+  - [bar, topedge0]
+  - {angle: 90, tabWidth: 6}
+- - [barsplit, topedge1]
+  - [legsplit, topedge1]
+  - {angle: 90, tabWidth: 9}
+constants: {}
+interfaces:
+  botedge1: {interface: botedge1, subcomponent: bar}
+  botedge2: {interface: botedge2, subcomponent: bar}
+  botedge3: {interface: botedge3, subcomponent: bar}
+  botface: {interface: botface, subcomponent: bar}
+  foot1: {interface: foot, subcomponent: leg1}
+  foot2: {interface: foot, subcomponent: leg2}
+  topedge1: {interface: topedge1, subcomponent: bar}
+  topedge2: {interface: topedge2, subcomponent: bar}
+  topedge3: {interface: topedge3, subcomponent: bar}
+  topface: {interface: topface, subcomponent: bar}
+parameters: {depth: 9, dx: 0, dy: 0, dz: 0, height: 50, legwidth: 10, length: 47,
+  pitch: 0, roll: 0, yaw: 0}
+subcomponents:
+  bar:
+    class: RectBeam
+    constants:
+      faces: [0, 1, 2, 3]
+    parameters:
+      depth: {parameter: depth}
+      length: {parameter: length}
+  barsplit:
+    class: SplitEdge
+    constants:
+      splits: [3, 1]
+    parameters: {}
+  leg1:
+    class: PointedLeg
+    constants: {}
+    parameters:
+      frontwidth: {parameter: legwidth}
+      length: {parameter: height}
+      rightwidth: {parameter: legwidth}
+  leg2:
+    class: PointedLeg
+    constants: {}
+    parameters:
+      frontwidth: {parameter: legwidth}
+      length: {parameter: height}
+      rightwidth: {parameter: legwidth}
+  legsplit:
+    class: SplitEdge
+    constants:
+      splits: [3, 1]
+    parameters: {}

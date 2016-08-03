@@ -1,0 +1,34 @@
+connections:
+- - [l0, servo]
+  - [l1, horn]
+  - {}
+- - [l1, servo]
+  - [l2, horn]
+  - {}
+- - [sim, sim]
+  - [l0, input]
+  - {input: true}
+- - [sim, sim]
+  - [l1, input]
+  - {input: true}
+constants: {}
+constraints: []
+interfaces: {}
+parameters: {}
+subcomponents:
+  l0:
+    class: ArmLink
+    constants: {}
+    parameters: {}
+  l1:
+    class: ArmLink
+    constants: {}
+    parameters: {}
+  l2:
+    class: ArmLink
+    constants: {}
+    parameters: {}
+  sim:
+    class: Simulation
+    constants: {}
+    parameters: {}

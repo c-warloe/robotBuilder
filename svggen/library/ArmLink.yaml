@@ -1,0 +1,27 @@
+connections:
+- - [beam, face]
+  - [horn, mount]
+  - {offset_dx: 0, offset_dy: length/2}
+- - [beam, face]
+  - [servo, mount]
+  - {offset_dx: 0, offset_dy: -length/2}
+constants: {}
+constraints: []
+interfaces:
+  horn: {interface: horn, subcomponent: horn}
+  input: {interface: input, subcomponent: servo}
+  servo: {interface: shaft, subcomponent: servo}
+parameters: {length: 100, width: 25}
+subcomponents:
+  beam:
+    class: Rectangle
+    constants: {}
+    parameters: {l: width, w: length + 2*servo.hornoffset + 2*servo.shoulderlength}
+  horn:
+    class: HornMount
+    constants: {}
+    parameters: {sep: 2*servo.hornlength}
+  servo:
+    class: ServoDevice
+    constants: {}
+    parameters: {}

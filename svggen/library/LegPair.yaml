@@ -1,0 +1,41 @@
+connections: []
+interfaces:
+  botedge1: {interface: botedge1, subcomponent: fixed}
+  botedge2: {interface: botedge2, subcomponent: fixed}
+  botedge3: {interface: botedge3, subcomponent: fixed}
+  botface: {interface: botface, subcomponent: fixed}
+  ground: {interface: ground, subcomponent: move}
+  legControl: {interface: legControl, subcomponent: move}
+  power: {interface: power, subcomponent: move}
+  signal: {interface: signal, subcomponent: move}
+  topedge0: {interface: topedge0, subcomponent: move}
+  topedge1: {interface: topedge1, subcomponent: move}
+  topedge2: {interface: topedge2, subcomponent: move}
+  topedge3: {interface: topedge3, subcomponent: move}
+  topface: {interface: topface, subcomponent: move}
+parameters: {autoPoll: null, controller: null, controllerPin: null, depth: null, flexwidth: 5,
+  flip: false, height: null, label: generic, leg.beamwidth: null, length: null, servo: null,
+  width: null}
+subcomponents:
+  fixed:
+    object: FixedLegs
+    parameters:
+      depth: {function: x.getParameter('motorwidth'), parameter: servo}
+      height: {parameter: height}
+      leg.beamwidth: {parameter: leg.beamwidth}
+      length: {parameter: width}
+  move:
+    object: MovingLegs
+    parameters:
+      autoPoll: {parameter: autoPoll}
+      controller: {parameter: controller}
+      controllerPin: {parameter: controllerPin}
+      depth: {function: x.getParameter('motorwidth'), parameter: servo}
+      flexwidth: {parameter: flexwidth}
+      flip: {parameter: flip}
+      height: {parameter: height}
+      label: {parameter: label}
+      leg.beamwidth: {parameter: leg.beamwidth}
+      length: {parameter: length}
+      servo: {parameter: servo}
+      width: {function: x.getParameter('motorheight'), parameter: servo}

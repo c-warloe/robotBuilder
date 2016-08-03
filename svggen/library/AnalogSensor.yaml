@@ -1,0 +1,17 @@
+connections: []
+interfaces:
+  curValue: {interface: curValue, subcomponent: driver}
+  ground: {interface: ground, subcomponent: device}
+  signal: {interface: signal, subcomponent: device}
+parameters: {controller: null, controllerPin: null}
+subcomponents:
+  device:
+    object: AnalogSensorDevice
+    parameters:
+      controller: {parameter: controller}
+      signal.controllerPin: {parameter: controllerPin}
+  driver:
+    object: AnalogSensorDriver
+    parameters:
+      controller: {parameter: controller}
+      drivenComponent: device

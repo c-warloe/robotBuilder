@@ -1,0 +1,18 @@
+connections: []
+interfaces: {}
+parameters: {controller: null, distanceSensor.controller: null, distanceSensor.controllerPin: null,
+  driveservo: null, height: null, length: null, tailservo: null}
+subcomponents:
+  distanceSensor:
+    object: DistanceSensor
+    parameters:
+      controller: {parameter: controller}
+      controllerPin: A0
+  seg:
+    object: Seg
+    parameters:
+      controller: {parameter: controller}
+      driveservo: {parameter: driveservo}
+      height: {parameter: height}
+      length: {parameter: length}
+      tailservo: {parameter: tailservo}

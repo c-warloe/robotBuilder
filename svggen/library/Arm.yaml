@@ -1,0 +1,69 @@
+connections:
+- - [base, topedge0]
+  - [joint1, botedge0]
+  - {}
+- - [base, topedge1]
+  - [joint1, botedge1]
+  - {}
+- - [base, topedge2]
+  - [joint1, botedge2]
+  - {}
+- - [joint1, topedge0]
+  - [joint2, botedge0]
+  - {angle: -35.25}
+- - [joint2, topedge0]
+  - [tool, botedge0]
+  - {angle: -35.25}
+- - [joint1, topedge1]
+  - [joint2, botedge1]
+  - {angle: 35.25}
+- - [joint2, topedge1]
+  - [tool, botedge1]
+  - {angle: 35.25}
+- - [joint1, topedge2]
+  - [joint2, botedge2]
+  - {angle: -35.25}
+- - [joint2, topedge2]
+  - [tool, botedge2]
+  - {angle: -35.25}
+- - [joint1, topedge3]
+  - [joint2, botedge3]
+  - {angle: 35.25}
+- - [joint2, topedge3]
+  - [tool, botedge3]
+  - {angle: 35.25}
+interfaces:
+  botface: {interface: topface, subcomponent: base}
+parameters: {controller: null, servo: null}
+subcomponents:
+  base:
+    object: Brains
+    parameters:
+      brain: {parameter: controller}
+      length: {function: x.getDimension('length'), parameter: controller}
+  joint1:
+    object: ActuatedHinge
+    parameters:
+      controller: {parameter: controller}
+      depth: {function: x.getDimension('height'), parameter: controller}
+      length: {function: 75-x.getDimension('length'), parameter: controller}
+      servo: {parameter: servo}
+      width: {function: x.getDimension('width'), parameter: controller}
+  joint2:
+    object: ActuatedHinge
+    parameters:
+      controller: {parameter: controller}
+      depth: {function: x.getDimension('height'), parameter: controller}
+      length: 75
+      servo: {parameter: servo}
+      width: {function: x.getDimension('width'), parameter: controller}
+  tool:
+    object: ActuatedGripper
+    parameters:
+      controller: {parameter: controller}
+      depth: {function: x.getDimension('height'), parameter: controller}
+      fingerlength: 40
+      fingerwidth: 5
+      length: 75
+      servo: {parameter: servo}
+      width: {function: x.getDimension('width'), parameter: controller}

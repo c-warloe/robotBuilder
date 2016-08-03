@@ -1,0 +1,18 @@
+connections: []
+interfaces:
+  curValue: {interface: curValue, subcomponent: driver}
+  ground: {interface: ground, subcomponent: device}
+  power: {interface: power, subcomponent: device}
+  signal: {interface: signal, subcomponent: device}
+parameters: {controller: null, controllerPin: null}
+subcomponents:
+  device:
+    object: DistanceSensorDevice
+    parameters:
+      controller: {parameter: controller}
+      signal.controllerPin: {parameter: controllerPin}
+  driver:
+    object: DistanceSensorDriver
+    parameters:
+      controller: {parameter: controller}
+      drivenComponent: device

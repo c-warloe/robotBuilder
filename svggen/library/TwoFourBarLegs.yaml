@@ -1,0 +1,59 @@
+connections:
+- - [topsplit, topedge0]
+  - [leg1, topedge]
+  - {angle: 0}
+- - [topsplit, topedge2]
+  - [leg2, botedge]
+  - {angle: 0}
+- - [leg1, botedge]
+  - [botsplit, topedge2]
+  - {angle: 0}
+- - [leg2, topedge]
+  - [botsplit, topedge0]
+  - {angle: 0}
+interfaces:
+  botedge: {interface: botedge0, subcomponent: botsplit}
+  topedge: {interface: botedge0, subcomponent: topsplit}
+parameters: {depth: null, dl: 0, flexlengthx: null, flexwidth: 5, height: null, leg.beamwidth: 7,
+  length: null}
+subcomponents:
+  botsplit:
+    object: SplitEdge
+    parameters:
+      botlength:
+        function: ' (x[1],)'
+        parameter: [flexwidth, length]
+      toplength:
+        function: ' (x[0], x[1]-2*x[0], x[0])'
+        parameter: [flexwidth, length]
+  leg1:
+    object: FourBarDoubleLeg
+    parameters:
+      depth: {parameter: depth}
+      dl: {parameter: dl}
+      flexlengthx: {parameter: flexlengthx}
+      flexwidth: {parameter: flexwidth}
+      height: {parameter: height}
+      leg.beamwidth: {parameter: leg.beamwidth}
+      length: {parameter: length}
+      phase: false
+  leg2:
+    object: FourBarDoubleLeg
+    parameters:
+      depth: {parameter: depth}
+      dl: {parameter: dl}
+      flexlengthx: {parameter: flexlengthx}
+      flexwidth: {parameter: flexwidth}
+      height: {parameter: height}
+      leg.beamwidth: {parameter: leg.beamwidth}
+      length: {parameter: length}
+      phase: true
+  topsplit:
+    object: SplitEdge
+    parameters:
+      botlength:
+        function: ' (x[1],)'
+        parameter: [flexwidth, length]
+      toplength:
+        function: ' (x[0], x[1]-2*x[0], x[0])'
+        parameter: [flexwidth, length]

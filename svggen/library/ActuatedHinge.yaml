@@ -1,0 +1,47 @@
+connections:
+- - [servo, topedge0]
+  - [hinge, botedge1]
+  - {angle: -35.25}
+- - [servo, topedge1]
+  - [hinge, botedge2]
+  - {angle: 35.25}
+- - [servo, topedge2]
+  - [hinge, botedge3]
+  - {angle: -35.25}
+- - [servo, topedge3]
+  - [hinge, botedge4]
+  - {angle: 35.25}
+interfaces:
+  botedge0: {interface: botedge0, subcomponent: servo}
+  botedge1: {interface: botedge1, subcomponent: servo}
+  botedge2: {interface: botedge2, subcomponent: servo}
+  botedge3: {interface: botedge3, subcomponent: servo}
+  botface: {interface: botface, subcomponent: servo}
+  topedge0: {interface: topedge1, subcomponent: hinge}
+  topedge1: {interface: topedge2, subcomponent: hinge}
+  topedge2: {interface: topedge3, subcomponent: hinge}
+  topedge3: {interface: topedge4, subcomponent: hinge}
+parameters: {controller: null, depth: null, length: null, servo: null, width: null}
+subcomponents:
+  hinge:
+    object: Hinge
+    parameters:
+      bot:
+        function: (x[1]-x[0]) * 1.0 / sum(x)
+        parameter: [depth, width]
+      perimeter:
+        function: sum(x)*2
+        parameter: [width, depth]
+      top:
+        function: (x[1]-x[0]) * 1.0 / sum(x)
+        parameter: [depth, width]
+  servo:
+    object: Servo
+    parameters:
+      center: false
+      controller: {parameter: controller}
+      depth: {parameter: depth}
+      length: {parameter: length}
+      phase: 1
+      servo: {parameter: servo}
+      width: {parameter: width}
