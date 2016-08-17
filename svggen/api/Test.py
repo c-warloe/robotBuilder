@@ -15,10 +15,10 @@ if __name__ == '__main__':
                       'r4rr5b',
                       'r4lr6b',
                       ]
-    for i in range(4):
+    for i in range(3):
         r = f.addSubcomponent('r%d' % (i + 1), 'Rectangle')
 
-    for c in connectedEdges[:4]:
+    for c in connectedEdges[:2]:
         f.addConnection((c[0:2], c[2]), (c[3:5], c[5]))
     f.make()
     f.makeOutput()

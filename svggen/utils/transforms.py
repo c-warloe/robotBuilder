@@ -86,7 +86,39 @@ def RotateXTo(pt, pt2=(0,0)):
                 [ dy,  dx, 0, 0],
                 [  0,   0, 1, 0],
                 [  0,   0, 0, 1]])
-  return r 
+  return r
+
+
+def ReflectAcross2D(edge):
+    x1 = edge.pts2D[0][0]
+    y1 = edge.pts2D[0][1]
+    x2 = edge.pts2D[1][0]
+    y2 = edge.pts2D[1][1]
+    dx = (x1-x2)
+    if dx == 0: #Edge is a vertical line
+        shift = np.array([[ 1, 0, 0, -x1],
+                          [ 0, 1, 0,   0],
+                          [ 0, 0, 1,   0],
+                          [ 0, 0, 0,   1]])
+        shift2 = np.array([[1, 0, 0, x1],
+                           [0, 1, 0,  0],
+                           [0, 0, 1,  0],
+                           [0, 0, 0,  1]])
+        reflect = np.array([[-1, 0, 0, 0],
+                            [0, 1, 0, 0],
+                            [0, 0, 1, 0],
+                            [0, 0, 0, 1]])
+        r = np.dot(shift2,np.dot(reflect,shift))
+        return r
+    m = (y1-y2)/dx
+    b = (m*x1)+y1
+    d = 1 + (m*m)
+    #Product of two opposite shifts of b in the y direction and a reflection across y = mx
+    r = np.array([[(2-d)/d,  2*m/d,-2*m*b/d, 0],
+                  [  2*m/d,(d-2)/d,   2*b/d, 0],
+                  [      0,      0,       1, 0],
+                  [      0,      0,       0, 1]])
+    return r
 
 def MoveOriginTo(pt):
   return Translate([pt[0], pt[1], 0])

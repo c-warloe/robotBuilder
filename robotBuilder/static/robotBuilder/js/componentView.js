@@ -53,28 +53,6 @@ function downloadModel(){
 	window.open("models/" + componentName + "/graph-model.stl");
 }
 
-function addConnection(){
-    $("#dialog").dialog("close");
-    window.alert("running")
-    var newConn = {};
-    newConn.name = document.getElementById("connName").value;
-    for(var iter = 0, len = connections.length; iter < len; iter++){
-	    if(connections[iter].name == newConn.name){
-	        window.alert('Connection with name "' + newConn.name + '" already exists');
-	        return;
-	    }
-    }
-    var i1Select = document.getElementById("interface1");
-    var i2Select = document.getElementById("interface2");
-    newConn.interface1 = i1Select.options[i1Select.selectedIndex].text.split(".");
-    newConn.interface2 = i2Select.options[i2Select.selectedIndex].text.split(".");
-    addComponentConnection(newConn.interface1[0],newConn.interface1[1],newConn.interface2[0],newConn.interface1[1]);
-    connections.push(newConn);
-    var folder = comp.connections.addFolder(newConn.name);
-    newConn.args = "";
-    folder.add(newConn,"interface2").name(newConn.interface1);
-    folder.add(newConn,"args");
-}
 
 function UrlExists(url)
 {
@@ -145,8 +123,7 @@ function createMeshFromObject(obj)
 function onComponentSymbolic(obj){
     if(componentObj)
         scene.remove(componentObj);
-    for(var i = 0,len = obj["relations"].length; i < len; i++)
-        obj["relations"][i] = obj["relations"][i]
+
         //.replaceAll("**","^");
     nupe = obj;
     componentObj = new THREE.Object3D();
@@ -156,22 +133,12 @@ function onComponentSymbolic(obj){
     scene.add(componentObj);
 }
 
-function loadSymbolic(obj){
-    for(var i = 0,len = obj["relations"].length; i < len; i++)
-	obj["relations"][i] = obj["relations"][i]
+function loadSymbolic(obj, n){
+
 	//.replaceAll("**","^");
     nupe = obj;
     var objMesh = createMeshFromObject(obj);
-    var n = window.prompt("Subcomponent Name","");
-    if(n == "")
-	return;
-    var joined = subcomponents.concat(connectedSubcomponents);
-    for(var iter = 0,len=joined.length; iter < len; iter++){
-	if(joined[iter].name == n){
-	    window.alert('Subcomponent with name "' + n + '" already exists');
-	    return;
-	}
-    }
+
     objMesh.name = n;
     objMesh.className = compName;
     objMesh.interfaces = {};
@@ -349,10 +316,20 @@ function getComponents()
 			    compName = this.compName;
 			    var args = [this.compName,tempParams];
 			    componentCount++;
-			    addSubcomponent(compName + componentCount.toString(),compName, function(response){
+			    var n = window.prompt("Subcomponent Name","");
+                if(n == "")
+	                return;
+                var joined = subcomponents.concat(connectedSubcomponents);
+                for(var iter = 0,len=joined.length; iter < len; iter++){
+	            if(joined[iter].name == n){
+	                window.alert('Subcomponent with name "' + n + '" already exists');
+	                return;
+	            }
+                }
+			    addSubcomponent(n,compName, function(response){
 			    response = JSON.parse(response).response;
 				tempParams = {};
-				loadSymbolic(response);
+				loadSymbolic(response,n);
 				/*interfaceEdges = response;
 				  stl_loader.load('models/' + compName + '/graph-model.stl',onLoadSTL);*/
 			    });
@@ -485,6 +462,7 @@ function loadGui() {
 		}
 		newConn.interface1 = SELECTED.parent.name + "." + SELECTED.name;
 		newConn.interface2 = SELECTED_2.parent.name + "." + SELECTED_2.name;
+		addComponentConnection(SELECTED.parent.name,SELECTED.name,SELECTED_2.parent.name,SELECTED_2.name);
 		connections.push(newConn);
 		SELECTED.parent.connectedInterfaces[SELECTED.name] = newConn.interface2;
 		SELECTED_2.parent.connectedInterfaces[SELECTED_2.name] = newConn.interface1;
@@ -557,8 +535,9 @@ function stripObjects(list, strippedList){
     }
 }
 
-function updateComponent(component, solution)
+function updateComponent(component, response)
 {
+    solution = response["solved"]
     var pos = {};
     var quat = {};
     for(var k in component["solved"]){
@@ -576,6 +555,16 @@ function updateComponent(component, solution)
 	else
 	    component["solved"][k] = solution[component.name + "_" + k];
     }
+    component['faces'] = {}
+    for(var face in response['faces']){
+        if (face.startsWith(component.name))
+            component['faces'][face] = response['faces'][face];
+    }
+    /*component['edges'] = {}
+    for(var edge in response['edges']){
+        if (edge.startsWith(component.name))
+            component['edges'][edge] = response['edges'][edge];
+    }*/
     console.log(pos);
     console.log(quat);
     newComp = createMeshFromObject(component);
@@ -599,27 +588,28 @@ function buildComponent(){
     stripObjects(connectedSubcomponents,thisComponent.subcomponents);
     thisComponent.parameters = parameters;
     thisComponent.connections = connections;
-    /*picoModule.generateFromObj(thisComponent,function(response){
-	if(SELECTED != undefined){
-	    control.detach(SELECTED);
-	    SELECTED = undefined;
-	}
-	for(var i = 0, len = connectedSubcomponents.length;i < len; i++)
-	    connectedSubcomponents[i] = updateComponent(connectedSubcomponents[i],response["solved"]);
-	while(subcomponents.length > 0){
-	    scene.remove(subcomponents[subcomponents.length-1]);
-	    subcomponents[subcomponents.length-1] = updateComponent(subcomponents[subcomponents.length-1],response["solved"]);
-	    connectedSubcomponents.push(subcomponents[subcomponents.length-1]);
-	    subcomponents.splice(subcomponents.length-1,1);
-	}
-	onComponentSymbolic(response);
+    makeComponent(function(response){
+        response = JSON.parse(response).response;
+	    if(SELECTED != undefined){
+	        control.detach(SELECTED);
+	        SELECTED = undefined;
+	    }
+	    for(var i = 0, len = connectedSubcomponents.length;i < len; i++)
+	        connectedSubcomponents[i] = updateComponent(connectedSubcomponents[i],response);
+	    while(subcomponents.length > 0){
+	        scene.remove(subcomponents[subcomponents.length-1]);
+	        subcomponents[subcomponents.length-1] = updateComponent(subcomponents[subcomponents.length-1],response);
+	        connectedSubcomponents.push(subcomponents[subcomponents.length-1]);
+	        subcomponents.splice(subcomponents.length-1,1);
+	    }
+	    onComponentSymbolic(response);
 	//	stl_loader.load('models/' + componentName + '/graph-model.stl',onComponentSTL);
 	//	document.getElementById('svg-view').src = 'models/' + componentName + '/graph-print.svg';
-	document.getElementById('dSVG').disabled = false;
-	document.getElementById('dYaml').disabled = false;
-	document.getElementById('dModel').disabled = false;
-	document.getElementById('sComp').disabled = false;
-    });*/
+	    document.getElementById('dSVG').disabled = false;
+	    //document.getElementById('dYaml').disabled = false;
+	    //document.getElementById('dModel').disabled = false;
+	    //document.getElementById('sComp').disabled = false;
+    });
 }
 
 function onKeyDown( event ) {
@@ -747,6 +737,17 @@ function render() {
     requestAnimationFrame(render);
     control.update();
     renderer.render( scene, camera );
+}
+
+function viewSVG(){
+    var drawing_div = document.getElementById('svg-view');
+     getSVG(function(response){
+        response = JSON.parse(response).response;
+        drawing_div.style.backgroundColor = 'white'
+        drawing_div.style.padding = "2%";
+        drawing_div.innerHTML = response;
+
+      });
 }
 
 dat.GUI.prototype.removeFolder = function(name) {

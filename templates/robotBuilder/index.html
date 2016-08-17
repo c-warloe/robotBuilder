@@ -26,6 +26,7 @@
       <div class="col-md-6">
 	<div class="row">
 	  <div id="componentView"></div>
+        <div id="drawingView"></div>
 	</div>
 	<div class="row" style="height:45%">
 	  <div id="svg-view" width="100%" height="100%" ></div>
@@ -34,7 +35,7 @@
 	  <center>
 	    <button type="button" onClick="buildComponent()">Build Component</button>
 	    <button type="button" id="dModel" onClick="downloadModel()" disabled>Download Model</button>
-	    <button type="button" id="dSVG" onClick="downloadSVG()" disabled>Download SVG</button>
+	    <button type="button" id="dSVG" onClick="viewSVG()" disabled>View SVG</button>
 	    <button type="button" id="dYaml" onClick="downloadYaml()" disabled>Download Yaml</button>
 	    <button type="button" id="sComp" onClick="splitComponent()" disabled>Split Component</button>
 	  </center>

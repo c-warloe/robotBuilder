@@ -4,6 +4,7 @@ from DrawingEdge import *
 from svggen.utils.utils import prefix as prefixString
 from svggen.utils.transforms import *
 from svggen.utils import mymath as np
+from shapely import geometry
 
 
 def diffEdge(pts1, pts2, dimension, tolerance = 0.01):
@@ -93,7 +94,18 @@ def interiorPoint(coords):
     if crossProdSign(coordsTwice[i],coordsTwice[(i+1)%len(coordsTwice)],coordsTwice[(i+2)%len(coordsTwice)]) > 0:
       return centroid([coordsTwice[i],coordsTwice[(i+1)%len(coordsTwice)],coordsTwice[(i+2)%len(coordsTwice)]])
   return None
-
+def updateDimensions(dimensions, point):
+  if dimensions[0][0] is None:
+    return [[point[0],point[1]],[point[0],point[1]]]
+  if point[0] < dimensions[0][0]:
+    dimensions[0][0] = point[0]
+  if point[1] < dimensions[0][1]:
+    dimensions[0][1] = point[1]
+  if point[0] > dimensions[1][0]:
+    dimensions[1][0] = point[0]
+  if point[1] > dimensions[1][1]:
+    dimensions[1][1] = point[1]
+  return dimensions
 
 
 
@@ -107,6 +119,7 @@ class Drawing:
     """
     self.edges = {}
     self.faces = []
+    self.dimensions = [[None,None],[None,None]]
 
   def fromGraph(self, g, component=None):
     self.component = component
@@ -136,19 +149,38 @@ class Drawing:
         self.edges[e[0]] = Edge(e[0], e[1], e[2], EdgeType(e[3]))'''
     self.place(g.faces[0], None, np.eye(4), np.eye(4))
 
-  def placeFace(self, edges, edgepts, coords2D):
-    face = {}
-    face['boundingBox'] = boundingBox(coords2D)
-    face['interiorPoint'] = interiorPoint(coords2D)
-    face['edges'] = edgepts
-    for f in self.faces:
-      if intersectsBoundingBox(f['boundingBox'],face['boundingBox']):
-        for e in edgepts:
-          if intersectsFace(e,f['edges']):
-            return False
+  def placeFace(self, edges, edgepts, coords2D, collisionCheck=True):
+    try:
+      coords2D[0][0]
+    except TypeError:
+      coords2D = coords2D.tolist()
+    vertices = []
+    v1 = (round(coords2D[0][0],3),round(coords2D[1][0],3))
+    for i in range(len(coords2D[0])):
+      print coords2D[0][i],coords2D[1][i],"-----"
+      vertex = (round(coords2D[0][i],3),round(coords2D[1][i],3))
+      self.dimensions = updateDimensions(self.dimensions,vertex)
+      vertices.append(vertex)
+    vertices.append(v1)
+    face = geometry.Polygon(vertices)
+    print len(self.faces)
+    if collisionCheck:
+      for f in self.faces:
+        if face.crosses(f):  # or face.within(f) or face.contains(f) or f.equals(f):
+          print "cross", list(face.exterior.coords), list(f.exterior.coords)
+          return False
+        if face.within(f):
+          print "within", list(face.exterior.coords), list(f.exterior.coords)
+          return False
+        if face.contains(f):
+          print "contains", list(face.exterior.coords), list(f.exterior.coords)
+          return False
+        if face.equals((f)):
+          print "equals", list(face.exterior.coords), list(f.exterior.coords)
+          return False
 
     self.faces.append(face)
-    print "placed", coords2D
+    return True
 
 
 
@@ -160,8 +192,7 @@ class Drawing:
     if placed is None:  # Replacing the entire component
       placed = {'faces': [], 'edges': {}}
 
-    # Face is being placed
-    placed['faces'].append(face)
+
 
     if edgeFrom is not None:
       r = face.preTransform(edgeFrom)  # Get Rotation angle of previous edge
@@ -203,8 +234,41 @@ class Drawing:
 
     if not self.placeFace(faceedges,facepts2d):
       raise Exception("Attemping to place overlapping faces")'''
-    print coords2D
-    self.placeFace(faceedges,facepts2d,coords2D)
+
+    if not self.placeFace(faceedges,facepts2d,coords2D):
+      reflection = ReflectAcross2D(edgeFrom)
+      r = np.dot(reflection,r)
+      face.transform2D = np.dot(transform2D, r)
+      #face.transform3D = np.dot(transform3D, r)
+
+      pts2d = np.dot(r, face.pts4d)[0:2, :]
+
+      coords2D = face.get2DCoords()
+
+      facepts2d = []
+      faceedges = []
+
+      coords2D = self.component.evalEquation(coords2D)
+      for (i, e) in enumerate(face.edges):
+        if e is None:
+          continue
+
+        if e.name[:4] == 'temp':
+          continue
+
+        try:
+          da = e.faces[face]
+        except KeyError:
+          # Edge was added as a cut
+          continue
+        facepts2d.append((coords2D[:, i - 1], coords2D[:, i]))
+        faceedges.append(e)
+      if not self.placeFace(faceedges, facepts2d, coords2D):
+        print "failed"
+        return
+    # Face is being placed
+    placed['faces'].append(face)
+
     for i in range(len(faceedges)):
       # Don't 2d place edges that are tabbed
       e = faceedges[i]
@@ -293,7 +357,7 @@ class Drawing:
       self.edges.pop("outline.e3")
     '''
 
-  def toSVG(self, filename, labels=False, mode=None):
+  def toSVG(self, filename, labels=False, mode=None, toFile=True):
     """
     Writes all Edge instances to a SVG file.
 
@@ -309,7 +373,13 @@ class Drawing:
     svg = svgwrite.Drawing(filename)
     for e in self.edges.items():
       e[1].toDrawing(svg, e[0] if labels else "", mode)
-    svg.save()
+    if toFile:
+      svg.save()
+    else:
+      return svg.tostring()
+
+  def getDimensions(self):
+    return self.dimensions
 
   def points(self):
     """

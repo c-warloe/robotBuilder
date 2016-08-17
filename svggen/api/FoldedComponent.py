@@ -5,6 +5,7 @@ from svggen.api.composables.GraphComposable import Graph
 class FoldedComponent(MechanicalComponent):
   def __init__(self, *args, **kwargs):
     self.GRAPH = 'graph'
+    self.drawing = None
     MechanicalComponent.__init__(self, *args, **kwargs)
 
   def define(self, origin=True, euler=None, quat=True, **kwargs):
@@ -33,3 +34,4 @@ class FoldedComponent(MechanicalComponent):
 
   def getGraph(self):
     return self.composables[self.GRAPH]
+

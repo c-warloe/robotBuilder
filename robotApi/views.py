@@ -10,6 +10,8 @@ import copy_reg
 import types
 import ast
 import json
+import pdb
+from sympy import evalf
 
 def reduce_method(m):
     return (getattr, (m.__self__, m.__func__.__name__))
@@ -21,7 +23,7 @@ copy_reg.pickle(types.MethodType, reduce_method)
 @api_view(['GET','POST'])
 def componentList(request):
     if request.method == 'GET' or request.method == 'POST':
-        data = ast.literal_eval(request.body)
+        '''data = ast.literal_eval(request.body)
         try:
             filter = [data['key']]
         except:
@@ -30,7 +32,10 @@ def componentList(request):
         for c in filterComponents(filter):
             l.append(c)
         response = json.dumps({"response": l})
+        print response'''
+        response = '{"response": [["Rectangle", ["r", "b", "l", "t"]], ["Beam", ["botedge", "topedge"]], ["RectBeam", ["botedge3", "topedge2", "botedge0", "botedge1", "topedge0", "topedge1", "botedge2", "topedge3"]]]}'
         return HttpResponse(response, content_type="application/json")
+    return HttpResponse(status=501)
 
 
 @api_view(['GET', 'POST'])
@@ -38,15 +43,20 @@ def createComponent(request):
     """
     Create a new Component
     """
+
     if request.method == 'GET' or request.method == 'POST':
         fc = FoldedComponent.FoldedComponent()
         name = id(fc)
+        try:
+            del request.session['component']
+        except:
+            pass
         request.session['component'] = fc
         request.session['name'] = name
         return HttpResponse('FoldedComponent {} Created'.format(name))
 
 
-    return HttpResponse('Error')
+    return HttpResponse(status=501)
 
 @api_view(['GET', 'POST'])
 def addSubcomponent(request):
@@ -76,8 +86,8 @@ def addSubcomponent(request):
             print "ljson"
             return HttpResponse(response, content_type="application/json")
         except:
-            return HttpResponse('Error')
-    return HttpResponse('Error')
+            return HttpResponse(status=501)
+    return HttpResponse(status=501)
 
 @api_view(['GET','POST'])
 def addConnection(request):
@@ -93,32 +103,70 @@ def addConnection(request):
             sc2 = data['sc2']
             port2 = data['port2']
             fc.addConnection((sc1,port1),(sc2,port2))
-            return HttpResponse('Connection from {}:{} to {}:{} Added to Component {}'.format(sc1,port1,sc2,port2,name))
+            print 'Connection from {}:{} to {}:{} Added to Component {}'.format(sc1,port1,sc2,port2,"")
+            return HttpResponse('Connection from {}:{} to {}:{} Added to Component {}'.format(sc1,port1,sc2,port2,""))
         except KeyError:
-            return HttpResponse('Error')
-    return HttpResponse('Error')
+            return HttpResponse(status=501)
+    return HttpResponse(status=501)
 
-@api_view(['GET'])
+@api_view(['GET','POST'])
 def make(request):
     """
     Create a new Component
     """
-    if request.method == 'GET':
+    if request.method == 'GET' or request.method == 'POST':
         try:
             fc = request.session['component']
-            name = request.session['name']
+            print fc.__dict__
             fc.make()
-            response = str(extractFromComponent(fc))
-            return HttpResponse(response)
-        except KeyError:
-            return HttpResponse('Error')
-    return HttpResponse('Error')
+            print "made"
+            responseDict = extractFromComponent(fc)
+            print responseDict
+            responseDict['parameters'] = {}
+            for key in fc.parameters.keys():
+                responseDict['parameters'][key] = fc.parameters[key].__str__()
+            print responseDict
+            responseDict['variables'] = []
+            response = {"response": responseDict}.__str__().replace("'", '"').replace('(', '[').replace(')', ']')
+            print response
+            return HttpResponse(response, content_type="application/json")
+        except Exception as e:
+            print '%s (%s)' % (e.message, type(e))
+            return HttpResponse(status=501)
+    return HttpResponse(status=501)
+
+@api_view(['GET','POST'])
+def getSVG(request):
+    """
+    Create a new Component
+    """
+    #pdb.set_trace()
+    if request.method == 'GET' or request.method == 'POST':
+        try:
+            fc = request.session['component']
+            pdb.set_trace()
+            svg = fc.getGraph().makeOutput(filedir=".",svgString = True)
+            try:
+                dim = fc.drawing.getDimensions()
+                w = max(dim[1][0] - dim[0][0],10)
+                h = max(dim[1][1] - dim[0][1],10)
+                svg = svg[:5] + 'viewbox="0 0 ' + w.__str__() + " " + h.__str__() + '" ' + svg[5:]
+            except:
+                pass
+            svg = svg.__str__().replace('"',"'")
+            response = '{"response": "' + svg +'"}'
+            print response
+            return HttpResponse(response, content_type="application/json")
+        except Exception as e:
+            print '%s (%s)' % (e.message, type(e))
+            return HttpResponse(status=501)
+    return HttpResponse(status=501)
 
 
 def extractFromComponent(c):
     output = {}
     output["variables"] = [x for x in c.getVariables()]
-    output["relations"] = c.getRelations()
+    #output["relations"] = c.getRelations()
     output["defaults"] = c.getAllDefaults()
     output["faces"] = {}
     for i in c.composables['graph'].faces:
@@ -127,11 +175,11 @@ def extractFromComponent(c):
             try:
                 tpl = tdict["vertices"][vertex]
                 tdict["vertices"][vertex] = [tpl[0],tpl[1]]
-                tdict["vertices"][vertex][0] = c.evalEquation(tdict["vertices"][vertex][0])
-                tdict["vertices"][vertex][1] = c.evalEquation(tdict["vertices"][vertex][1])
+                tdict["vertices"][vertex][0] = c.evalEquation(tdict["vertices"][vertex][0].evalf())
+                tdict["vertices"][vertex][1] = c.evalEquation(tdict["vertices"][vertex][1].evalf())
             except:
                 try:
-                    tdict["vertices"][vertex][1] = c.evalEquation(tdict["vertices"][vertex][1])
+                    tdict["vertices"][vertex][1] = c.evalEquation(tdict["vertices"][vertex][1].evalf())
                 except:
                     pass
         output["faces"][i.name] = [[c.evalEquation(i.transform3D[x]) for x in range(len(i.transform3D))], tdict]

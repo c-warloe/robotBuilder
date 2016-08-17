@@ -89,12 +89,15 @@ class Graph(Composable, BaseGraph):
       if f.transform3D is None:
         print "No 3D transform for face" , f.name
     '''
-    
     if kw("display") or kw("unfolding") or kw("autofolding") or kw("silhouette"):
       from graph.Drawing import Drawing
       d = Drawing()
       d.fromGraph(self, self.component)
       d.transform(relative=(0,0))
+
+    if kw("svgString"):
+      self.component.drawing = d
+      return d.toSVG('nofile', toFile=False)
 
     if kw("display"):
       from svggen.utils.display import displayTkinter

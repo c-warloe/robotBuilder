@@ -1,7 +1,9 @@
-var listURL = "/api/component/list/"
-var createURL =  "/api/component/create/"
-var addScURL = "/api/component/addSubcomponent/"
-var addCnURL = "/api/component/addConnection/"
+var listURL     = "/api/component/list/"
+var createURL   = "/api/component/create/"
+var addScURL    = "/api/component/addSubcomponent/"
+var addCnURL    = "/api/component/addConnection/"
+var makeURL     = "/api/component/make/"
+var svgURL      = "/api/component/svg/"
 
 function  getComponentList(key, callback)
 {
@@ -21,6 +23,16 @@ function addSubcomponent(name, type, callback)
 function addComponentConnection(sc1, port1, sc2, port2)
 {
     httpPostAsync(addCnURL,"{'sc1': '" + sc1 + "','sc2': '" + sc2 + "','port1': '" + port1 + "','port2': '" + port2 + "'}",function(){});
+}
+
+function makeComponent(callback)
+{
+    httpPostAsync(makeURL,"",callback);
+}
+
+function getSVG(callback)
+{
+    httpPostAsync(svgURL,"",callback);
 }
 
 
