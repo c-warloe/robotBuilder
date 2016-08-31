@@ -80,7 +80,7 @@ class MechanicalComponent(Component):
     solved["dx"],solved["dy"],solved["dz"] = 0,0,0
     solved["q_a"],solved["q_i"],solved["q_j"],solved["q_k"] = 1,0,0,0
     for s,v in solved.iteritems():
-      self.setVariableSolved(s,v)
+        self.setVariableSolved(s,v)
     return solved
 
 

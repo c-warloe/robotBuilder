@@ -95,7 +95,7 @@ class Graph(Composable, BaseGraph):
       d.fromGraph(self, self.component)
       d.transform(relative=(0,0))
 
-    if kw("svgString"):
+    if kw("svgString", False):
       self.component.drawing = d
       return d.toSVG('nofile', toFile=False)
 

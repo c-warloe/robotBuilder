@@ -112,3 +112,7 @@ STATIC_URL = '/static/'
 #Sessions stuff
 SESSION_SERIALIZER = 'django.contrib.sessions.serializers.PickleSerializer'
 SESSION_SAVE_EVERY_REQUEST = True
+
+REST_FRAMEWORK = {
+    'EXCEPTION_HANDLER': 'robotBuilder.robotApi.utils.custom_exception_handler'
+}

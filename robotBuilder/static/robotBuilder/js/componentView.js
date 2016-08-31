@@ -579,7 +579,12 @@ function updateComponent(component, response)
     highlightInterfaces(newComp);
     return newComp;
 }
+function build(){
 
+    buildComponent();
+
+
+}
 function buildComponent(){
     var thisComponent = {};
     thisComponent.name = componentName;
@@ -609,6 +614,7 @@ function buildComponent(){
 	    //document.getElementById('dYaml').disabled = false;
 	    //document.getElementById('dModel').disabled = false;
 	    //document.getElementById('sComp').disabled = false;
+	    viewSVG();
     });
 }
 
@@ -744,7 +750,7 @@ function viewSVG(){
      getSVG(function(response){
         response = JSON.parse(response).response;
         drawing_div.style.backgroundColor = 'white'
-        drawing_div.style.padding = "2%";
+        //drawing_div.style.padding = "2%";
         drawing_div.innerHTML = response;
 
       });

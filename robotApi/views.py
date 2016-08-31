@@ -33,7 +33,7 @@ def componentList(request):
             l.append(c)
         response = json.dumps({"response": l})
         print response'''
-        response = '{"response": [["Rectangle", ["r", "b", "l", "t"]], ["Beam", ["botedge", "topedge"]], ["RectBeam", ["botedge3", "topedge2", "botedge0", "botedge1", "topedge0", "topedge1", "botedge2", "topedge3"]]]}'
+        response = '{"response": [["Rectangle", ["r", "b", "l", "t"]], ["Triangle", ["a", "b", "c"]], ["Beam", ["botedge", "topedge"]], ["RectBeam", ["botedge3", "topedge2", "botedge0", "botedge1", "topedge0", "topedge1", "botedge2", "topedge3"]]]}'
         return HttpResponse(response, content_type="application/json")
     return HttpResponse(status=501)
 
@@ -82,9 +82,14 @@ def addSubcomponent(request):
                 responseDict['parameters'][key] = c.parameters[key].__str__()
             print responseDict
             responseDict['variables'] = []
-            response = {"response": responseDict}.__str__().replace("'",'"').replace('(','[').replace(')',']')
-            print "ljson"
-            return HttpResponse(response, content_type="application/json")
+
+            response = {"response": responseDict}.__str__().replace("'",'"').replace('(','[').replace(')',']').replace('False', '0').replace('True', '1')
+            pdb.set_trace()
+            print response
+            try:
+                return HttpResponse(response, content_type="application/json")
+            except Exception as e:
+                print e.strerror
         except:
             return HttpResponse(status=501)
     return HttpResponse(status=501)
@@ -127,7 +132,7 @@ def make(request):
                 responseDict['parameters'][key] = fc.parameters[key].__str__()
             print responseDict
             responseDict['variables'] = []
-            response = {"response": responseDict}.__str__().replace("'", '"').replace('(', '[').replace(')', ']')
+            response = {"response": responseDict}.__str__().replace("'", '"').replace('(', '[').replace(')', ']').replace('False', '0').replace('True', '1')
             print response
             return HttpResponse(response, content_type="application/json")
         except Exception as e:
@@ -144,7 +149,7 @@ def getSVG(request):
     if request.method == 'GET' or request.method == 'POST':
         try:
             fc = request.session['component']
-            pdb.set_trace()
+            #pdb.set_trace()
             svg = fc.getGraph().makeOutput(filedir=".",svgString = True)
             try:
                 dim = fc.drawing.getDimensions()
@@ -159,8 +164,8 @@ def getSVG(request):
             return HttpResponse(response, content_type="application/json")
         except Exception as e:
             print '%s (%s)' % (e.message, type(e))
-            return HttpResponse(status=501)
-    return HttpResponse(status=501)
+            return HttpResponse(status=611)
+    return HttpResponse(status=611)
 
 
 def extractFromComponent(c):
@@ -175,21 +180,24 @@ def extractFromComponent(c):
             try:
                 tpl = tdict["vertices"][vertex]
                 tdict["vertices"][vertex] = [tpl[0],tpl[1]]
-                tdict["vertices"][vertex][0] = c.evalEquation(tdict["vertices"][vertex][0].evalf())
-                tdict["vertices"][vertex][1] = c.evalEquation(tdict["vertices"][vertex][1].evalf())
+                tdict["vertices"][vertex][0] = c.evalEquation(tdict["vertices"][vertex][0].evalf()).evalf()
+                tdict["vertices"][vertex][1] = c.evalEquation(tdict["vertices"][vertex][1].evalf()).evalf()
             except:
                 try:
-                    tdict["vertices"][vertex][1] = c.evalEquation(tdict["vertices"][vertex][1].evalf())
+                    tdict["vertices"][vertex][1] = c.evalEquation(tdict["vertices"][vertex][1].evalf()).evalf()
                 except:
                     pass
-        output["faces"][i.name] = [[c.evalEquation(i.transform3D[x]) for x in range(len(i.transform3D))], tdict]
+        output["faces"][i.name] = [[c.evalEquation(i.transform3D[x]).evalf() for x in range(len(i.transform3D))], tdict]
     output["edges"] = {}
     for i in c.composables['graph'].edges:
         output["edges"][i.name] = []
         for v in range(2):
             output["edges"][i.name].append([])
             for x in range(3):
-                output["edges"][i.name][v].append(c.evalEquation(i.pts3D[v][x]))
+                try:
+                    output["edges"][i.name][v].append(c.evalEquation(i.pts3D[v][x]).evalf())
+                except:
+                    pass
     output["interfaceEdges"] = {}
     for k,v in c.interfaces.iteritems():
         obj = c.getInterface(k)

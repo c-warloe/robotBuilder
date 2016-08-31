@@ -2,6 +2,8 @@ from HyperEdge import *
 from svggen.utils.transforms import *
 from svggen.utils.utils import prefix as prefixString
 import svggen.utils.mymath as np
+import math
+import sympy
 import svggen.api.composables.graph.DrawingEdge as DE
 
 
@@ -371,3 +373,27 @@ class Rectangle(Face):
 class RightTriangle(Face):
   def __init__(self, name, l, w, edgeNames=True, allEdges=None):
     Face.__init__(self, name, ((l, 0), (0, w), (0,0)), edgeNames=edgeNames, allEdges=allEdges)
+
+class Triangle(Face):
+  def __init__(self, name, a,b,c, edgeNames=True, allEdges=None, recenter=True):
+    isSympy = False
+    try:
+      if (a > (b + c)) or (b > (a + c)) or (c > (a + b)):
+        raise ArithmeticError("Side lengths do not make a triangle")
+    except TypeError:
+      print 'Sympyicized variable detected - ignoring edge length check'
+      isSympy = True
+
+    pt1 = (0,0)
+    pt2 = (a,0)
+    cosC = ((a**2)+(b**2)-(c**2))/(2.0*a*b)
+    pt3x = cosC*b
+    if isSympy:
+      pt3y = b *sympy.sqrt(1 - (cosC ** 2))
+    else:
+      pt3y = b*math.sqrt(1-(cosC**2))
+    pt3 = (pt3x,pt3y)
+    print (pt1,pt2,pt3)
+    Face.__init__(self, name, (pt1,pt2,pt3), edgeNames=edgeNames, allEdges=allEdges,
+                  recenter=recenter)
+
