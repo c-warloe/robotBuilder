@@ -3,7 +3,9 @@ import glob
 import traceback
 import logging
 import MySQLdb as db
-
+import pickle
+import copy_reg
+import types
 from svggen.api.component import Component
 
 
@@ -11,8 +13,17 @@ pyComponents = [os.path.basename(f)[:-3] for f in glob.glob(
     os.path.dirname(__file__) + "/*.py") if os.path.basename(f)[0] != "_"]
 yamlComponents = [os.path.basename(
     f)[:-5] for f in glob.glob(os.path.dirname(__file__) + "/*.yaml")]
+
+
+__location__ = os.path.realpath(
+    os.path.join(os.getcwd(), os.path.dirname(__file__)))
+
 allComponents = list(set(pyComponents + yamlComponents))
 
+def reduce_method(m):
+    return (getattr, (m.__self__, m.__func__.__name__))
+
+copy_reg.pickle(types.MethodType, reduce_method)
 
 def instanceOf(comp, composable_type):
     return composable_type in comp.composables.keys() or composable_type is "all"
@@ -39,7 +50,7 @@ def filterComponents(composable_type="all"):
         Array of Component objects which have the specified composable type
     """
     comps = []
-    for comp in allComponents:
+    for comp in pyComponents:
         try:
             a = getComponent(comp, name=comp)
             codeInstance = instanceOf(a, composable_type)
@@ -79,7 +90,12 @@ def filterDatabase(composable_type="all"):
     return comps
 
 
-def getComponent(c, **kwargs):
+def getComponent(c, remake=False, **kwargs):
+    if not remake:
+        obj = getFromFile(c)
+        if obj:
+            return obj
+
     try:
         mod = __import__(c, fromlist=[c, "library." + c], globals=globals())
         obj = getattr(mod, c)()
@@ -90,11 +106,32 @@ def getComponent(c, **kwargs):
     for k, v in kwargs.iteritems():
         if k == 'name':
             obj.setName(v)
-        else:
+        elif not 'remake':
             obj.setParameter(k, v)
+        else:
+            continue
     if 'name' not in kwargs:
         obj.setName(c)
+    serializeToFile(obj,c, remake)
     return obj
+
+
+def getFromFile(name):
+    if not os.path.isfile(os.path.join(__location__, name+".dat")):
+        return False
+    datFile = open(os.path.join(__location__, name+".dat"), 'rb')
+    component = pickle.load(datFile)
+    datFile.close()
+    return component
+
+def serializeToFile(component, name, overwrite=False):
+    if os.path.isfile(os.path.join(__location__, name+".dat")) and not overwrite:
+        raise Exception('File already exists with name: '+ name)
+    datFile = open(os.path.join(__location__, name+".dat"), 'wb')
+    pickle.dump(component,datFile)
+    datFile.close()
+
+
 
 
 def buildDatabase(components, username="root", password=""):

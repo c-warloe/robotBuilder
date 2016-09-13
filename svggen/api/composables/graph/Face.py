@@ -393,7 +393,6 @@ class Triangle(Face):
     else:
       pt3y = b*math.sqrt(1-(cosC**2))
     pt3 = (pt3x,pt3y)
-    print (pt1,pt2,pt3)
     Face.__init__(self, name, (pt1,pt2,pt3), edgeNames=edgeNames, allEdges=allEdges,
                   recenter=recenter)
 

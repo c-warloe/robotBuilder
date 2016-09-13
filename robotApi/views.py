@@ -3,7 +3,7 @@ from django.http import HttpResponse
 from rest_framework.decorators import api_view
 from rest_framework.renderers import JSONRenderer
 from rest_framework.parsers import JSONParser
-from svggen.library import allComponents, getComponent, filterComponents
+from svggen.library import filterDatabase, allComponents, getComponent, filterComponents
 from svggen.api import FoldedComponent
 from svggen.api.ports import EdgePort
 import copy_reg
@@ -33,6 +33,11 @@ def componentList(request):
             l.append(c)
         response = json.dumps({"response": l})
         print response'''
+        '''components = filterDatabase('mechanical')
+        response = []
+        for c in components:
+            response.append([c.name, c.interfaces.keys])
+        response = response.__str__().replace("'",'"')'''
         response = '{"response": [["Rectangle", ["r", "b", "l", "t"]], ["Triangle", ["a", "b", "c"]], ["Beam", ["botedge", "topedge"]], ["RectBeam", ["botedge3", "topedge2", "botedge0", "botedge1", "topedge0", "topedge1", "botedge2", "topedge3"]]]}'
         return HttpResponse(response, content_type="application/json")
     return HttpResponse(status=501)
@@ -84,7 +89,7 @@ def addSubcomponent(request):
             responseDict['variables'] = []
 
             response = {"response": responseDict}.__str__().replace("'",'"').replace('(','[').replace(')',']').replace('False', '0').replace('True', '1')
-            pdb.set_trace()
+            #pdb.set_trace()
             print response
             try:
                 return HttpResponse(response, content_type="application/json")
