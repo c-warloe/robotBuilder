@@ -358,7 +358,7 @@ class Component(Parameterized):
 
     def solve(self):
         lb,ub = self.getSolvingBounds()
-        solved = solver.solve(self.getRelations(), self.getAllDefaults(), self.getAllConstraints(),self.getInequalities(), lb, ub)
+        solved = solver.solve(self.getRelations(), self.getAllDefaults(), self.getAllConstraints(), lb, ub)
         for s,v in solved.iteritems():
             self.setVariableSolved(s,v)
         return solved
@@ -366,7 +366,7 @@ class Component(Parameterized):
     def evalEquation(self,eqn):
         eqnEval = eqn.subs(self.getVariableSubs())
         for s in eqnEval.atoms(Symbol):
-            eqnEval = eqnEval.subs(s, self.getVariableValue(s.name))
+            eqnEval = eqnEval.subs(s, s.getValue())
         return eqnEval
 
     ###
@@ -458,7 +458,7 @@ class Component(Parameterized):
         self.evalConnections()   # Tell composables which interfaces are connected
         self.assemble()
         self.solve()
-
+        #self.unfoldComponent()
 
     ###
     # OUTPUT PHASE
@@ -510,8 +510,6 @@ class Component(Parameterized):
             edge = pydot.Edge(mynode, subnode)
             graph.add_edge(edge)
             sub.recurseComponentTree(graph, subnode, fullstr)
-
-
 
     def makeOutput(self, filedir=".", **kwargs):
         def kw(arg, default=False):

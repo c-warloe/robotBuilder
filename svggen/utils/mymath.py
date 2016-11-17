@@ -69,6 +69,19 @@ else:
         return self.solvedValue
       return self.default
 
+    def __getstate__(self):
+      state = sympySymbol.__getstate__(self)
+      state['isSolved'] = self.isSolved
+      state['default'] = self.default
+      state['solvedValue'] = self.solvedValue
+      return state
+
+    def __setstate__(self, state):
+      sympySymbol.__setstate__(self, state)
+      self.isSolved = state['isSolved']
+      self.default = state['default']
+      self.solvedValue = state['solvedValue']
+
   class Dummy(sympyDummy,Symbol):
     def __new__(cls, name=None, default=-1, commutative=True, **assumptions):
       obj = sympyDummy.__new__(cls,name,commutative=commutative,**assumptions)
@@ -88,6 +101,19 @@ else:
       if self.solved():
         return self.solvedValue
       return self.default
+
+    def __getstate__(self):
+      state = sympyDummy.__getstate__(self)
+      state['isSolved'] = self.isSolved
+      state['default'] = self.default
+      state['solvedValue'] = self.solvedValue
+      return state
+
+    def __setstate__(self, state):
+      sympyDummy.__setstate__(self, state)
+      self.isSolved = state['isSolved']
+      self.default = state['default']
+      self.solvedValue = state['solvedValue']
 
   def deg2rad(x):
     return x * (pi / 180)

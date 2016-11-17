@@ -9,11 +9,11 @@ class EdgePort(Port):
     self.edge = graph.getEdge(edgeName)
     params = {}
     try:
-      # params = {'length': edge.length}
+      params = {'length': self.edge.length}
       # params = {'pts3D': edge.pts3D}
-      for i in range(2):
-        for j, x in enumerate(["x", "y", "z"]):
-          params["pt%d%s" % (i, x)] = self.edge.pts3D[i][j]
+      #for i in range(2):
+        #for j, x in enumerate(["x", "y", "z"]):
+          #params["pt%d%s" % (i, x)] = self.edge.pts3D[i][j]
     except AttributeError:
       raise AttributeError("Unplaced edge: " + edgeName)
 
@@ -45,21 +45,22 @@ class EdgePort(Port):
     # Can't use default constrain function because pt1 connects to pt2 and vice versa
     constraints = []
     try:
-      for i in range(2):
-        for x in ["x", "y", "z"]:
-          constraints.append(Eq(self.getParameter("pt%d%s" % (i, x)), toPort.getParameter("pt%d%s" % (1-i, x))))
+      constraints.append((Eq(self.getParameter("length"), toPort.getParameter("length"))))
+#      for i in range(2):
+ #       for x in ["x", "y", "z"]:
+ #         constraints.append(Eq(self.getParameter("pt%d%s" % (i, x)), toPort.getParameter("pt%d%s" % (1-i, x))))
     except AttributeError:
       raise AttributeError("Missing edge coordinates attaching EdgePorts")
 
-    try:
-      angle = kwargs["angle"]
-      if len(self.edge.faces) > 1:
-        print "Too many faces on", self.edgeName, "-- using the first"
-      if len(toPort.edge.faces) > 1:
-        print "Too many faces on", toPort.edgeName, "-- using the first"
-      myNormal = self.edge.faces.keys()[0].get3DNormal()
-      toNormal = toPort.edge.faces.keys()[0].get3DNormal()
-      constraints.append(Eq(myNormal.dot(toNormal), cos(deg2rad(angle))))
+    #try:
+    #  angle = kwargs["angle"]
+    #  if len(self.edge.faces) > 1:
+    #    print "Too many faces on", self.edgeName, "-- using the first"
+    #  if len(toPort.edge.faces) > 1:
+    #    print "Too many faces on", toPort.edgeName, "-- using the first"
+    #  myNormal = self.edge.faces.keys()[0].get3DNormal()
+    #  toNormal = toPort.edge.faces.keys()[0].get3DNormal()
+      #constraints.append(Eq(myNormal.dot(toNormal), cos(deg2rad(angle))))
 
     except KeyError:
       # no angle given

@@ -13,10 +13,10 @@ class Decoration(Composable, BaseGraph):
   def makeOutput(self, filedir, **kwargs):
     pass
 
-
+class Graph(Composable, BaseGraph):
   def __init__(self, transform=None, component = None):
     self.component = component
-    BaseGraph.__init__(self, transform=transform)
+    BaseGraph.__init__(self, transform=transform, component=component)
 
   def append(self, g2, prefix2):
     g2.prefix(prefix2)
@@ -89,6 +89,10 @@ class Decoration(Composable, BaseGraph):
       if f.transform3D is None:
         print "No 3D transform for face" , f.name
     '''
+
+    #if kw("placeOnly", False):
+    #  return
+
     if kw("display") or kw("unfolding") or kw("autofolding") or kw("silhouette"):
       from graph.Drawing import Drawing
       d = Drawing()
@@ -129,10 +133,10 @@ class Decoration(Composable, BaseGraph):
       print "(graph) ... ",
       sys.stdout.flush()
       self.toDXF(filedir + "/autofold-graph.dxf")
-      print "done."
+      print "done."'''
 
     if kw("stl"):
       print "Generating 3D model... ",
       sys.stdout.flush()
       self.toSTL(filedir + "/model.stl")
-      print "done."'''
+      print "done."

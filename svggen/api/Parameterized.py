@@ -16,7 +16,6 @@ class Parameterized(object):
     self.constraints = []
     self.semanticConstraints = []
     self.localSemanticConstraints = []
-    self.inequalities = []
     self.subs = {}
 
 
@@ -189,29 +188,13 @@ class Parameterized(object):
   def getConstraints(self):
     return self.constraints
 
-  def getInequalities(self):
-    return self.inequalities
-
-  def getEqualities(self):
-    return self.constraints
-
-  def addConstraint(self, exp): #DEPRECATED
-    self.addEquality(exp)
-
-  def addSemanticConstraint(self, exp): #DEPRECATED
-    self.addCostFunction(exp)
-
-  def addCostFunction(self, exp):
-    self.localSemanticConstraints.append(exp)
-    self.semanticConstraints.append(exp)
-
-  def addInequality(self, exp):
-    self.inequalities.append(exp)
-
-  def addEquality(self, exp):
+  def addConstraint(self, exp):
     self.constraints.append(exp)
 
-    
+  def addSemanticConstraint(self, exp):
+    self.localSemanticConstraints.append(exp) 
+    self.semanticConstraints.append(exp)
+
   def extendConstraints(self, constraints):
     self.constraints.extend(constraints)
 

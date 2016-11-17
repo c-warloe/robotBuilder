@@ -3,12 +3,13 @@ from django.http import HttpResponse
 from rest_framework.decorators import api_view
 from rest_framework.renderers import JSONRenderer
 from rest_framework.parsers import JSONParser
-from svggen.library import filterDatabase, allComponents, getComponent, filterComponents
+from svggen.library import allComponents, getComponent, filterComponents
 from svggen.api import FoldedComponent
 from svggen.api.ports import EdgePort
 import copy_reg
 import types
 import ast
+import traceback
 import json
 import pdb
 from sympy import evalf
@@ -87,6 +88,7 @@ def addSubcomponent(request):
             #Return information about subcomponent
             c = getComponent(type)
             responseDict = extractFromComponent(c)
+            print responseDict
             response = compDictToJSON(responseDict, c)
             try:
                 return HttpResponse(response, content_type="application/json")
@@ -124,8 +126,8 @@ def make(request):
     if request.method == 'GET' or request.method == 'POST':
         try:
             fc = request.session['component']
-            print fc.__dict__
             fc.make()
+            #print fc.__dict__
             print "made"
             responseDict = extractFromComponent(fc)
             print responseDict
@@ -166,13 +168,14 @@ def getSVG(request):
             return HttpResponse(response, content_type="application/json")
         except Exception as e:
             print '%s (%s)' % (e.message, type(e))
+            traceback.print_exc()
             return HttpResponse(status=611)
     return HttpResponse(status=611)
 
 
 def extractFromComponent(c):
     output = {}
-    output["variables"] = [x for x in c.getVariables()]
+    output["variables"] = [x.name for x in c.getVariables()]
     #output["relations"] = c.getRelations()
     output["defaults"] = c.getAllDefaults()
     output["faces"] = {}
@@ -181,15 +184,19 @@ def extractFromComponent(c):
         for vertex in range(len(tdict["vertices"])):
             try:
                 tpl = tdict["vertices"][vertex]
-                tdict["vertices"][vertex] = [tpl[0],tpl[1]]
-                tdict["vertices"][vertex][0] = c.evalEquation(tdict["vertices"][vertex][0].evalf()).evalf()
-                tdict["vertices"][vertex][1] = c.evalEquation(tdict["vertices"][vertex][1].evalf()).evalf()
+                tdict["vertices"][vertex] = [tpl[0], tpl[1]]
+                tdict["vertices"][vertex][0] = str(tdict["vertices"][vertex][0].subs(c.getVariableSubs()))
+                tdict["vertices"][vertex][1] = str(tdict["vertices"][vertex][1].subs(c.getVariableSubs()))
             except:
                 try:
-                    tdict["vertices"][vertex][1] = c.evalEquation(tdict["vertices"][vertex][1].evalf()).evalf()
+                    tdict["vertices"][vertex][1] = str(tdict["vertices"][vertex][1].subs(c.getVariableSubs()))
                 except:
                     pass
-        output["faces"][i.name] = [[c.evalEquation(i.transform3D[x]).evalf() for x in range(len(i.transform3D))], tdict]
+        output["faces"][i.name] = [[str(i.transform3D[x].subs(c.getVariableSubs())) for x in range(len(i.transform3D))], tdict]
+        print i.transform2D.tolist()
+        trans2D = [[str(p.subs(c.getVariableSubs())) for p in j] for j in i.transform2D.tolist()]
+        print trans2D
+        output["faces"][i.name].append(trans2D)
     output["edges"] = {}
     for i in c.composables['graph'].edges:
         output["edges"][i.name] = []
@@ -197,7 +204,7 @@ def extractFromComponent(c):
             output["edges"][i.name].append([])
             for x in range(3):
                 try:
-                    output["edges"][i.name][v].append(c.evalEquation(i.pts3D[v][x]).evalf())
+                    output["edges"][i.name][v].append(str(i.pts3D[v][x].subs(c.getVariableSubs())))
                 except:
                     pass
     output["interfaceEdges"] = {}

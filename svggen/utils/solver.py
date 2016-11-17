@@ -12,25 +12,25 @@ def eqnsToCostFunc(eqns):
     return cost[:-3]
 
 def octavifyConstraints(eqns):
-    octavified = []
+    eq = []
+    ineq = []
     for i in range(len(eqns)):
         if isinstance(eqns[i],sympy.Eq):
             stri = repr(eqns[i].lhs - eqns[i].rhs)
-            octavified.append(stri.replace("**","^").replace(" ",""))
+            eq.append(stri.replace("**","^").replace(" ",""))
         elif isinstance(eqns[i],sympy.StrictGreaterThan) or isinstance(eqns[i],sympy.GreaterThan):
             stri = repr(eqns[i].lhs - eqns[i].rhs)
-            octavified.append(stri.replace("**","^").replace(" ",""))
+            ineq.append(stri.replace("**","^").replace(" ",""))
         elif isinstance(eqns[i],sympy.StrictLessThan) or isinstance(eqns[i],sympy.LessThan):
             stri = repr(eqns[i].rhs - eqns[i].lhs)
-            octavified.append(stri.replace("**","^").replace(" ",""))
-    return octavified
+            ineq.append(stri.replace("**","^").replace(" ",""))
+    return (eq,ineq)
 
-def solve(relations,defs,equalities,inequalities,lb,ub):
+def solve(relations,defs,g,lb,ub):
     if len(relations) == 0:
         return defs
     cfunc = eqnsToCostFunc(relations)
-    eqConstr = octavifyConstraints(equalities)
-    ineqConstr = octavifyConstraints(inequalities)
+    eqConstr,ineqConstr = octavifyConstraints(g)
     mapping = []
     defarray = []
     lbarr = []

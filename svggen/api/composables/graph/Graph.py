@@ -88,9 +88,10 @@ def DXFWrite(edges, filename):
   dwg.save()
 
 class Graph():
-  def __init__(self, transform=None):
+  def __init__(self, transform=None, component=None):
     self.faces = []
     self.edges = []
+    self.component = component
     self.transform3D = transform or np.eye(4)
 
   def addFace(self, f, prefix=None, faceEdges=None, faceAngles=None, faceFlips=None):
@@ -268,9 +269,9 @@ class Graph():
     if force:
         self.unplace()
     transform2D = np.eye(4)
-    transform3D = self.transform3D
-    self.faces[0].place(None, transform2D, transform3D)
-  
+    transform3D = np.eye(4)
+    self.faces[0].place(None, transform2D, transform3D, component=self.component)
+
   def get3DCOM(self):
     mass = 0
     com = np.zeros(3,1)
@@ -283,7 +284,7 @@ class Graph():
     for f in self.faces:
         f.transform2D = None
         f.transform3D = None
-        
+
     for e in self.edges:
         f.pts2D = None
         f.pts3D = None
@@ -292,8 +293,8 @@ class Graph():
     self.place()
     stlFaces = []
     for face in self.faces:
-      if face.area > 0:
-        stlFaces.append([face.transform3D, face.getTriangleDict(), face.name])
+      if self.component.evalEquation(face.area) > 0:
+        stlFaces.append([self.component.evalEquation(face.transform3D), face.getTriangleDict(self.component), face.name])
       '''
       else:
         print "skipping face:", face.name

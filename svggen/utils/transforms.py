@@ -57,7 +57,7 @@ def quat2DCM(quat):
   (a, b, c, d) = quat
   r = np.array([[a**2 + b**2 - c**2 - d**2, 2*b*c - 2*a*d, 2*b*d + 2*a*c, 0],
                 [2*b*c + 2*a*d, a**2 - b**2 + c**2 - d**2, 2*c*d - 2*a*b, 0],
-                [2*b*d - 2*a*c, 2*c*d + 2*a*b, a**2 - b**2 - c**2 + d**2, 0], 
+                [2*b*d - 2*a*c, 2*c*d + 2*a*b, a**2 - b**2 - c**2 + d**2, 0],
                 [0, 0, 0, 1]])
   return r
 
@@ -65,6 +65,8 @@ def MoveToOrigin(pt):
   return Translate([-pt[0], -pt[1], 0])
 
 def RotateOntoX(pt, pt2=(0,0)):
+  print pt[0]
+  print pt2[1]
   dx = pt[0] - pt2[0]
   dy = pt[1] - pt2[1]
   l = np.sqrt(dx * dx + dy * dy)
@@ -153,21 +155,20 @@ def DCM2quat(dcm):
   denom = 4.0 * q[max_index]
 
   if (max_index == 0):
-     q[1] = -(dcm[1,2] - dcm[2,1]) / denom 
-     q[2] = -(dcm[2,0] - dcm[0,2]) / denom 
-     q[3] = -(dcm[0,1] - dcm[1,0]) / denom 
+     q[1] = -(dcm[1,2] - dcm[2,1]) / denom
+     q[2] = -(dcm[2,0] - dcm[0,2]) / denom
+     q[3] = -(dcm[0,1] - dcm[1,0]) / denom
   if (max_index == 1):
-     q[0] = -(dcm[1,2] - dcm[2,1]) / denom 
-     q[2] =  (dcm[0,1] + dcm[1,0]) / denom 
-     q[3] =  (dcm[0,2] + dcm[2,0]) / denom 
+     q[0] = -(dcm[1,2] - dcm[2,1]) / denom
+     q[2] =  (dcm[0,1] + dcm[1,0]) / denom
+     q[3] =  (dcm[0,2] + dcm[2,0]) / denom
   if (max_index == 2):
-     q[0] = -(dcm[2,0] - dcm[0,2]) / denom 
-     q[1] =  (dcm[0,1] + dcm[1,0]) / denom 
-     q[3] =  (dcm[1,2] + dcm[2,1]) / denom 
+     q[0] = -(dcm[2,0] - dcm[0,2]) / denom
+     q[1] =  (dcm[0,1] + dcm[1,0]) / denom
+     q[3] =  (dcm[1,2] + dcm[2,1]) / denom
   if (max_index == 3):
-     q[0] = -(dcm[0,1] - dcm[1,0]) / denom 
-     q[1] =  (dcm[0,2] + dcm[2,0]) / denom 
-     q[2] =  (dcm[1,2] + dcm[2,1]) / denom 
+     q[0] = -(dcm[0,1] - dcm[1,0]) / denom
+     q[1] =  (dcm[0,2] + dcm[2,0]) / denom
+     q[2] =  (dcm[1,2] + dcm[2,1]) / denom
 
   return q
-

@@ -1,23 +1,21 @@
-nfrom HyperEdge import *
+from HyperEdge import *
 from svggen.utils.transforms import *
 from svggen.utils.utils import prefix as prefixString
 import svggen.utils.mymath as np
-import math
-import sympy
 import svggen.api.composables.graph.DrawingEdge as DE
-import pdb
+import sympy
 
 
 class Face(object):
   allNames = []
 
-  def __init__(self, name, pts, edgeNames=True, edgeAngles=None, edgeFlips=None, allEdges=None, decorations=None, recenter=False):
+  def __init__(self, name, pts, lens, edgeNames=True, edgeAngles=None, edgeFlips=None, allEdges=None, decorations=None, recenter=False):
     if name:
       self.name = name
     else:
       self.name = "" # "face%03d" % len(Face.allNames)
     Face.allNames.append(self.name)
-
+    self.lens = lens
     self.recenter(list(pts), recenter=recenter)
 
     self.edges = [None] * len(pts)
@@ -119,12 +117,13 @@ class Face(object):
     return (self.pts2d[index-1], self.pts2d[index])
 
   def edgeLength(self, edgeIndex):
-    coords = self.edgeCoords(edgeIndex)
-    pt1 = np.array(coords[0])
-    pt2 = np.array(coords[1])
+    return self.lens[edgeIndex]
+    #coords = self.edgeCoords(edgeIndex)
+    #pt1 = np.array(coords[0])
+    #pt2 = np.array(coords[1])
 
-    d = pt2 - pt1
-    return np.norm(d)
+    #d = pt2 - pt1
+    #return np.norm(d)
 
   def rotate(self, n=1):
     for i in range(n):
@@ -210,11 +209,17 @@ class Face(object):
     index = self.edges.index(edge)
     return np.dot(RotateOntoX(*self.edgeCoords(index)), MoveToOrigin(self.pts2d[index]))
 
-  def place(self, edgeFrom, transform2D, transform3D):
-    if self.transform2D is not None and self.transform3D is not None:
+  def place(self, edgeFrom, transform2D, transform3D, component=None, placed=None):
+    if self.transform2D is not None and self.transform3D is not None and placed is not None and self in placed['faces']:
       # TODO : verify that it connects appropriately along alternate path
       # print "Repeated face : " + self.name
       return
+
+    if placed is None:  # Replacing the entire component
+      placed = {'faces': []}
+
+    # Face is being placed
+    placed['faces'].append(self)
 
     if edgeFrom is not None:
       r = self.preTransform(edgeFrom)
@@ -228,6 +233,10 @@ class Face(object):
 
     coords2D = self.get2DCoords()
     coords3D = self.get3DCoords()
+
+    if component:
+      coords2D = component.evalEquation(coords2D)
+      coords3D = component.evalEquation(coords3D)
 
     for (i, e) in enumerate(self.edges):
       # XXX hack: don't follow small edges
@@ -275,10 +284,12 @@ class Face(object):
         r3d = np.dot(x, r3d)
         r3d = np.dot(MoveOriginTo(pta), r3d)
 
-        f.place(e, np.dot(transform2D, r2d), np.dot(transform3D, r3d))
+        f.place(e, np.dot(transform2D, r2d), np.dot(transform3D, r3d), component=component, placed=placed)
 
-  def getTriangleDict(self):
+  def getTriangleDict(self, component=None):
     vertices = self.pts2d
+    if component:
+      vertices = [(component.evalEquation(x),component.evalEquation(y)) for (x,y) in vertices]
     segments = [(i, (i+1) % len(vertices)) for i in range(len(vertices))]
 
     holes = []
@@ -342,28 +353,30 @@ class Face(object):
   def get6DOF(self):
     if self.transform3D is not None:
       return get6DOF(self.transform3D)
+    else:
+      return get6DOF(np.eye(4))
 
 class RegularNGon(Face):
   def __init__(self, name, n, length, edgeNames=True, allEdges=None):
     pts = []
-    lastpt = (0, 0)
+    lens = []
+    radius = (length / (2 * np.sin(np.pi / n)))
     dt = (2 * np.pi / n)
-    ###
-    radius = (length/(2*np.sin(np.pi/n)))
-    ###
     for i in range(n):
-      lastpt = (lastpt[0] + np.cos(i * dt), lastpt[1] + np.sin(i * dt))
-      pts.append(lastpt)
+      pts.append((radius*np.cos(i * dt), radius*np.sin(i * dt)))
+      lens.append(length)
 
-    Face.__init__(self, name, pts, edgeNames=edgeNames, allEdges=allEdges)
+    Face.__init__(self, name, pts, lens, edgeNames=edgeNames, allEdges=allEdges)
 
 class RegularNGon2(Face):
   def __init__(self, name, n, radius, edgeNames=True, allEdges=None):
     pts = []
+    lens = []
     dt = (2 * np.pi / n)
     for i in range(n):
       pts.append((radius*np.cos(i * dt), radius*np.sin(i * dt)))
-    Face.__init__(self, name, pts, edgeNames=edgeNames, allEdges=allEdges)
+      lens.append(0)
+    Face.__init__(self, name, pts, lens, edgeNames=edgeNames, allEdges=allEdges)
 
 class Square(RegularNGon):
   def __init__(self, name, length, edgeNames=True, allEdges=None):
@@ -371,12 +384,12 @@ class Square(RegularNGon):
 
 class Rectangle(Face):
   def __init__(self, name, l, w, edgeNames=True, allEdges=None, recenter=True):
-    Face.__init__(self, name, ((l, 0), (l, w), (0, w), (0,0)), edgeNames=edgeNames, allEdges=allEdges, recenter=recenter)
+    Face.__init__(self, name, ((l, 0), (l, w), (0, w), (0,0)), [l, w, l, w], edgeNames=edgeNames, allEdges=allEdges, recenter=recenter)
     #Face.__init__(self, name, ((l/2, -w/2), (l/2, w/2), (-l/2, w/2), (-l/2,-w/2)), edgeNames=edgeNames, allEdges=allEdges)
 
 class RightTriangle(Face):
   def __init__(self, name, l, w, edgeNames=True, allEdges=None):
-    Face.__init__(self, name, ((l, 0), (0, w), (0,0)), edgeNames=edgeNames, allEdges=allEdges)
+    Face.__init__(self, name, ((l, 0), (0, w), (0,0)), [l, sympy.sqrt(l**2 + w**2), w], edgeNames=edgeNames, allEdges=allEdges)
 
 class Triangle(Face):
   def __init__(self, name, a,b,c, edgeNames=True, allEdges=None, recenter=True):
@@ -388,15 +401,14 @@ class Triangle(Face):
       print 'Sympyicized variable detected - ignoring edge length check'
       isSympy = True
 
-    pt1 = (0,0)
-    pt2 = (a,0)
-    cosC = ((a**2)+(b**2)-(c**2))/(2.0*a*b)
-    pt3x = cosC*b
-    if isSympy:
-      pt3y = b *sympy.sqrt(1 - (cosC ** 2))
-    else:
-      pt3y = b*math.sqrt(1-(cosC**2))
-    pt3 = (pt3x,pt3y)
-    Face.__init__(self, name, (pt1,pt2,pt3), edgeNames=edgeNames, allEdges=allEdges,
-                  recenter=recenter)
-
+      pt1 = (0,0)
+      pt2 = (a,0)
+      cosC = ((a**2)+(b**2)-(c**2))/(2.0*a*b)
+      pt3x = cosC*b
+      if isSympy:
+        pt3y = b *sympy.sqrt(1 - (cosC ** 2))
+      else:
+        pt3y = b*math.sqrt(1-(cosC**2))
+      pt3 = (pt3x,pt3y)
+      Face.__init__(self, name, (pt1,pt2,pt3), [b, a, c], edgeNames=edgeNames, allEdges=allEdges,
+                      recenter=recenter)
