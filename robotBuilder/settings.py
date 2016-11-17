@@ -110,7 +110,7 @@ STATICFILES_DIRS = (
 
 STATIC_URL = '/static/'
 #Sessions stuff
-SESSION_SERIALIZER = 'django.contrib.sessions.serializers.PickleSerializer'#'robotApi.serializers.Serializer'#
+SESSION_SERIALIZER = 'robotApi.serializers.Serializer'##'django.contrib.sessions.serializers.PickleSerializer'
 SESSION_SAVE_EVERY_REQUEST = True
 
 REST_FRAMEWORK = {
