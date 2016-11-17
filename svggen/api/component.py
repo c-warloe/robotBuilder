@@ -358,7 +358,7 @@ class Component(Parameterized):
 
     def solve(self):
         lb,ub = self.getSolvingBounds()
-        solved = solver.solve(self.getRelations(), self.getAllDefaults(), self.getAllConstraints(), lb, ub)
+        solved = solver.solve(self.getRelations(), self.getAllDefaults(), self.getAllConstraints(),self.getInequalities(), lb, ub)
         for s,v in solved.iteritems():
             self.setVariableSolved(s,v)
         return solved

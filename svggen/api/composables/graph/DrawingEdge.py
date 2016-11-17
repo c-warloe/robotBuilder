@@ -1,4 +1,4 @@
-import svggen.utils.mymath as np
+eanimport svggen.utils.mymath as np
 from sympy import Symbol
 
 

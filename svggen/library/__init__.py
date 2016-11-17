@@ -117,17 +117,23 @@ def getComponent(c, remake=False, **kwargs):
 
 
 def getFromFile(name):
-    if not os.path.isfile(os.path.join(__location__, name+".dat")):
+    '''Returns object stored as a pickle serialization in the .p file with the given name'''
+    if not os.path.isfile(os.path.join(__location__, name+".cmpn")): #Check if file exists
         return False
-    datFile = open(os.path.join(__location__, name+".dat"), 'rb')
+
+    #Open file and load to component
+    datFile = open(os.path.join(__location__, name+".cmpn"), 'rb')
     component = pickle.load(datFile)
     datFile.close()
     return component
 
 def serializeToFile(component, name, overwrite=False):
-    if os.path.isfile(os.path.join(__location__, name+".dat")) and not overwrite:
+    '''Stores the given component as a pickle serialization in the .p file with the given name'''
+    if os.path.isfile(os.path.join(__location__, name+".cmpn")) and not overwrite: #Check if fie already exists
         raise Exception('File already exists with name: '+ name)
-    datFile = open(os.path.join(__location__, name+".dat"), 'wb')
+
+    #Create/Overwrite file and store the pickle serialization
+    datFile = open(os.path.join(__location__, name+".cmpn"), 'wb')
     pickle.dump(component,datFile)
     datFile.close()
 

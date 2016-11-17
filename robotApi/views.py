@@ -22,6 +22,9 @@ copy_reg.pickle(types.MethodType, reduce_method)
 
 @api_view(['GET','POST'])
 def componentList(request):
+    '''
+    Returns a list of the avaliable components with their interfaces
+    '''
     if request.method == 'GET' or request.method == 'POST':
         '''data = ast.literal_eval(request.body)
         try:
@@ -48,16 +51,17 @@ def createComponent(request):
     """
     Create a new Component
     """
-
     if request.method == 'GET' or request.method == 'POST':
-        fc = FoldedComponent.FoldedComponent()
-        name = id(fc)
+        sessionComponent = FoldedComponent.FoldedComponent() #Create component
+        name = id(sessionComponent)
         try:
+            #Delete old components stored in session if they still exist
             del request.session['component']
         except:
             pass
-        request.session['component'] = fc
-        request.session['name'] = name
+
+        #Store session component
+        request.session['component'] = sessionComponent
         return HttpResponse('FoldedComponent {} Created'.format(name))
 
 
@@ -66,31 +70,24 @@ def createComponent(request):
 @api_view(['GET', 'POST'])
 def addSubcomponent(request):
     """
-    Create a new Component
+    Add subcomponent to component
     """
     if request.method == 'GET' or request.method == 'POST':
         try:
-            data = ast.literal_eval(request.body)
-            fc = request.session['component']
-            print "component"
-            scname = data['name']
-            print scname
-            type = data['type']
-            print type
-            fc.addSubcomponent(scname,type)
-            c = getComponent(type)
-            print c.__str__()
-            responseDict = extractFromComponent(c)
-            print responseDict
-            responseDict['parameters'] = {}
-            for key in c.parameters.keys():
-                responseDict['parameters'][key] = c.parameters[key].__str__()
-            print responseDict
-            responseDict['variables'] = []
-
-            response = {"response": responseDict}.__str__().replace("'",'"').replace('(','[').replace(')',']').replace('False', '0').replace('True', '1')
             #pdb.set_trace()
-            print response
+            #Get arguments from HTTP request
+            data = ast.literal_eval(request.body)
+            scname = data['name']
+            type = data['type']
+
+            #Add the subcomponent to the session component
+            sessionComponent = request.session['component']
+            sessionComponent.addSubcomponent(scname,type)
+
+            #Return information about subcomponent
+            c = getComponent(type)
+            responseDict = extractFromComponent(c)
+            response = compDictToJSON(responseDict, c)
             try:
                 return HttpResponse(response, content_type="application/json")
             except Exception as e:
@@ -215,6 +212,17 @@ def extractFromComponent(c):
                     pass
     output["solved"] = c.getAllDefaults()
     return output
+
+def compDictToJSON(responseDict, component):
+    responseDict['parameters'] = {}
+    for key in component.parameters.keys():
+        responseDict['parameters'][key] = component.parameters[key].__str__()
+
+    responseDict['variables'] = []
+
+    return {"response": responseDict}.__str__().replace("'", '"').replace('(', '[').replace(')', ']').replace(
+        'False', '0').replace('True', '1')
+
 
 
 

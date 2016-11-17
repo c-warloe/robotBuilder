@@ -1,10 +1,11 @@
-from HyperEdge import *
+nfrom HyperEdge import *
 from svggen.utils.transforms import *
 from svggen.utils.utils import prefix as prefixString
 import svggen.utils.mymath as np
 import math
 import sympy
 import svggen.api.composables.graph.DrawingEdge as DE
+import pdb
 
 
 class Face(object):
@@ -347,6 +348,9 @@ class RegularNGon(Face):
     pts = []
     lastpt = (0, 0)
     dt = (2 * np.pi / n)
+    ###
+    radius = (length/(2*np.sin(np.pi/n)))
+    ###
     for i in range(n):
       lastpt = (lastpt[0] + np.cos(i * dt), lastpt[1] + np.sin(i * dt))
       pts.append(lastpt)

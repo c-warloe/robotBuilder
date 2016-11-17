@@ -18,8 +18,8 @@ class Cube(Component):
         self.addParameter('side',100)
         for i in range(4):
             r = self.addSubcomponent('r%d' % (i+1), 'Rectangle')
-            self.addConstraint(('r%d' % (i + 1), 'l'), 'side', 'x')
-            self.addConstraint(('r%d' % (i + 1), 'w'), 'side', 'x')
+            #self.addConstraint(('r%d' % (i + 1), 'l'), 'side', 'x')
+            #self.addConstraint(('r%d' % (i + 1), 'w'), 'side', 'x')
 
         for c in self.connectedEdges:
             self.addConnection((c[0:2],c[2]),(c[3:5],c[5]))

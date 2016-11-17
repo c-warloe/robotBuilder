@@ -2,6 +2,8 @@ from svggen.api.FoldedComponent import FoldedComponent
 from svggen.api.composables.graph.Face import Triangle as Tri
 from svggen.api.ports.EdgePort import EdgePort
 from svggen.api.ports.FacePort import FacePort
+from sympy import Rel
+import pdb
 
 
 class Triangle(FoldedComponent):
@@ -15,15 +17,12 @@ class Triangle(FoldedComponent):
   def define(self, **kwargs):
     FoldedComponent.define(self, **kwargs)
 
-    self.addParameter("a", 300, positive=True)
-    self.addParameter("b", 400, positive=True)
-    self.addParameter("c", 500, positive=True)
-    da = self.getParameter("a")
-    db = self.getParameter("b")
-    dc = self.getParameter("c")
-    self.addSemanticConstraint(da <  db + dc)
-    self.addSemanticConstraint(db <  dc + da)
-    self.addSemanticConstraint(dc <  da + db)
+    da = self.addParameter("a", 300, positive=True)
+    db = self.addParameter("b", 400, positive=True)
+    dc = self.addParameter("c", 500, positive=True)
+    self.addConstraint(Rel(da, db + dc, '<'))
+    self.addConstraint(Rel(db, dc + da, '<'))
+    self.addConstraint(Rel(dc, da + db, '<'))
 
   def assemble(self):
     da = self.getParameter("a")
@@ -41,3 +40,4 @@ class Triangle(FoldedComponent):
 
 if __name__ == "__main__":
     h = Triangle()
+

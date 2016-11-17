@@ -13,7 +13,7 @@ class Decoration(Composable, BaseGraph):
   def makeOutput(self, filedir, **kwargs):
     pass
 
-class Graph(Composable, BaseGraph):
+
   def __init__(self, transform=None, component = None):
     self.component = component
     BaseGraph.__init__(self, transform=transform)
