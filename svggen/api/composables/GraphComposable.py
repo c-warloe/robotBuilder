@@ -81,6 +81,9 @@ class Graph(Composable, BaseGraph):
                 kw("slotFace", None), kw("slotDecoration", BeamSlotDecoration))
     self.place(assembling=True)
 
+
+    if kw("placeOnly", False):
+      return
     '''
     print
     for f in self.faces:

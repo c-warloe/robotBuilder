@@ -66,6 +66,7 @@ def MoveToOrigin(pt):
 
 def RotateOntoX(pt, pt2=(0,0)):
   print pt[0]
+  print type(pt[0])
   print pt2[1]
   dx = pt[0] - pt2[0]
   dy = pt[1] - pt2[1]

@@ -10,6 +10,7 @@ import copy_reg
 import types
 import ast
 import traceback
+import copy
 import json
 import pdb
 from sympy import evalf
@@ -126,7 +127,7 @@ def make(request):
     if request.method == 'GET' or request.method == 'POST':
         try:
             fc = request.session['component']
-            fc.make()
+            fc.makeOutput(placeOnly=True)
             #print fc.__dict__
             print "made"
             responseDict = extractFromComponent(fc)
@@ -141,6 +142,7 @@ def make(request):
             return HttpResponse(response, content_type="application/json")
         except Exception as e:
             print '%s (%s)' % (e.message, type(e))
+            traceback.print_exc()
             return HttpResponse(status=501)
     return HttpResponse(status=501)
 
@@ -180,7 +182,7 @@ def extractFromComponent(c):
     output["defaults"] = c.getAllDefaults()
     output["faces"] = {}
     for i in c.composables['graph'].faces:
-        tdict = i.getTriangleDict()
+        tdict = copy.deepcopy(i.getTriangleDict())
         for vertex in range(len(tdict["vertices"])):
             try:
                 tpl = tdict["vertices"][vertex]

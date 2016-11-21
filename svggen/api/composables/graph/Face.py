@@ -207,6 +207,8 @@ class Face(object):
 
   def preTransform(self, edge):
     index = self.edges.index(edge)
+    print edge
+    print self.edgeCoords(index)
     return np.dot(RotateOntoX(*self.edgeCoords(index)), MoveToOrigin(self.pts2d[index]))
 
   def place(self, edgeFrom, transform2D, transform3D, component=None, placed=None):
@@ -234,9 +236,9 @@ class Face(object):
     coords2D = self.get2DCoords()
     coords3D = self.get3DCoords()
 
-    if component:
-      coords2D = component.evalEquation(coords2D)
-      coords3D = component.evalEquation(coords3D)
+ #   if component:
+ #     coords2D = component.evalEquation(coords2D)
+#      coords3D = component.evalEquation(coords3D)
 
     for (i, e) in enumerate(self.edges):
       # XXX hack: don't follow small edges
@@ -287,9 +289,12 @@ class Face(object):
         f.place(e, np.dot(transform2D, r2d), np.dot(transform3D, r3d), component=component, placed=placed)
 
   def getTriangleDict(self, component=None):
+    print self.pts2d
+    #if len(self.pts2d > 0):
+    #  print type(self.pts2d[0])
     vertices = self.pts2d
-    if component:
-      vertices = [(component.evalEquation(x),component.evalEquation(y)) for (x,y) in vertices]
+#    if component:
+#      vertices = [(component.evalEquation(x),component.evalEquation(y)) for (x,y) in vertices]
     segments = [(i, (i+1) % len(vertices)) for i in range(len(vertices))]
 
     holes = []

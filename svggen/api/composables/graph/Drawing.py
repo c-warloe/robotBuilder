@@ -236,6 +236,7 @@ class Drawing:
       raise Exception("Attemping to place overlapping faces")'''
 
     if not self.placeFace(faceedges,facepts2d,coords2D):
+      edgeFrom = self.component.evalEquation(edgeFrom)
       reflection = ReflectAcross2D(edgeFrom)
       r = np.dot(reflection,r)
       face.transform2D = np.dot(transform2D, r)

@@ -79,7 +79,7 @@ function createMeshFromObject(obj)
     var geometry = new THREE.Geometry();
     for(var face in obj["faces"]){
         transf = new THREE.Matrix4();
-        obj["faces"][face][0] = obj["faces"][face][0].map(function(i){return i.replaceAll("**","^")})
+        obj["faces"][face][0] = obj["faces"][face][0].map(function(i){return i.replaceAll("**","^").replaceAll("[","(").replaceAll("]",")")})
         transf.elements = obj["faces"][face][0].map(function(i){return evalExpression(i,obj["solved"]).value});
         transf.transpose();
         console.log(transf);
@@ -88,9 +88,11 @@ function createMeshFromObject(obj)
         var holes = [];
         for(var v = 0, len = obj["faces"][face][1]["vertices"].length; v < len; v++){
             try{
-            obj["faces"][face][1]["vertices"][v] = obj["faces"][face][1]["vertices"][v].map(function(i){if(typeof i == 'string' || i instanceof String)return i.replaceAll("**","^"); else return i;});
+            obj["faces"][face][1]["vertices"][v] = obj["faces"][face][1]["vertices"][v].map(function(i){if(typeof i == 'string' || i instanceof String)return i.replaceAll("**","^").replaceAll("[","(").replaceAll("]",")"); else return i;});
             } catch (err){console.log(face + " " +v);}
+            console.log(obj["faces"][face][1]["vertices"][v]);
             var arr = obj["faces"][face][1]["vertices"][v].map(function(i){return evalExpression(i,obj["solved"]).value});
+            console.log(arr);
             set.add(arr[0] + ","+arr[1]);
         }
         if(set.size < 3)
@@ -129,8 +131,8 @@ function onComponentSymbolic(obj){
     nupe = obj;
     componentObj = createMeshFromObject(obj);
     componentObj.type = "MasterComponent";
-    for(var i = 0, len = connectedSubcomponents.length; i < len; i++)
-	    componentObj.add(connectedSubcomponents[i]);
+    //for(var i = 0, len = connectedSubcomponents.length; i < len; i++)
+	//    componentObj.add(connectedSubcomponents[i]);
     scene.add(componentObj);
 }
 
@@ -185,7 +187,8 @@ function highlightInterfaces(objMesh)
 		var p1 = [], p2 = [];
 		for(var p = 0; p < 2; p++){
 		    for(var c = 0; c < 3; c++){
-			objMesh["edges"][k][p][c] = objMesh["edges"][k][p][c]
+			//objMesh["edges"][k][p][c] = objMesh["edges"][k][p][c]
+			objMesh["edges"][k][p][c] = objMesh["edges"][k][p][c].replaceAll("**","^").replaceAll("[", "(").replaceAll("]", ")");
 			//.replaceAll("**","^");
 			if(p == 0)
 			    p1.push(evalExpression(objMesh["edges"][k][p][c],objMesh["solved"]).value);
