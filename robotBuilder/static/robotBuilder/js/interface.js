@@ -20,9 +20,9 @@ function addSubcomponent(name, type, callback)
     httpPostAsync(addScURL,"{'name': '" + name + "','type': '" + type + "'}",callback);
 }
 
-function addComponentConnection(sc1, port1, sc2, port2)
+function addComponentConnection(sc1, port1, sc2, port2, args)
 {
-    httpPostAsync(addCnURL,"{'sc1': '" + sc1 + "','sc2': '" + sc2 + "','port1': '" + port1 + "','port2': '" + port2 + "'}",function(){});
+    httpPostAsync(addCnURL,"{'sc1': '" + sc1 + "','sc2': '" + sc2 + "','port1': '" + port1 + "','port2': '" + port2 + "','angle': '" + args + "'}",function(){});
 }
 
 function makeComponent(callback)

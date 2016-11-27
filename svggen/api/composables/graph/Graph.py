@@ -1,6 +1,7 @@
 from svggen.api.composables.graph.HyperEdge import HyperEdge
 from svggen.utils import mymath as np
 from svggen.utils.utils import prefix as prefixString
+import copy
 
 
 def inflate(face, thickness=.1, edges=False):
@@ -294,7 +295,12 @@ class Graph():
     stlFaces = []
     for face in self.faces:
       if self.component.evalEquation(face.area) > 0:
-        stlFaces.append([self.component.evalEquation(face.transform3D), face.getTriangleDict(self.component), face.name])
+        tdict = copy.deepcopy(face.getTriangleDict(self.component))
+        newverts = []
+        for vert in tdict["vertices"]:
+          newverts.append(tuple(self.component.evalEquation(i) for i in vert))
+        tdict["vertices"] = newverts
+        stlFaces.append([self.component.evalEquation(face.transform3D), tdict, face.name])
       '''
       else:
         print "skipping face:", face.name

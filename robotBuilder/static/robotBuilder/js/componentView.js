@@ -462,9 +462,10 @@ function loadGui() {
 			return;
 		    }
 		}
+		angle = window.prompt("Connection Angle: ");
 		newConn.interface1 = SELECTED.parent.name + "." + SELECTED.name;
 		newConn.interface2 = SELECTED_2.parent.name + "." + SELECTED_2.name;
-		addComponentConnection(SELECTED.parent.name,SELECTED.name,SELECTED_2.parent.name,SELECTED_2.name);
+		addComponentConnection(SELECTED.parent.name,SELECTED.name,SELECTED_2.parent.name,SELECTED_2.name, angle);
 		connections.push(newConn);
 		SELECTED.parent.connectedInterfaces[SELECTED.name] = newConn.interface2;
 		SELECTED_2.parent.connectedInterfaces[SELECTED_2.name] = newConn.interface1;

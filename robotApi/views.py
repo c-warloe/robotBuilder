@@ -112,7 +112,8 @@ def addConnection(request):
             port1 = data['port1']
             sc2 = data['sc2']
             port2 = data['port2']
-            fc.addConnection((sc1,port1),(sc2,port2))
+            angle = int(data['angle'])
+            fc.addConnection((sc1,port1),(sc2,port2), angle=angle)
             print 'Connection from {}:{} to {}:{} Added to Component {}'.format(sc1,port1,sc2,port2,"")
             return HttpResponse('Connection from {}:{} to {}:{} Added to Component {}'.format(sc1,port1,sc2,port2,""))
         except KeyError:
