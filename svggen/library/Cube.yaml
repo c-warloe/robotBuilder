@@ -1,0 +1,68 @@
+connections:
+- - [r1, t]
+  - [r2, b]
+  - {angle: 90}
+- - [r2, t]
+  - [r3, b]
+  - {angle: 90}
+- - [r3, t]
+  - [r4, b]
+  - {angle: 90}
+- - [r4, t]
+  - [r1, b]
+  - {angle: 90}
+- - [r1, r]
+  - [r5, l]
+  - {angle: 90}
+- - [r1, l]
+  - [r6, r]
+  - {angle: 90}
+- - [r4, r]
+  - [r5, b]
+  - {angle: 90}
+- - [r3, r]
+  - [r5, r]
+  - {angle: 90}
+- - [r2, r]
+  - [r5, t]
+  - {angle: 90}
+- - [r4, l]
+  - [r6, b]
+  - {angle: 90}
+- - [r3, l]
+  - [r6, l]
+  - {angle: 90}
+- - [r2, l]
+  - [r6, t]
+  - {angle: 90}
+constants: {}
+constraints: []
+interfaces:
+  e1: {interface: r, subcomponent: r1}
+  e2: {interface: t, subcomponent: r1}
+parameters: {dx: 0, dy: 0, dz: 0, q_a: 1, q_i: 0, q_j: 0, q_k: 0, side: 100}
+subcomponents:
+  r1:
+    class: Rectangle
+    constants: {}
+    parameters: {}
+  r2:
+    class: Rectangle
+    constants: {}
+    parameters: {}
+  r3:
+    class: Rectangle
+    constants: {}
+    parameters: {}
+  r4:
+    class: Rectangle
+    constants: {}
+    parameters: {}
+  r5:
+    class: Rectangle
+    constants: {}
+    parameters: {}
+  r6:
+    class: Rectangle
+    constants: {}
+    parameters: {}
