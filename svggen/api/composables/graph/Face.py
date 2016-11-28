@@ -212,7 +212,7 @@ class Face(object):
     return np.dot(RotateOntoX(*self.edgeCoords(index)), MoveToOrigin(self.pts2d[index]))
 
   def place(self, edgeFrom, transform2D, transform3D, component=None, placed=None):
-    if self.transform2D is not None and self.transform3D is not None:# and placed is not None and self in placed['faces']:
+    if self.transform2D is not None and self.transform3D is not None and placed is not None and self in placed['faces']:
       # TODO : verify that it connects appropriately along alternate path
       # print "Repeated face : " + self.name
       return
@@ -288,13 +288,11 @@ class Face(object):
 
         f.place(e, np.dot(transform2D, r2d), np.dot(transform3D, r3d), component=component, placed=placed)
 
-  def getTriangleDict(self, component=None, **kwargs):
+  def getTriangleDict(self, component=None):
     print self.pts2d
     #if len(self.pts2d > 0):
     #  print type(self.pts2d[0])
     vertices = self.pts2d
-    if "solved" in kwargs and kwargs['solved'] and component:
-      vertices = [[component.evalEquation(y) for y in x] for x in self.pts2d]
 
     segments = [(i, (i+1) % len(vertices)) for i in range(len(vertices))]
 
