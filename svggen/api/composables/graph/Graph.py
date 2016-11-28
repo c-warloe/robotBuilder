@@ -294,7 +294,7 @@ class Graph():
     stlFaces = []
     for face in self.faces:
       if self.component.evalEquation(face.area) > 0:
-        stlFaces.append([self.component.evalEquation(face.transform3D), face.getTriangleDict(self.component), face.name])
+        stlFaces.append([self.component.evalEquation(face.transform3D), face.getTriangleDict(self.component, solved=True), face.name])
       '''
       else:
         print "skipping face:", face.name

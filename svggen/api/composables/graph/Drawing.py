@@ -157,26 +157,26 @@ class Drawing:
     vertices = []
     v1 = (round(coords2D[0][0],3),round(coords2D[1][0],3))
     for i in range(len(coords2D[0])):
-      print coords2D[0][i],coords2D[1][i],"-----"
+      #print coords2D[0][i],coords2D[1][i],"-----"
       vertex = (round(coords2D[0][i],3),round(coords2D[1][i],3))
       self.dimensions = updateDimensions(self.dimensions,vertex)
       vertices.append(vertex)
     vertices.append(v1)
     face = geometry.Polygon(vertices)
-    print len(self.faces)
+    #print len(self.faces)
     if collisionCheck:
       for f in self.faces:
         if face.crosses(f):  # or face.within(f) or face.contains(f) or f.equals(f):
-          print "cross", list(face.exterior.coords), list(f.exterior.coords)
+          #print "cross", list(face.exterior.coords), list(f.exterior.coords)
           return False
         if face.within(f):
-          print "within", list(face.exterior.coords), list(f.exterior.coords)
+          #print "within", list(face.exterior.coords), list(f.exterior.coords)
           return False
         if face.contains(f):
-          print "contains", list(face.exterior.coords), list(f.exterior.coords)
+          #print "contains", list(face.exterior.coords), list(f.exterior.coords)
           return False
         if face.equals((f)):
-          print "equals", list(face.exterior.coords), list(f.exterior.coords)
+          #print "equals", list(face.exterior.coords), list(f.exterior.coords)
           return False
 
     self.faces.append(face)
@@ -184,13 +184,15 @@ class Drawing:
 
 
 
-  def place(self, face, edgeFrom, transform2D, transform3D, placed=None):
-    if face.transform2D is not None and face.transform3D is not None and placed is not None and face in placed['faces']:
+  def place(self, face, edgeFrom, edgeFromPts, transform2D, placed=None):
+    checkForOverlap = False
+    if placed is not None and face in placed['faces']:
       # TODO : verify that it connects appropriately along alternate path
       # print "Repeated face : " + self.name
       return
     if placed is None:  # Replacing the entire component
-      placed = {'faces': [], 'edges': {}}
+      placed = {'faces': [], 'edges': {}, 'overlapping': []}
+      checkForOverlap = True
 
 
 
@@ -200,18 +202,22 @@ class Drawing:
       r = np.eye(4)  # Place edge as is
 
     # Rotate face to new direction
-    face.transform2D = np.dot(transform2D, r)
-    face.transform3D = np.dot(transform3D, r)
+    facetransform2D = np.dot(transform2D, r)
+
 
     pts2d = np.dot(r, face.pts4d)[0:2, :]
 
-    coords2D = face.get2DCoords()
+    #print self.component.evalEquation(np.dot(facetransform2D, face.pts4d))
+    pts2dMatrix = np.dot(r, face.pts4d)
+    coords2DMatrix = np.dot(facetransform2D, face.pts4d)
+
+    coords2D = np.dot(facetransform2D, face.pts4d)[0:2,:]
 
     facepts2d = []
     faceedges = []
 
-
     coords2D = self.component.evalEquation(coords2D)
+    #print self.component.evalEquation(pts2d), self.component.evalEquation(face.pts4d), self.component.evalEquation(coords2D)
     for (i, e) in enumerate(face.edges):
       if e is None:
         continue
@@ -236,20 +242,32 @@ class Drawing:
       raise Exception("Attemping to place overlapping faces")'''
 
     if not self.placeFace(faceedges,facepts2d,coords2D):
-      edgeFrom = self.component.evalEquation(edgeFrom)
-      reflection = ReflectAcross2D(edgeFrom)
-      r = np.dot(reflection,r)
-      face.transform2D = np.dot(transform2D, r)
-      #face.transform3D = np.dot(transform3D, r)
+      try:
+        edgeFrom = self.component.evalEquation(edgeFrom)
+      except:
+        pass
+      reflection = ReflectAcross2Dpts(edgeFromPts)
+      reflectionX = np.array([[1,  0, 0, 0],
+                             [0, -1, 0, 0],
+                             [0,  0, 1, 0],
+                             [0,  0, 0, 1]])
+
+      if edgeFrom is not None:
+        r = face.preTransform(edgeFrom)  # Get Rotation angle of previous edge
+      else:
+        r = np.eye(4)  # Place edge as is
+      r = np.dot(reflectionX,r)
 
       pts2d = np.dot(r, face.pts4d)[0:2, :]
-
-      coords2D = face.get2DCoords()
+      #print self.component.evalEquation(reflection)
+      coords2D = np.dot(reflection, coords2DMatrix)[0:2, :]
+      #print self.component.evalEquation(pts2d), self.component.evalEquation(face.pts4d), self.component.evalEquation(coords2D)
 
       facepts2d = []
       faceedges = []
-
       coords2D = self.component.evalEquation(coords2D)
+
+
       for (i, e) in enumerate(face.edges):
         if e is None:
           continue
@@ -265,10 +283,13 @@ class Drawing:
         facepts2d.append((coords2D[:, i - 1], coords2D[:, i]))
         faceedges.append(e)
       if not self.placeFace(faceedges, facepts2d, coords2D):
-        print "failed"
+        placed['overlapping'].append(face)
         return
+
     # Face is being placed
     placed['faces'].append(face)
+    if face in placed['overlapping']:
+      placed['overlapping'].remove(face)
 
     for i in range(len(faceedges)):
       # Don't 2d place edges that are tabbed
@@ -332,11 +353,10 @@ class Drawing:
         r2d = np.dot(x, r2d)
         r2d = np.dot(MoveOriginTo(pta), r2d)
 
-        r3d = RotateX(np.deg2rad(a[0] + da[0]))
-        r3d = np.dot(x, r3d)
-        r3d = np.dot(MoveOriginTo(pta), r3d)
 
-        self.place(f, e, np.dot(transform2D, r2d), np.dot(transform3D, r3d), placed)
+        self.place(f, e, edgepts2d, np.dot(transform2D, r2d), placed)
+    if checkForOverlap and len(placed['overlapping']):
+      raise Exception('One or more faces could not be placed without overlap!')
 
   def toDXF(self, filename, labels=False, mode="dxf"):
     from dxfwrite import DXFEngine as dxf
