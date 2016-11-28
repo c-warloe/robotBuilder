@@ -246,6 +246,7 @@ class Drawing:
         edgeFrom = self.component.evalEquation(edgeFrom)
       except:
         pass
+
       reflection = ReflectAcross2Dpts(edgeFromPts)
       reflectionX = np.array([[1,  0, 0, 0],
                              [0, -1, 0, 0],
@@ -257,6 +258,7 @@ class Drawing:
       else:
         r = np.eye(4)  # Place edge as is
       r = np.dot(reflectionX,r)
+
 
       pts2d = np.dot(r, face.pts4d)[0:2, :]
       #print self.component.evalEquation(reflection)

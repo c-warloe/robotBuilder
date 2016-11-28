@@ -21,9 +21,9 @@ class Triangle(FoldedComponent):
         da = self.getParameter("a")
         db = self.getParameter("b")
         dc = self.getParameter("c")
-        #self.addSemanticConstraint(da <  db + dc)
-        #self.addSemanticConstraint(db <  dc + da)
-        #self.addSemanticConstraint(dc <  da + db)
+        self.addConstraint(da <  db + dc)
+        self.addConstraint(db <  dc + da)
+        self.addConstraint(dc <  da + db)
 
     def assemble(self):
         da = self.getParameter("a")

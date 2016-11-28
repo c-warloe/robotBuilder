@@ -13,7 +13,7 @@ from svggen.utils.utils import tryImport
 from svggen.utils import solver
 from svggen.utils.io import load_yaml
 from svggen.api import unfolder
-from sympy import Symbol
+from sympy import Symbol, Eq, StrictGreaterThan, GreaterThan, StrictLessThan, LessThan
 
 def getSubcomponentObject(component, name=None, **kwargs):
     try:
@@ -359,6 +359,13 @@ class Component(Parameterized):
     def solve(self):
         pass
 
+    def checkConstraints(self):
+        for constraint in self.constraints:
+            if self.evalEquation(constraint) == False:
+                raise Exception("Constraint " + constraint.__str__() + " not satisfied.")
+            else:
+                print "Constraint " + constraint.__str__() + " satisfied."
+
     def evalEquation(self,eqn):
         eqnEval = eqn.subs(self.getVariableSubs())
         for s in eqnEval.atoms(Symbol):
@@ -454,6 +461,7 @@ class Component(Parameterized):
         self.evalConnections()   # Tell composables which interfaces are connected
         self.assemble()
         self.solve()
+        self.checkConstraints()
         #self.unfoldComponent()
 
     ###
