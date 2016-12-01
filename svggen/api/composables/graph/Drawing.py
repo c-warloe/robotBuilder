@@ -178,6 +178,8 @@ class Drawing:
         if face.equals((f)):
           #print "equals", list(face.exterior.coords), list(f.exterior.coords)
           return False
+        if face.overlaps(f):
+          return False
 
     self.faces.append(face)
     return True
