@@ -4,6 +4,7 @@ var addScURL    = "/api/component/addSubcomponent/"
 var addCnURL    = "/api/component/addConnection/"
 var makeURL     = "/api/component/make/"
 var svgURL      = "/api/component/svg/"
+var svgDlURL    = "/api/component/download/svg/"
 
 function  getComponentList(key, callback)
 {
@@ -33,6 +34,11 @@ function makeComponent(callback)
 function getSVG(callback)
 {
     httpPostAsync(svgURL,"",callback);
+}
+
+function getSVGDownload(callback)
+{
+    httpPostAsync(svgDlURL,"",callback);
 }
 
 

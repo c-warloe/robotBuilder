@@ -158,6 +158,7 @@ def getSVG(request):
             fc = request.session['component']
             #pdb.set_trace()
             svg = fc.getGraph().makeOutput(filedir=".",svgString = True)
+            request.session['svg'] = svg
             try:
                 dim = fc.drawing.getDimensions()
                 w = max(dim[1][0] - dim[0][0],10)
@@ -168,6 +169,24 @@ def getSVG(request):
             svg = svg.__str__().replace('"',"'")
             response = '{"response": "' + svg +'"}'
             #print response
+            return HttpResponse(response, content_type="application/json")
+        except Exception as e:
+            print '%s (%s)' % (e.message, type(e))
+            traceback.print_exc()
+            return HttpResponse(status=611)
+    return HttpResponse(status=611)
+
+@api_view(['GET','POST'])
+def downloadSVG(request):
+    """
+    Create a new Component
+    """
+    #pdb.set_trace()
+    if request.method == 'GET' or request.method == 'POST':
+        try:
+            svg = request.session['svg']
+            svg = svg.__str__().replace('"',"'")
+            response = '{"response": "' + svg +'"}'
             return HttpResponse(response, content_type="application/json")
         except Exception as e:
             print '%s (%s)' % (e.message, type(e))

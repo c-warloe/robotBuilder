@@ -8,4 +8,5 @@ urlpatterns = [
     url(r'^api/component/addConnection/$', views.addConnection),
     url(r'^api/component/make/$', views.make),
     url(r'^api/component/svg/$', views.getSVG),
+    url(r'^api/component/download/svg/$', views.downloadSVG),
 ]

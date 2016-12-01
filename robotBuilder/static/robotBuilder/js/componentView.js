@@ -25,6 +25,27 @@ while(componentName == "");
 init();
 render();
 
+function download(filename, text) {
+    var element = document.createElement('a');
+    element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+    element.setAttribute('download', filename);
+
+    element.style.display = 'none';
+    document.body.appendChild(element);
+
+    element.click();
+
+    document.body.removeChild(element);
+}
+function downloadSVG() {
+    var name = componentName + ".svg"
+    getSVGDownload(function(response){
+        var data = JSON.parse(response).response;
+        download(name, data)
+    })
+
+}
+
 function splitComponent()
 {
     scene.remove(componentObj);
@@ -38,10 +59,6 @@ function splitComponent()
     document.getElementById("sComp").disabled = true;
 }
 
-function downloadSVG(){
-    if(UrlExists("models/" + componentName + "/graph-print.svg"))
-	window.open("models/" + componentName + "/graph-print.svg");
-}
 
 function downloadYaml(){
     if(UrlExists("models/" + componentName + "/" + componentName +".yaml"))
@@ -646,7 +663,7 @@ function buildComponent(){
 	    onComponentSymbolic(response);
 	//	stl_loader.load('models/' + componentName + '/graph-model.stl',onComponentSTL);
 	//	document.getElementById('svg-view').src = 'models/' + componentName + '/graph-print.svg';
-	    document.getElementById('dSVG').disabled = false;
+
 	    //document.getElementById('dYaml').disabled = false;
 	    //document.getElementById('dModel').disabled = false;
 	    //document.getElementById('sComp').disabled = false;
@@ -788,7 +805,7 @@ function viewSVG(){
         drawing_div.style.backgroundColor = 'white'
         //drawing_div.style.padding = "2%";
         drawing_div.innerHTML = response;
-
+        document.getElementById('dSVG').disabled = false;
       });
 }
 
