@@ -92,11 +92,12 @@ class Graph():
   def __init__(self, transform=None, component=None):
     self.faces = []
     self.edges = []
+    self.placed = False
     self.component = component
     self.transform3D = transform or np.eye(4)
 
   def addFace(self, f, prefix=None, faceEdges=None, faceAngles=None, faceFlips=None):
-    if prefix:
+    if prefix and not self.placed:
       f.prefix(prefix)
     if f in self.faces:
       raise ValueError("Face %s already in graph" % f.name)
@@ -104,7 +105,7 @@ class Graph():
 
     if faceEdges is not None:
       f.renameEdges(faceEdges, faceAngles, faceFlips, self.edges)
-      if prefix:
+      if prefix and not self.placed:
         f.prefixEdges(prefix)
 
     self.rebuildEdges()

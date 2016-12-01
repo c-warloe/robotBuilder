@@ -7,6 +7,7 @@ class EdgePort(Port):
 
     graph = parent.getGraph()
     self.edge = graph.getEdge(edgeName)
+    self.placed = False
     params = {}
     try:
       params = {'length': self.edge.length}
@@ -27,7 +28,10 @@ class EdgePort(Port):
     return self.edge.pts3D
 
   def prefix(self, prefix=""):
+    if self.placed:
+      return
     self.edgeName = prefixString(prefix, self.edgeName)
+    self.placed = True
 
   def toString(self):
     return str(self.getEdges())

@@ -207,8 +207,8 @@ class Face(object):
 
   def preTransform(self, edge):
     index = self.edges.index(edge)
-    print edge
-    print self.edgeCoords(index)
+    #print edge
+    #print self.edgeCoords(index)
     return np.dot(RotateOntoX(*self.edgeCoords(index)), MoveToOrigin(self.pts2d[index]))
 
   def place(self, edgeFrom, transform2D, transform3D, component=None, placed=None):
@@ -289,7 +289,7 @@ class Face(object):
         f.place(e, np.dot(transform2D, r2d), np.dot(transform3D, r3d), component=component, placed=placed)
 
   def getTriangleDict(self, component=None):
-    print self.pts2d
+    #print self.pts2d
     #if len(self.pts2d > 0):
     #  print type(self.pts2d[0])
     vertices = self.pts2d
@@ -416,3 +416,24 @@ class Triangle(Face):
       pt3 = (pt3x,pt3y)
       Face.__init__(self, name, (pt1,pt2,pt3), [b, a, c], edgeNames=edgeNames, allEdges=allEdges,
                       recenter=recenter)
+
+class Trapezoid(Face):
+  def __init__(self, name, l1,l2, h, edgeNames=True, allEdges=None, recenter=True):
+    diff = (l1 - l2)/2
+    pt1 = (0,0)
+    pt2 = (l1,0)
+    pt3 = (l1-diff,h)
+    pt4 = (diff, h)
+    Face.__init__(self, name, (pt1, pt2, pt3, pt4), [0, l1, 0, l2], edgeNames=edgeNames, allEdges=allEdges,
+                  recenter=recenter)
+
+class Trapezoid2(Face):
+  def __init__(self, name, l1,l2,l3, edgeNames=True, allEdges=None, recenter=True):
+    diff = (l1 - l2)/2
+    h = sympy.sqrt((l3**2) - (diff**2))
+    pt1 = (0,0)
+    pt2 = (l1,0)
+    pt3 = (l1-diff,h)
+    pt4 = (diff, h)
+    Face.__init__(self, name, (pt1, pt2, pt3, pt4), [l3, l1, l3, l2], edgeNames=edgeNames, allEdges=allEdges,
+                  recenter=recenter)

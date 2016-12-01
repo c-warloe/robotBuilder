@@ -364,11 +364,13 @@ class Component(Parameterized):
             if self.evalEquation(constraint) == False:
                 raise Exception("Constraint " + constraint.__str__() + " not satisfied.")
             else:
-                print "Constraint " + constraint.__str__() + " satisfied."
+                pass
+                #print "Constraint " + constraint.__str__() + " satisfied."
 
     def evalEquation(self,eqn):
         eqnEval = eqn.subs(self.getVariableSubs())
         for s in eqnEval.atoms(Symbol):
+            #print "EQN EVAL: " + s.name + ": " + str(s.getValue())
             eqnEval = eqnEval.subs(s, s.getValue())
         return eqnEval
 
@@ -480,7 +482,7 @@ class Component(Parameterized):
             length = self.getVariableValue(l.name)
             width = self.getVariableValue(w.name)
             faces[name] = r
-            print name,length,width
+            #print name,length,width
             uf.addRectangle(name, width, length)
         for c in self.connections:
             uf.addConnection((c[0],c[1]))

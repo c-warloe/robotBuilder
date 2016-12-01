@@ -114,5 +114,5 @@ SESSION_SERIALIZER = 'robotApi.serializers.Serializer'##'django.contrib.sessions
 SESSION_SAVE_EVERY_REQUEST = True
 
 REST_FRAMEWORK = {
-    'EXCEPTION_HANDLER': 'robotBuilder.robotApi.utils.custom_exception_handler'
+    'EXCEPTION_HANDLER': 'robotApi.utils.custom_exception_handler'
 }

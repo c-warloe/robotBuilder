@@ -65,9 +65,6 @@ def MoveToOrigin(pt):
   return Translate([-pt[0], -pt[1], 0])
 
 def RotateOntoX(pt, pt2=(0,0)):
-  print pt[0]
-  print type(pt[0])
-  print pt2[1]
   dx = pt[0] - pt2[0]
   dy = pt[1] - pt2[1]
   l = np.sqrt(dx * dx + dy * dy)

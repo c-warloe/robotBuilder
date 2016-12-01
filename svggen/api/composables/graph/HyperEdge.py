@@ -117,29 +117,29 @@ class HyperEdge:
     return self
 
   def place(self, pts2D, pts3D):
-    try:
-      if self.pts2D is not None:
-        if np.differenceExceeds(self.pts2D, pts2D, self.TOL):
-          print
-          print "~~~", self.name
-          print self.pts2D
-          print pts2D
-          print np.difference(self.pts2D, pts2D)
-          print "~~~"
-          # raise ValueError( "Mismatched 2D transforms for edge %s " % self.name )
-      if self.pts3D is not None:
-        if np.differenceExceeds(self.pts3D, pts3D, self.TOL):
-          print
-          print "$$$", self.name
-          print self.pts3D
-          print
-          print pts3D
-          print
-          print np.difference(self.pts3D, pts3D)
-          print "$$$"
+    #try:
+    #  if self.pts2D is not None:
+    #    if np.differenceExceeds(self.pts2D, pts2D, self.TOL):
+    #      print
+    #      print "~~~", self.name
+    #      print self.pts2D
+    #      print pts2D
+    #      print np.difference(self.pts2D, pts2D)
+    #      print "~~~"
+    #      # raise ValueError( "Mismatched 2D transforms for edge %s " % self.name )
+    #  if self.pts3D is not None:
+    #    if np.differenceExceeds(self.pts3D, pts3D, self.TOL):
+    #      print
+    #      print "$$$", self.name
+    #      print self.pts3D
+    #      print
+    #      print pts3D
+    #      print
+    #      print np.difference(self.pts3D, pts3D)
+    #      print "$$$"
           # raise ValueError( "Mismatched 3D transforms for edge %s " % self.name )
-    except TypeError:
-      raise
+    #except TypeError:
+    #  raise
 
     self.pts2D = pts2D
     self.pts3D = pts3D

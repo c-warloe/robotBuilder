@@ -19,9 +19,12 @@ class Graph(Composable, BaseGraph):
     BaseGraph.__init__(self, transform=transform, component=component)
 
   def append(self, g2, prefix2):
-    g2.prefix(prefix2)
-    self.faces.extend(g2.faces)
-    self.edges.extend(g2.edges)
+    if not g2.placed:
+      g2.prefix(prefix2)
+      self.faces.extend(g2.faces)
+      self.edges.extend(g2.edges)
+      g2.placed = True
+
 
   def attach(self, port1, port2, kwargs):
     # Test whether ports are of right type --
@@ -80,7 +83,6 @@ class Graph(Composable, BaseGraph):
     self.tabify(kw("tabFace", BeamTabs), kw("tabDecoration", None),
                 kw("slotFace", None), kw("slotDecoration", BeamSlotDecoration))
     self.place(assembling=True)
-
 
     if kw("placeOnly", False):
       return

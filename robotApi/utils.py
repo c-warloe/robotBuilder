@@ -5,7 +5,7 @@ def custom_exception_handler(exc, context):
     # to get the standard error response.
     response = exception_handler(exc, context)
 
-    print exc.strerror
+    print exc
     print context
 
     return response

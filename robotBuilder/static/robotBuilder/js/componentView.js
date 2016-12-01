@@ -131,8 +131,21 @@ function onComponentSymbolic(obj){
     nupe = obj;
     componentObj = createMeshFromObject(obj);
     componentObj.type = "MasterComponent";
-    //for(var i = 0, len = connectedSubcomponents.length; i < len; i++)
-	//    componentObj.add(connectedSubcomponents[i]);
+    componentObj.interfaceEdges = obj["interfaceEdges"]
+    componentObj.connectedInterfaces = {};
+    for(var i = 0, len = connectedSubcomponents.length; i < len; i++) {
+        for(var interfaceEdge in connectedSubcomponents[i].interfaceEdges) {
+            obj.interfaceEdges[connectedSubcomponents[i].name + "_" + interfaceEdge] = []
+            for(var edge = 0, edges = connectedSubcomponents[i].interfaceEdges[interfaceEdge].length; edge < edges; edge++) {
+	            obj.interfaceEdges[connectedSubcomponents[i].name + "_" + interfaceEdge].push(connectedSubcomponents[i].name + "_" + connectedSubcomponents[i].interfaceEdges[interfaceEdge][edge]);
+	        }
+	    }
+	}
+    for(var i = 0, len = connections.length; i < len; i++) {
+        componentObj.connectedInterfaces[connections[i].interface1.replaceAll(".", "_")] = true;
+        componentObj.connectedInterfaces[connections[i].interface2.replaceAll(".", "_")] = true;
+    }
+	highlightInterfaces(componentObj);
     scene.add(componentObj);
 }
 
@@ -463,9 +476,29 @@ function loadGui() {
 		    }
 		}
 		angle = window.prompt("Connection Angle: ");
-		newConn.interface1 = SELECTED.parent.name + "." + SELECTED.name;
-		newConn.interface2 = SELECTED_2.parent.name + "." + SELECTED_2.name;
-		addComponentConnection(SELECTED.parent.name,SELECTED.name,SELECTED_2.parent.name,SELECTED_2.name, angle);
+		if(SELECTED.parent.type == "MasterComponent"){
+		    newConn.interface1 = SELECTED.name.replaceAll("_", ".");
+		    var spl = SELECTED.name.split("_");
+		    s1pname = spl[0];
+		    s1name = spl[1];
+		}
+		else {
+		    newConn.interface1 = SELECTED.parent.name + "." + SELECTED.name;
+		    s1pname = SELECTED.parent.name;
+		    s1name = SELECTED.name;
+		}
+		if(SELECTED_2.parent.type == "MasterComponent") {
+		    newConn.interface2 = SELECTED_2.name.replaceAll("_", ".");
+		    var spl = SELECTED_2.name.split("_");
+		    s2pname = spl[0];
+		    s2name = spl[1];
+		}
+		else {
+		    newConn.interface2 = SELECTED_2.parent.name + "." + SELECTED_2.name;
+		    s2pname = SELECTED_2.parent.name;
+		    s2name = SELECTED_2.name;
+		}
+		addComponentConnection(s1pname,s1name,s2pname,s2name, angle);
 		connections.push(newConn);
 		SELECTED.parent.connectedInterfaces[SELECTED.name] = newConn.interface2;
 		SELECTED_2.parent.connectedInterfaces[SELECTED_2.name] = newConn.interface1;
@@ -704,15 +737,15 @@ function onDocumentMouseDown( event ) {
 	    else
 		SELECTED_2 = undefined;
 	}
-	if(intersects[0].object.parent.type == "MasterComponent")
+	/*if(intersects[0].object.parent.type == "MasterComponent")
 	    {
 		if(!event.shiftKey)
 		    {
 			SELECTED = intersects[0].object.parent;
 			control.attach(SELECTED);
 		    }
-	    }
-	else if(intersects[0].object.parent.type != "Scene"){
+	    }*/
+	if(intersects[0].object.parent.type != "Scene"){
 	    intersects[0].object.material.color = new THREE.Color(0x00ff00);
 	    if(!event.shiftKey){
 		if(SELECTED != undefined && SELECTED.parent.type == "Scene")

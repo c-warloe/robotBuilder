@@ -43,7 +43,7 @@ def componentList(request):
         for c in components:
             response.append([c.name, c.interfaces.keys])
         response = response.__str__().replace("'",'"')'''
-        response = '{"response": [["Rectangle", ["r", "b", "l", "t"]], ["Triangle", ["a", "b", "c"]], ["Beam", ["botedge", "topedge"]], ["RectBeam", ["botedge3", "topedge2", "botedge0", "botedge1", "topedge0", "topedge1", "botedge2", "topedge3"]]]}'
+        response = '{"response": [["Cube", ["edge"]], ["Trapezoid", ["t", "b"]], ["Trapezoid2", ["t", "b", "s1", "s2"]], ["Rectangle", ["r", "b", "l", "t"]], ["Triangle", ["a", "b", "c"]], ["Beam", ["botedge", "topedge"]], ["RectBeam", ["botedge3", "topedge2", "botedge0", "botedge1", "topedge0", "topedge1", "botedge2", "topedge3"]]]}'
         return HttpResponse(response, content_type="application/json")
     return HttpResponse(status=501)
 
@@ -89,7 +89,7 @@ def addSubcomponent(request):
             #Return information about subcomponent
             c = getComponent(type)
             responseDict = extractFromComponent(c)
-            print responseDict
+            #print responseDict
             response = compDictToJSON(responseDict, c)
             try:
                 return HttpResponse(response, content_type="application/json")
@@ -130,16 +130,16 @@ def make(request):
             fc = request.session['component']
             fc.makeOutput(placeOnly=True)
             #print fc.__dict__
-            print "made"
+            #print "made"
             responseDict = extractFromComponent(fc)
-            print responseDict
+            #print responseDict
             responseDict['parameters'] = {}
             for key in fc.parameters.keys():
                 responseDict['parameters'][key] = fc.parameters[key].__str__()
-            print responseDict
+            #print responseDict
             responseDict['variables'] = []
             response = {"response": responseDict}.__str__().replace("'", '"').replace('(', '[').replace(')', ']').replace('False', '0').replace('True', '1')
-            print response
+            #print response
             return HttpResponse(response, content_type="application/json")
         except Exception as e:
             print '%s (%s)' % (e.message, type(e))
@@ -167,7 +167,7 @@ def getSVG(request):
                 pass
             svg = svg.__str__().replace('"',"'")
             response = '{"response": "' + svg +'"}'
-            print response
+            #print response
             return HttpResponse(response, content_type="application/json")
         except Exception as e:
             print '%s (%s)' % (e.message, type(e))
@@ -196,9 +196,9 @@ def extractFromComponent(c):
                 except:
                     pass
         output["faces"][i.name] = [[str(i.transform3D[x].subs(c.getVariableSubs())) for x in range(len(i.transform3D))], tdict]
-        print i.transform2D.tolist()
+        #print i.transform2D.tolist()
         trans2D = [[str(p.subs(c.getVariableSubs())) for p in j] for j in i.transform2D.tolist()]
-        print trans2D
+        #print trans2D
         output["faces"][i.name].append(trans2D)
     output["edges"] = {}
     for i in c.composables['graph'].edges:

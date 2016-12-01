@@ -69,6 +69,7 @@ class FoldedComponent(MechanicalComponent):
       first = next(iter(eClass))
       for var in eClass:
         self.setVariableSolved(var.name, first.getValue())
+        #print "SOLVE: " + var.name + ": " + str(var.getValue())
 
 #      if(constraint.lhs.solved()):
 #        self.setVariableSolved(self.getVariableSub(constraint.rhs).name,
