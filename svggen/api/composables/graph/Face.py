@@ -4,6 +4,7 @@ from svggen.utils.utils import prefix as prefixString
 import svggen.utils.mymath as np
 import svggen.api.composables.graph.DrawingEdge as DE
 import sympy
+import math
 
 
 class Face(object):
@@ -416,7 +417,13 @@ class Triangle(Face):
       pt3 = (pt3x,pt3y)
       Face.__init__(self, name, (pt1,pt2,pt3), [b, a, c], edgeNames=edgeNames, allEdges=allEdges,
                       recenter=recenter)
-
+class IsoscelesTriangle(Face):
+  def __init__(self, name, base, height,edgeNames=True, allEdges=None, recenter=True):
+    pt1 = (0,0)
+    pt2 = (base,0)
+    pt3 =(base/2,height)
+    Face.__init__(self,name,(pt1,pt2,pt3),[1,base,1], edgeNames=edgeNames, allEdges=allEdges,
+                  recenter=recenter)
 class Trapezoid(Face):
   def __init__(self, name, l1,l2, h, edgeNames=True, allEdges=None, recenter=True):
     diff = (l1 - l2)/2
@@ -424,7 +431,7 @@ class Trapezoid(Face):
     pt2 = (l1,0)
     pt3 = (l1-diff,h)
     pt4 = (diff, h)
-    Face.__init__(self, name, (pt1, pt2, pt3, pt4), [0, l1, 0, l2], edgeNames=edgeNames, allEdges=allEdges,
+    Face.__init__(self, name, (pt1, pt2, pt3, pt4), [1, l1, 1, l2], edgeNames=edgeNames, allEdges=allEdges,
                   recenter=recenter)
 
 class Trapezoid2(Face):

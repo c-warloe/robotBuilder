@@ -35,7 +35,10 @@ class RectBeam(FoldedComponent):
 
     rs = []
     rs.append(Rectangle("", width, length))
-    rs.append(Face("", (
+    rs.append(Rectangle("", depth, length))
+    rs.append(Rectangle("", width, length))
+    rs.append(Rectangle("", depth, length))
+    '''rs.append(Face("", (
       (depth, math.tan(math.deg2rad(bangle)) * depth),
       (depth, length - math.tan(math.deg2rad(tangle)) * depth),
       (0, length), (0,0)
@@ -45,7 +48,7 @@ class RectBeam(FoldedComponent):
       (0, length), (0,0),
       (depth, math.tan(math.deg2rad(tangle)) * depth),
       (depth, length - math.tan(math.deg2rad(bangle)) * depth),
-    )))
+    )))'''
 
     for i in range(phase):
       rs.append(rs.pop(0))
@@ -55,8 +58,8 @@ class RectBeam(FoldedComponent):
       self.attachFace(fromEdge, rs[i], "e3", prefix="r%d"%i, angle=90)
       fromEdge = prefix('r%d' % i,'e1')
 
-    if faces is False:
-      self.addTab(prefix("r0","e3"), prefix("r3","e1"), angle= 90, width=[depth, width][phase % 2])
+    '''if faces is False:
+      self.addTab(prefix("r0","e3"), prefix("r3","e1"), angle= 90, width=[depth, width][phase % 2])'''
 
     self.place()
 
@@ -70,10 +73,10 @@ class RectBeam(FoldedComponent):
       self.addInterface("topedge%d" % i, EdgePort(self, prefix("r%d" % n,"e0")))
       self.addInterface("botedge%d" % i, EdgePort(self, prefix("r%d" % n,"e2")))
 
-    if faces is not False:
+    '''if faces is not False:
       # If faces is False, then we have connected tabedge and slotedge with a tab
       self.addInterface("tabedge", EdgePort(self, fromEdge))
-      self.addInterface("slotedge", EdgePort(self, prefix("r%d" % (faces or range(4))[0],"e3")))
+      self.addInterface("slotedge", EdgePort(self, prefix("r%d" % (faces or range(4))[0],"e3")))'''
 
 
 if __name__ == "__main__":

@@ -9,15 +9,15 @@ class Triangle(FoldedComponent):
     _test_params = {
         'a': 300,
         'b': 400,
-        'c': 500
+        'c': 200
     }
 
     def define(self, **kwargs):
         FoldedComponent.define(self, **kwargs)
 
         self.addParameter("a", 300, positive=True)
-        self.addParameter("b", 400, positive=True)
-        self.addParameter("c", 500, positive=True)
+        self.addParameter("b", 250, positive=True)
+        self.addParameter("c", 200, positive=True)
         da = self.getParameter("a")
         db = self.getParameter("b")
         dc = self.getParameter("c")

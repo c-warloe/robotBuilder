@@ -158,15 +158,9 @@ def getSVG(request):
             fc = request.session['component']
             #pdb.set_trace()
             svg = fc.getGraph().makeOutput(filedir=".",svgString = True)
-            request.session['svg'] = svg
-            try:
-                dim = fc.drawing.getDimensions()
-                w = max(dim[1][0] - dim[0][0],10)
-                h = max(dim[1][1] - dim[0][1],10)
-                svg = svg[:5] + 'viewbox="0 0 ' + w.__str__() + " " + h.__str__() + '" ' + svg[5:]
-            except:
-                pass
-            svg = svg.__str__().replace('"',"'")
+            request.session['svg'] = svg[0]
+
+            svg = svg[1].__str__().replace('"',"'")
             response = '{"response": "' + svg +'"}'
             #print response
             return HttpResponse(response, content_type="application/json")

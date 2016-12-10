@@ -395,13 +395,21 @@ class Drawing:
     """
     import svgwrite
 
-    svg = svgwrite.Drawing(filename)
+    dim = self.getDimensions()
+    w = int(dim[1][0] - dim[0][0])
+    h = int(dim[1][1] - dim[0][1])
+    size = ('{}mm'.format(w),'{}mm'.format(h))
+
+    printSVG = svgwrite.Drawing(filename,size=size,viewBox=('0 0 {} {}'.format(w,h)))
+    viewSVG = svgwrite.Drawing("view"+filename,viewBox=('0 0 {} {}'.format(w,h)))
     for e in self.edges.items():
-      e[1].toDrawing(svg, e[0] if labels else "", mode)
+      e[1].toDrawing(printSVG, e[0] if labels else "", mode)
+      e[1].toDrawing(viewSVG, e[0] if labels else "", mode)
     if toFile:
-      svg.save()
+      printSVG.save()
+      #viewSVG.save()
     else:
-      return svg.tostring()
+      return (printSVG.tostring(),viewSVG.tostring())
 
   def getDimensions(self):
     return self.dimensions
