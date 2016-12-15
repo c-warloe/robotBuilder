@@ -219,6 +219,7 @@ class Drawing:
     faceedges = []
 
     coords2D = self.component.evalEquation(coords2D)
+    #print coords2D
     #print self.component.evalEquation(pts2d), self.component.evalEquation(face.pts4d), self.component.evalEquation(coords2D)
     for (i, e) in enumerate(face.edges):
       if e is None:
@@ -271,7 +272,7 @@ class Drawing:
       faceedges = []
       coords2D = self.component.evalEquation(coords2D)
 
-
+      #print coords2D
       for (i, e) in enumerate(face.edges):
         if e is None:
           continue
@@ -344,13 +345,12 @@ class Drawing:
       # XXX : Assumes both faces have opposite edge orientation
       #       Only works for non-hyper edges -- need to store edge orientation info for a +/- da
       for (f, a) in e.faces.iteritems():
-        if a[1] ^ da[1]:
+        '''if a[1] ^ da[1]:
           # opposite orientation
           pta, ptb = pt1, pt2
         else:
-          # same orientation
-          pta, ptb = pt2, pt1
-
+          # same orientation'''
+        pta, ptb = pt1, pt2
         x = RotateXTo(ptb, pta)
 
         r2d = np.eye(4)

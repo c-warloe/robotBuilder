@@ -114,10 +114,13 @@ def ReflectAcross2Dpts(edgepts):
         r = np.dot(shift2,np.dot(reflect,shift))
 
         return r
+
     m = (y1-y2)/dx
-    b = (m*x1)+y1
+    n = 1 + m * m
+    b = y1-(m*x1)
     a = m * -1
     d = 1 + (m*m)
+
     #Product of two opposite shifts of b in the y direction and a reflection across y = mx
     shift = np.array([[1, 0, 0,  0],
                       [0, 1, 0, -b],
@@ -127,8 +130,8 @@ def ReflectAcross2Dpts(edgepts):
                        [0, 1, 0, b],
                        [0, 0, 1, 0],
                        [0, 0, 0, 1]])
-    reflec = np.array([[1-2*(a*a), -2*a, 0,    0],
-                       [     -2*a,   -1, 0,    0],
+    reflec = np.array([[1-2*(a*a)/n, -2*a/n, 0,    0],
+                       [     -2*a/n,   1-2/n, 0,    0],
                        [        0,    0, 1,    0],
                        [        0,    0, 0,    1]])
     return np.dot(shift2,np.dot(reflec,shift))

@@ -10,7 +10,7 @@ class BeamHinge(FoldedComponent):
 
   def define(self, **kwargs):
     FoldedComponent.define(self, **kwargs)
-    self.addParameter("length", 100, positive=True)
+    self.addParameter("length", 50, positive=True)
     self.addParameter("width", 50, positive=True)
 
 
@@ -31,34 +31,33 @@ class BeamHinge(FoldedComponent):
     rs.append(IsoscelesTriangle('', triBase, height))
 
 
-    fromEdge = None
-    self.attachFace(fromEdge, rs[0], "e0", prefix="r0", angle=109.5)
-    self.attachFace(prefix('r0','e2'), rs[1], "e0", prefix="r1", angle=109.5)
-    self.attachFace(prefix('r1', 'e2'), rs[2], "e2", prefix="r2", angle=109.5)
-    #self.attachFace(fromEdge, rs[0], "e3", prefix="r%d" % 0, angle=109.5)
-    #self.attachFace(fromEdge, rs[0], "e3", prefix="r%d" % 0, angle=109.5)
-    #fromEdge = prefix('r%d' % i,'e1')
+
+    self.attachFace(None, rs[0], "e0", prefix="t1", angle=109.5)
+    self.attachFace(prefix('t1','e2'), rs[1], "e0", prefix="tr1", angle=109.5)
+    self.attachFace(prefix('tr1', 'e2'), rs[2], "e0", prefix="t2", angle=109.5)
+    self.attachFace(prefix('t2', 'e2'), rs[3], "e0", prefix="tr2", angle=109.5)
+    self.attachFace(prefix('tr2', 'e3'), rs[4], "e3", prefix="tr3", angle=0)
+    self.attachFace(prefix('tr3', 'e2'), rs[5], "e0", prefix="t3", angle=109.5)
+    self.attachFace(prefix('t3', 'e2'), rs[6], "e0", prefix="tr4", angle=109.5)
+    self.attachFace(prefix('tr4', 'e2'), rs[7], "e0", prefix="t4", angle=109.5)
+
 
 
     self.place()
 
-    #Define interfaces
-    '''for i in faces or range(4):
-      self.addInterface("face%d"%i, FacePort(self, "r%d"%i))
+    self.addInterface("t_A", EdgePort(self, prefix("tr1", "e1")))
+    self.addInterface("b_A", EdgePort(self, prefix("tr2", "e1")))
+    self.addInterface("r_A", EdgePort(self, prefix("t1", "e1")))
+    self.addInterface("l_A", EdgePort(self, prefix("t2", "e1")))
+    self.addInterface("t_B", EdgePort(self, prefix("tr3", "e1")))
+    self.addInterface("b_B", EdgePort(self, prefix("tr4", "e1")))
+    self.addInterface("r_B", EdgePort(self, prefix("t3", "e1")))
+    self.addInterface("l_B", EdgePort(self, prefix("t4", "e1")))
 
-    self.addInterface("topface", [EdgePort(self, prefix("r%d" % n,"e0")) for n in faces or range(4)])
-    self.addInterface("botface", [EdgePort(self, prefix("r%d" % n,"e2")) for n in faces or range(4)])
-    for i, n in enumerate(faces or range(4)):
-      self.addInterface("topedge%d" % i, EdgePort(self, prefix("r%d" % n,"e0")))
-      self.addInterface("botedge%d" % i, EdgePort(self, prefix("r%d" % n,"e2")))'''
 
-    '''if faces is not False:
-      # If faces is False, then we have connected tabedge and slotedge with a tab
-      self.addInterface("tabedge", EdgePort(self, fromEdge))
-      self.addInterface("slotedge", EdgePort(self, prefix("r%d" % (faces or range(4))[0],"e3")))'''
 
 
 if __name__ == "__main__":
-  b = RectBeam()
-  # b._make_test()
+  b = BeamHinge()
+  #b._make_test()
 

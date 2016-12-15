@@ -6,6 +6,7 @@ import svggen.api.composables.graph.DrawingEdge as DE
 import sympy
 import math
 
+NON_PARAM_LEN = 1
 
 class Face(object):
   allNames = []
@@ -422,7 +423,7 @@ class IsoscelesTriangle(Face):
     pt1 = (0,0)
     pt2 = (base,0)
     pt3 =(base/2,height)
-    Face.__init__(self,name,(pt1,pt2,pt3),[1,base,1], edgeNames=edgeNames, allEdges=allEdges,
+    Face.__init__(self,name,(pt1,pt2,pt3),[NON_PARAM_LEN,base,NON_PARAM_LEN], edgeNames=edgeNames, allEdges=allEdges,
                   recenter=recenter)
 class Trapezoid(Face):
   def __init__(self, name, l1,l2, h, edgeNames=True, allEdges=None, recenter=True):
@@ -431,7 +432,7 @@ class Trapezoid(Face):
     pt2 = (l1,0)
     pt3 = (l1-diff,h)
     pt4 = (diff, h)
-    Face.__init__(self, name, (pt1, pt2, pt3, pt4), [1, l1, 1, l2], edgeNames=edgeNames, allEdges=allEdges,
+    Face.__init__(self, name, (pt1, pt2, pt3, pt4), [NON_PARAM_LEN, l1, NON_PARAM_LEN, l2], edgeNames=edgeNames, allEdges=allEdges,
                   recenter=recenter)
 
 class Trapezoid2(Face):
