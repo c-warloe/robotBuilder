@@ -25,6 +25,13 @@ while(componentName == "");
 init();
 render();
 
+function blinker() {
+    $('.blink_me').fadeOut(750);
+    $('.blink_me').fadeIn(750);
+}
+
+setInterval(blinker, 1500);
+
 function download(filename, text) {
     var element = document.createElement('a');
     element.setAttribute('name', filename);
@@ -363,6 +370,10 @@ function getComponents()
 		    var button = {
 			compName: response[i][0],
 			add: function(){
+			    var over = '<div id="overlay">' +
+                    '<span class="blink_me">LOADING...</span>' +
+                    '</div>';
+                $(over).appendTo('body');
 			    compName = this.compName;
 			    var args = [this.compName,tempParams];
 			    componentCount++;
@@ -382,6 +393,7 @@ function getComponents()
 				loadSymbolic(response,n);
 				/*interfaceEdges = response;
 				  stl_loader.load('models/' + compName + '/graph-model.stl',onLoadSTL);*/
+				  $('#overlay').remove();
 			    });
 			}
 		    }
@@ -657,6 +669,10 @@ function build(){
 
 }
 function buildComponent(){
+    var over = '<div id="overlay">' +
+            '<span class="blink_me">LOADING...</span>' +
+            '</div>';
+    $(over).appendTo('body');
     var thisComponent = {};
     thisComponent.name = componentName;
     thisComponent.subcomponents = [];
@@ -685,6 +701,7 @@ function buildComponent(){
 	    //document.getElementById('dYaml').disabled = false;
 	    //document.getElementById('dModel').disabled = false;
 	    //document.getElementById('sComp').disabled = false;
+	    $('#overlay').remove();
 	    viewSVG();
     });
 }

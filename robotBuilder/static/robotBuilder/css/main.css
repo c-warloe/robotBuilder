@@ -29,3 +29,21 @@ body{
     width: 100%;
     margin: 0;
 }
+
+#overlay {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    background: #000;
+    opacity: 0.8;
+    filter: alpha(opacity=80);
+    text-align: center;
+}
+
+.blink_me {
+    opacity: 1;
+    font-size: 300%;
+    display: inline-block;
+}
