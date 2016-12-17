@@ -55,11 +55,26 @@ else:
       obj.default = default
       obj.isSolved = False
       obj.solvedValue = -1
+      obj.fixedValue = -1
+      obj.isFixed = False
       return obj
 
     def solved(self):
       return self.isSolved
 
+    def fixed(self):
+      return self.isFixed
+
+    def fixValue(self, val):
+      self.fixedValue = val
+      self.isFixed = True
+
+    def getFixedValue(self):
+      return self.fixedValue
+
+    def unfix(self):
+      self.isFixed = False
+    
     def setSolved(self, val):
       self.solvedValue = val
       self.isSolved = True
@@ -72,31 +87,50 @@ else:
     def __getstate__(self):
       state = sympySymbol.__getstate__(self)
       state['isSolved'] = self.isSolved
+      state['isFixed'] = self.isFixed
       state['default'] = self.default
       state['solvedValue'] = self.solvedValue
+      state['fixedValue'] = self.fixedValue
       return state
 
     def __setstate__(self, state):
       sympySymbol.__setstate__(self, state)
       self.isSolved = state['isSolved']
+      self.isFixed = state['isFixed']
       self.default = state['default']
       self.solvedValue = state['solvedValue']
+      self.fixedValue = state['fixedValue']
 
   class Dummy(sympyDummy,Symbol):
     def __new__(cls, name=None, default=-1, commutative=True, **assumptions):
       obj = sympyDummy.__new__(cls,name,commutative=commutative,**assumptions)
       obj.default = default
       obj.isSolved = False
+      obj.isFixed = False
       obj.solvedValue = -1
+      obj.fixedValue = -1
       return obj
 
     def solved(self):
       return self.isSolved
 
+    def fixed(self):
+      return self.isFixed
+
+    def fixValue(self, val):
+      self.fixedValue = val
+      self.isFixed = True
+
+    def getFixedValue(self):
+      return self.fixedValue
+
+    def unfix(self):
+      self.isFixed = False
+    
     def setSolved(self, val):
       self.solvedValue = val
       self.isSolved = True
-
+      
     def getValue(self):
       if self.solved():
         return self.solvedValue
@@ -105,15 +139,19 @@ else:
     def __getstate__(self):
       state = sympyDummy.__getstate__(self)
       state['isSolved'] = self.isSolved
+      state['isFixed'] = self.isFixed
       state['default'] = self.default
       state['solvedValue'] = self.solvedValue
+      state['fixedValue'] = self.fixedValue
       return state
 
     def __setstate__(self, state):
       sympyDummy.__setstate__(self, state)
       self.isSolved = state['isSolved']
+      self.isFixed = state['isFixed']
       self.default = state['default']
       self.solvedValue = state['solvedValue']
+      self.fixedValue = state['fixedValue']
 
   def deg2rad(x):
     return x * (pi / 180)

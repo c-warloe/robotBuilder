@@ -47,6 +47,17 @@ def componentList(request):
         return HttpResponse(response, content_type="application/json")
     return HttpResponse(status=501)
 
+@api_view(['GET', 'POST'])
+def fixEdgeInterface(request):
+    if request.method == 'GET' or request.method == 'POST':
+        data = ast.literal_eval(request.body)
+        fc = request.session['component']
+        compName = data['name']
+        interface = data['interface']
+        value = int(data['value'])
+        fc.fixEdgeInterface(compName, interface, value)
+        return HttpResponse('Edge associated with interface {}.{} fixed to {}'.format(compName, interface, value))
+    return HttpResponse(status=501)
 
 @api_view(['GET', 'POST'])
 def createComponent(request):
@@ -88,9 +99,12 @@ def addSubcomponent(request):
 
             #Return information about subcomponent
             c = getComponent(type)
+            print "Before extract"
             responseDict = extractFromComponent(c)
+            print "After extract"
             #print responseDict
             response = compDictToJSON(responseDict, c)
+            print "Jsonified"
             try:
                 return HttpResponse(response, content_type="application/json")
             except Exception as e:
@@ -131,9 +145,11 @@ def make(request):
             fc.makeOutput(placeOnly=True)
             #print fc.__dict__
             #print "made"
+            print "Before component extraction"
             responseDict = extractFromComponent(fc)
             #print responseDict
             responseDict['parameters'] = {}
+            print "After component extraction"
             for key in fc.parameters.keys():
                 responseDict['parameters'][key] = fc.parameters[key].__str__()
             #print responseDict
@@ -195,22 +211,24 @@ def extractFromComponent(c):
     #output["relations"] = c.getRelations()
     output["defaults"] = c.getAllDefaults()
     output["faces"] = {}
+    vsubs = c.getVariableSubs()
     for i in c.composables['graph'].faces:
         tdict = copy.deepcopy(i.getTriangleDict())
         for vertex in range(len(tdict["vertices"])):
             try:
                 tpl = tdict["vertices"][vertex]
                 tdict["vertices"][vertex] = [tpl[0], tpl[1]]
-                tdict["vertices"][vertex][0] = str(tdict["vertices"][vertex][0].subs(c.getVariableSubs()))
-                tdict["vertices"][vertex][1] = str(tdict["vertices"][vertex][1].subs(c.getVariableSubs()))
+                tdict["vertices"][vertex][0] = str(tdict["vertices"][vertex][0].xreplace(vsubs))
+                tdict["vertices"][vertex][1] = str(tdict["vertices"][vertex][1].xreplace(vsubs))
             except:
                 try:
-                    tdict["vertices"][vertex][1] = str(tdict["vertices"][vertex][1].subs(c.getVariableSubs()))
+                    tdict["vertices"][vertex][1] = str(tdict["vertices"][vertex][1].xreplace(vsubs))
                 except:
+
                     pass
-        output["faces"][i.name] = [[str(i.transform3D[x].subs(c.getVariableSubs())) for x in range(len(i.transform3D))], tdict]
+        output["faces"][i.name] = [[str(i.transform3D[x].xreplace(vsubs)) for x in range(len(i.transform3D))], tdict]
         #print i.transform2D.tolist()
-        trans2D = [[str(p.subs(c.getVariableSubs())) for p in j] for j in i.transform2D.tolist()]
+        trans2D = [[str(p.xreplace(vsubs)) for p in j] for j in i.transform2D.tolist()]
         #print trans2D
         output["faces"][i.name].append(trans2D)
     output["edges"] = {}
@@ -220,7 +238,7 @@ def extractFromComponent(c):
             output["edges"][i.name].append([])
             for x in range(3):
                 try:
-                    output["edges"][i.name][v].append(str(i.pts3D[v][x].subs(c.getVariableSubs())))
+                    output["edges"][i.name][v].append(str(i.pts3D[v][x].xreplace(vsubs)))
                 except:
                     pass
     output["interfaceEdges"] = {}

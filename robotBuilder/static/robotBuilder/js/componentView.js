@@ -66,6 +66,23 @@ function downloadYaml(){
 	window.open("models/" + componentName + "/" + componentName +".yaml");
 }
 
+function fixEdgeInterface(){
+    var name, interface, value;
+    if(SELECTED != undefined && SELECTED.parent != "Scene") {
+        if(SELECTED.parent.type == "MasterComponent") {
+            var spl = SELECTED.name.split("_");
+		    name = spl[0];
+		    interface = spl[1];
+        }
+        else {
+            name = SELECTED.parent.name;
+		    interface = SELECTED.name;
+        }
+        var value = window.prompt("Value to fix interface to");
+        fixComponentEdgeInterface(name, interface, value);
+    }
+}
+
 function downloadModel(){
     if(UrlExists("models/" + componentName + "/graph-model.stl"))
 	window.open("models/" + componentName + "/graph-model.stl");

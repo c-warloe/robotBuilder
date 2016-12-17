@@ -115,8 +115,10 @@ class Parameterized(object):
     return v
 
   def getVariableSubs(self):
+    d = {}
     for p in self.allParameters:
-      yield (p, self.getVariableSub(p))
+      d[p] = self.getVariableSub(p)
+    return d
 
   def getAllSubs(self):
     for p in sorted(self.subs.iteritems(), reverse=True, key=lambda x : x[0].count('.')):
@@ -142,6 +144,25 @@ class Parameterized(object):
     if not isinstance(p,math.Symbol):
       return p
     return p.getValue()
+
+  def fixVariable(self, name, val):
+    p = self.getParameter(name)
+    if not isinstance(p,math.Symbol):
+      return
+    p.fixValue(val)
+    pSub = self.allParameters[p][1]
+    if pSub:
+      pSub.fixValue(val)
+    self.setVariableSolved(name, val)
+
+  def unfixVariable(self, name):
+    p =self.getParameter(name)
+    if not isinstance(p,math.Symbol):
+      return
+    p.unfix()
+    pSub = self.allParameters[p][1]
+    if pSub:
+      pSub.unfix()
 
   def getAllConstraints(self):
     r = []

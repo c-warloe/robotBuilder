@@ -5,8 +5,9 @@ var addCnURL    = "/api/component/addConnection/"
 var makeURL     = "/api/component/make/"
 var svgURL      = "/api/component/svg/"
 var svgDlURL    = "/api/component/download/svg/"
+var fEdgeURL    = "/api/component/fixEdgeInterface/"
 
-function  getComponentList(key, callback)
+function getComponentList(key, callback)
 {
     httpPostAsync(listURL,"{'key': '"+key+"'}",callback);
 }
@@ -19,6 +20,11 @@ function createComponent()
 function addSubcomponent(name, type, callback)
 {
     httpPostAsync(addScURL,"{'name': '" + name + "','type': '" + type + "'}",callback);
+}
+
+function fixComponentEdgeInterface(name, interface, value)
+{
+    httpPostAsync(fEdgeURL, "{'name': '" + name + "', 'interface': '" + interface + "', 'value': '" + value + "'}")
 }
 
 function addComponentConnection(sc1, port1, sc2, port2, args)

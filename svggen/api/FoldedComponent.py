@@ -1,6 +1,7 @@
 from MechanicalComponent import MechanicalComponent
 from sets import Set
 from svggen.api.composables.GraphComposable import Graph
+from svggen.api.ports.EdgePort import EdgePort
 
 import svggen.utils.mymath as math
 
@@ -35,6 +36,12 @@ class FoldedComponent(MechanicalComponent):
     self.addInterface(face.name, port)
   '''
 
+  def fixEdgeInterface(self, name, interface, val):
+    ep = self.getInterfaces(name, interface)
+    if isinstance(ep, EdgePort):
+      self.fixVariable(self.getVariableSub(ep.getParameter("length")).name, val)
+
+
   def getGraph(self):
     return self.composables[self.GRAPH]
 
@@ -66,9 +73,15 @@ class FoldedComponent(MechanicalComponent):
     # set values of all variables in a single equivalence class to the default
     # of one of them
     for eClass in equivClasses:
-      first = next(iter(eClass))
+      fixed = next(iter(eClass))
       for var in eClass:
-        self.setVariableSolved(var.name, first.getValue())
+        if var.fixed():
+          if fixed.fixed() and fixed.getValue() != var.getValue():
+            raise Exception("Multiple variables are fixed with different values in the same equivalence class.")
+          else:
+            fixed = var
+      for var in eClass:
+        self.setVariableSolved(var.name, fixed.getValue())
         #print "SOLVE: " + var.name + ": " + str(var.getValue())
 
 #      if(constraint.lhs.solved()):
