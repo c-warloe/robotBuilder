@@ -7,10 +7,23 @@ import svggen.utils.mymath as math
 
 
 class FoldedComponent(MechanicalComponent):
-  def __init__(self, *args, **kwargs):
+  def __init__(self, yamlFile=None, *args, **kwargs):
     self.GRAPH = 'graph'
     self.drawing = None
-    MechanicalComponent.__init__(self, *args, **kwargs)
+    MechanicalComponent.__init__(self, yamlFile, **kwargs)
+
+  def addFoldedSubcomponent(self, name, obj, **kwargs):
+    '''
+    :param name: unique identifier to refer to this component by
+    :type  name: str or unicode
+    :param obj: code name of the subcomponent
+                should be python file/class or yaml name
+    :type  obj: str or unicode
+    '''
+    # XXX will silently fail if subcomponent name is already taken?
+    sc = {"class": obj, "parameters": {}, "constants": kwargs, "baseclass": "FoldedComponent", "component": None}
+    self.subcomponents.setdefault(name, sc)
+    self.resolveSubcomponent(name)
 
   def define(self, origin=True, euler=None, quat=True, **kwargs):
     MechanicalComponent.define(self, origin, euler, quat, **kwargs)

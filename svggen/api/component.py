@@ -15,7 +15,7 @@ from svggen.utils.io import load_yaml
 from svggen.api import unfolder
 from sympy import Symbol, Eq, StrictGreaterThan, GreaterThan, StrictLessThan, LessThan
 
-def getSubcomponentObject(component, name=None, **kwargs):
+def getSubcomponentObject(component, baseclass, name=None, **kwargs):
     try:
         obj = tryImport(component, component)
         # XXX hack to get around derived components not having name parameter in their __init__
@@ -23,9 +23,15 @@ def getSubcomponentObject(component, name=None, **kwargs):
         c.setName(name)
         return c
     except ImportError:
-        c = Component(component, **kwargs)
-        c.setName(name)
-        return c
+        try:
+            obj = tryImport(baseclass, baseclass)
+            c = obj(component, **kwargs)
+            c.setName(name)
+            return c
+        except ImportError:
+            c = Component(component, **kwargs)
+            c.setName(name)
+            return c
 
 
 class Component(Parameterized):
@@ -129,7 +135,7 @@ class Component(Parameterized):
         :type  obj: str or unicode
         '''
         # XXX will silently fail if subcomponent name is already taken?
-        sc = {"class": obj, "parameters": {}, "constants": kwargs, "component": None}
+        sc = {"class": obj, "parameters": {}, "constants": kwargs, "baseclass": "Component", "component": None}
         self.subcomponents.setdefault(name, sc)
         self.resolveSubcomponent(name)
 
@@ -402,7 +408,7 @@ class Component(Parameterized):
           kwargs = sc["constants"]
         except KeyError:
           kwargs = {}
-        obj = getSubcomponentObject(c, name = prefixString(self.getName(), name), **kwargs)
+        obj = getSubcomponentObject(c, sc["baseclass"], name = prefixString(self.getName(), name), **kwargs)
         self.subcomponents[name]["component"] = obj
         self.inheritParameters(obj, name)
         self.inheritSemanticConstraints(obj)
@@ -426,10 +432,13 @@ class Component(Parameterized):
     def evalComponents(self):
         for (name, sc) in self.subcomponents.iteritems():
             obj = sc["component"]
+            classname = sc["class"]
             try:
+                #obj.make()
                 for (key, composable) in obj.composables.iteritems():
                     if key not in self.composables:
                         self.composables[key] = composable.new()
+                        self.composables[key].setComponent(self)
                 self.append(name, name)
             except:
                 print "Error in subclass %s, instance %s" % (classname, name)

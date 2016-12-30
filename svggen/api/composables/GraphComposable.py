@@ -50,7 +50,6 @@ class Graph(Composable, BaseGraph):
           else:
             newargs[key] = value
         self.mergeEdge(label1[i], label2[i], **newargs)
-
     # Attach if one port contains a Face and the other contains a Decoration
     try:
       face = self.getFace(port1.getFaceName())

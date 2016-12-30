@@ -2,6 +2,7 @@ import os
 import glob
 
 from svggen.api.component import Component
+from svggen.utils.utils import tryImport
 
 
 pyComponents = [ os.path.basename(f)[:-3] for f in glob.glob(os.path.dirname(__file__)+"/*.py") if os.path.basename(f)[0] != "_"]
@@ -13,11 +14,17 @@ def getComponent(c, **kwargs):
     mod = __import__(c, fromlist=[c, "library." + c], globals=globals())
     obj = getattr(mod, c)()
   except ImportError:
-    obj = Component(os.path.abspath(os.path.dirname(__file__)) + "/" + c + ".yaml")
+    if "baseclass" in kwargs:
+      bc = tryImport(kwargs["baseclass"],kwargs["baseclass"])
+      obj = bc(os.path.abspath(os.path.dirname(__file__)) + "/" + c + ".yaml")
+    else:
+      obj = Component(os.path.abspath(os.path.dirname(__file__)) + "/" + c + ".yaml")
 
   for k, v in kwargs.iteritems():
     if k == 'name':
       obj.setName(v)
+    elif k == 'baseclass':
+      pass
     else:
       obj.setParameter(k, v)
   if 'name' not in kwargs:

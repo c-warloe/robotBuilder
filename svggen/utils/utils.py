@@ -9,9 +9,14 @@ def tryImport(module, attribute):
     obj = getattr(mod, attribute)
     return obj
   except ImportError:
-    mod = __import__("svggen.library." + module, fromlist=[attribute])
-    obj = getattr(mod, attribute)
-    return obj
+    try:
+      mod = __import__("svggen.library." + module, fromlist=[attribute])
+      obj = getattr(mod, attribute)
+      return obj
+    except ImportError:
+      mod = __import__("svggen.api." + module, fromlist=[attribute])
+      obj = getattr(mod, attribute)
+      return obj
 
 def decorateGraph(face, decoration, offset=(0, 0), offset_dx=None, offset_dy=None, rotate=False, mode=None):
   try:

@@ -38,8 +38,8 @@ connections:
 constants: {}
 constraints: []
 interfaces:
-  e1: {interface: r, subcomponent: r1}
-  e2: {interface: t, subcomponent: r1}
+  e1: {interface: r, subcomponent: r5}
+  e2: {interface: t, subcomponent: r5}
 parameters: {dx: 0, dy: 0, dz: 0, q_a: 1, q_i: 0, q_j: 0, q_k: 0, side: 100}
 subcomponents:
   r1:

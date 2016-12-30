@@ -95,10 +95,11 @@ def addSubcomponent(request):
 
             #Add the subcomponent to the session component
             sessionComponent = request.session['component']
-            sessionComponent.addSubcomponent(scname,type)
+            sessionComponent.addFoldedSubcomponent(scname,type)
 
             #Return information about subcomponent
-            c = getComponent(type)
+            c = getComponent(type, baseclass="FoldedComponent")
+            c.makeOutput(remake=False, placeOnly=True)
             print "Before extract"
             responseDict = extractFromComponent(c)
             print "After extract"

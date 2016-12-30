@@ -551,8 +551,14 @@ function loadGui() {
 		SELECTED_2.parent.connectedInterfaces[SELECTED_2.name] = newConn.interface1;
 		var folder = comp.connections.addFolder(newConn.name);
 		newConn.args = "";
+		var connFixButton = {
+		    fixConnection:function(){
+		        var value = window.prompt("Value to fix interface to");
+                fixComponentEdgeInterface(s1pname, s1name, value);
+		    }
+		}
 		folder.add(newConn,"interface2").name(newConn.interface1);
-		folder.add(newConn,"args");
+		folder.add(connFixButton, "fixConnection").name("Set Length");
 	    }
 	    else{
 		var joinedList = subcomponents.concat(connectedSubcomponents);

@@ -4,31 +4,50 @@ from svggen.utils.transforms import Roll, Pitch, Yaw, quat2DCM, get6DOF, Inverse
 
 
 class MechanicalComponent(Component):
+  def __init__(self, yamlFile=None, **kwargs):
+    Component.__init__(self, yamlFile, **kwargs)
+
   def define(self, origin=True, euler=None, quat=True, **kwargs):
     Component.define(self, **kwargs)
 
     if origin:
-      x = self.addParameter("dx", 0, dynamic=True)
-      y = self.addParameter("dy", 0, dynamic=True)
-      z = self.addParameter("dz", 0, dynamic=True)
+      try:
+        x = self.addParameter("dx", 0, dynamic=True)
+        y = self.addParameter("dy", 0, dynamic=True)
+        z = self.addParameter("dz", 0, dynamic=True)
+      except KeyError:
+        x = self.getParameter("dx")
+        y = self.getParameter("dy")
+        z = self.getParameter("dz")
       origin = [x, y, z]
       self.transform3D = np.Matrix(4, 4, lambda i, j: i == j and 1 or j == 3  and origin[i] or 0)
     else:
       self.transform3D = np.eye(4)
 
     if euler:
-      r = self.addParameter("roll", 0, dynamic=True)
-      p = self.addParameter("pitch", 0, dynamic=True)
-      y = self.addParameter("yaw", 0, dynamic=True)
+      try:
+        r = self.addParameter("roll", 0, dynamic=True)
+        p = self.addParameter("pitch", 0, dynamic=True)
+        y = self.addParameter("yaw", 0, dynamic=True)
+      except KeyError:
+        r = self.getParameter("roll")
+        p = self.getParameter("pitch")
+        y = self.getParameter("yaw")
       euler = [r, p, y]
       self.transform3D = np.dot(self.transform3D, Yaw(euler[2]))
       self.transform3D = np.dot(self.transform3D, Pitch(euler[1]))
       self.transform3D = np.dot(self.transform3D, Roll(euler[0]))
     elif quat:
-      a = self.addParameter("q_a", 1, dynamic=True)
-      b = self.addParameter("q_i", 0, dynamic=True)
-      c = self.addParameter("q_j", 0, dynamic=True)
-      d = self.addParameter("q_k", 0, dynamic=True)
+      try:
+        a = self.addParameter("q_a", 1, dynamic=True)
+        b = self.addParameter("q_i", 0, dynamic=True)
+        c = self.addParameter("q_j", 0, dynamic=True)
+        d = self.addParameter("q_k", 0, dynamic=True)
+      except KeyError:
+        a = self.getParameter("q_a")
+        b = self.getParameter("q_i")
+        c = self.getParameter("q_j")
+        d = self.getParameter("q_k")
       self.addConstraint(np.Eq(a*a + b*b + c*c + d*d, 1))
       quat = [a, b, c, d]
       self.transform3D = np.dot(self.transform3D, quat2DCM(quat))
