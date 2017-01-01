@@ -43,7 +43,7 @@ def componentList(request):
         for c in components:
             response.append([c.name, c.interfaces.keys])
         response = response.__str__().replace("'",'"')'''
-        response = '{"response": [["Cube", ["edge"]], ["Trapezoid", ["t", "b"]], ["Trapezoid2", ["t", "b", "s1", "s2"]], ["Rectangle", ["r", "b", "l", "t"]], ["Triangle", ["a", "b", "c"]], ["BeamHinge", ["t_A", "b_A", "r_A", "l_A", "t_B", "b_B", "r_B", "l_B"]], ["RectBeam", ["botedge3", "topedge2", "botedge0", "botedge1", "topedge0", "topedge1", "botedge2", "topedge3"]]]}'
+        response = '{"response": [["TestCompC", ["e1", "e2", "e3", "e4"]], ["Cube", ["edge"]], ["Trapezoid", ["t", "b"]], ["Trapezoid2", ["t", "b", "s1", "s2"]], ["Rectangle", ["r", "b", "l", "t"]], ["Triangle", ["a", "b", "c"]], ["BeamHinge", ["t_A", "b_A", "r_A", "l_A", "t_B", "b_B", "r_B", "l_B"]], ["RectBeam", ["botedge3", "topedge2", "botedge0", "botedge1", "topedge0", "topedge1", "botedge2", "topedge3"]]]}'
         return HttpResponse(response, content_type="application/json")
     return HttpResponse(status=501)
 
@@ -57,6 +57,18 @@ def fixEdgeInterface(request):
         value = int(data['value'])
         fc.fixEdgeInterface(compName, interface, value)
         return HttpResponse('Edge associated with interface {}.{} fixed to {}'.format(compName, interface, value))
+    return HttpResponse(status=501)
+
+@api_view(['GET', 'POST'])
+def constrainParameter(request):
+    if request.method == 'GET' or request.method == 'POST':
+        data = ast.literal_eval(request.body)
+        fc = request.session['component']
+        sc = data['sc']
+        parameter = data['parameter']
+        constraint = data['constraint']
+        fc.addParameterConstraint((sc, parameter), fc._strToSympy(constraint))
+        return HttpResponse(sc + "_" + "parameter" + " constrained to " + constraint)
     return HttpResponse(status=501)
 
 @api_view(['GET', 'POST'])
@@ -100,12 +112,12 @@ def addSubcomponent(request):
             #Return information about subcomponent
             c = getComponent(type, baseclass="FoldedComponent")
             c.makeOutput(remake=False, placeOnly=True)
-            print "Before extract"
+            #print "Before extract"
             responseDict = extractFromComponent(c)
-            print "After extract"
+            #print "After extract"
             #print responseDict
             response = compDictToJSON(responseDict, c)
-            print "Jsonified"
+            #print "Jsonified"
             try:
                 return HttpResponse(response, content_type="application/json")
             except Exception as e:
@@ -136,6 +148,21 @@ def addConnection(request):
     return HttpResponse(status=501)
 
 @api_view(['GET','POST'])
+def addParameter(request):
+    if request.method == 'GET' or request.method == 'POST':
+        try:
+            data = ast.literal_eval(request.body)
+            fc = request.session['component']
+            name = data['name']
+            default = data['def']
+            fc.addParameter(name, default)
+            print 'Parameter ' + name + ' added with default value ' + default
+            return HttpResponse('Parameter ' + name + ' added with default value ' + default)
+        except KeyError:
+            return HttpResponse(status=501)
+    return HttpResponse(status=501)
+
+@api_view(['GET','POST'])
 def make(request):
     """
     Create a new Component
@@ -150,7 +177,6 @@ def make(request):
             responseDict = extractFromComponent(fc)
             #print responseDict
             responseDict['parameters'] = {}
-            print "After component extraction"
             for key in fc.parameters.keys():
                 responseDict['parameters'][key] = fc.parameters[key].__str__()
             #print responseDict
@@ -205,6 +231,24 @@ def downloadSVG(request):
             return HttpResponse(status=611)
     return HttpResponse(status=611)
 
+@api_view(['GET','POST'])
+def downloadYaml(request):
+    """
+    Create a new Component
+    """
+    #pdb.set_trace()
+    if request.method == 'GET' or request.method == 'POST':
+        try:
+            yaml = request.session['component'].toYaml()
+            yaml = yaml.replace('"',"'")
+            yaml = yaml.replace('\n', '\\n')
+            response = '{"response": "' + yaml +'"}'
+            return HttpResponse(response, content_type="application/json")
+        except Exception as e:
+            print '%s (%s)' % (e.message, type(e))
+            traceback.print_exc()
+            return HttpResponse(status=611)
+    return HttpResponse(status=611)
 
 def extractFromComponent(c):
     output = {}
@@ -212,7 +256,7 @@ def extractFromComponent(c):
     #output["relations"] = c.getRelations()
     output["defaults"] = c.getAllDefaults()
     output["faces"] = {}
-    vsubs = c.getVariableSubs()
+    vsubs = c.getAllSubs()
     for i in c.composables['graph'].faces:
         tdict = copy.deepcopy(i.getTriangleDict())
         for vertex in range(len(tdict["vertices"])):

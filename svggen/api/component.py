@@ -96,7 +96,7 @@ class Component(Parameterized):
             self.addSubcomponent(name, value["class"], **kwargs)
             try:
               for param, pvalue in value["parameters"].iteritems():
-                self.setSubParameter((name, param), self._strToSympy(pvalue))
+                self.addParameterConstraint((name, param), self._strToSympy(pvalue))
             except AttributeError:
               pass
         except AttributeError: pass
@@ -169,6 +169,9 @@ class Component(Parameterized):
 
         self.subcomponents.pop(name)
 
+    def addParameterConstraint(self, (subComponent, parameterName), constr):
+        self.subcomponents[subComponent]["parameters"][parameterName] = constr
+
     def addInterface(self, name, val):
         if name in self.interfaces:
             raise ValueError("Interface %s already exists" % name)
@@ -205,7 +208,7 @@ class Component(Parameterized):
     def delParameter(self, name):
     '''
 
-    def toYaml(self, filename):
+    def toYaml(self, filename=None):
         parameters = {}
         constants = {}
         for k, v in self.parameters.iteritems():
@@ -250,8 +253,11 @@ class Component(Parameterized):
             "interfaces" : self.interfaces,
         }
 
-        with open(join(SVGGEN_DIR, filename), "w") as fd:
-            yaml.safe_dump(definition, fd)
+        if filename is not None:
+            with open(join(SVGGEN_DIR, filename), "w") as fd:
+                yaml.safe_dump(definition, fd)
+        else:
+            return yaml.safe_dump(definition)
 
     ###
     # GETTERS AND SETTERS
@@ -319,7 +325,11 @@ class Component(Parameterized):
             allPorts.add(component.getInterface(key))
         for port in allPorts:
           port.prefix(prefix)
-
+        if 'graph' in component.composables:
+            for face in component.composables['graph'].faces:
+                face.updateSubs(self.subs.values())
+            for edge in component.composables['graph'].edges:
+                edge.updateSubs(self.subs.values())
         for (key, composable) in component.composables.iteritems():
             self.composables[key].append(composable, prefix)
 
@@ -374,7 +384,7 @@ class Component(Parameterized):
                 #print "Constraint " + constraint.__str__() + " satisfied."
 
     def evalEquation(self,eqn):
-        eqnEval = eqn.subs(self.getVariableSubs())
+        eqnEval = eqn.subs(self.getAllSubs())
         for s in eqnEval.atoms(Symbol):
             #print "EQN EVAL: " + s.name + ": " + str(s.getValue())
             eqnEval = eqnEval.subs(s, s.getValue())

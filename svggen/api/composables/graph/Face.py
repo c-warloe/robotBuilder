@@ -34,6 +34,16 @@ class Face(object):
     self.transform3D = None
 
 
+  def updateSubs(self, subs):
+    if self.pts2d is not None:
+      self.pts2d = [tuple(dim.subs(subs) if isinstance(dim, sympy.Basic) else dim for dim in p) for p in self.pts2d]
+    if self.pts4d is not None:
+      self.pts4d = sympy.ImmutableMatrix(self.pts4d.rows, self.pts4d.cols, [dim.subs(subs) if isinstance(dim, sympy.Basic) else dim for dim in self.pts4d])
+    if self.com2d is not None:
+      self.com2d = tuple(dim.subs(subs) if isinstance(dim, sympy.Basic) else dim for dim in self.com2d)
+    if self.com4d is not None:
+      self.com4d = sympy.ImmutableMatrix(self.com4d.rows, self.com4d.cols, [dim.subs(subs) if isinstance(dim, sympy.Basic) else dim for dim in self.com4d])
+
   def recenter(self, pts, recenter=False):
     self.pts2d = [(p[0], p[1]) for p in pts]
 
@@ -252,7 +262,8 @@ class Face(object):
         if el <= 0.01:
           continue
       except TypeError:
-        print 'sympyicized variable detected - ignoring edge length check'
+        #print 'sympyicized variable detected - ignoring edge length check'
+        pass
 
       da = e.faces[self]
       if da[1]:
@@ -404,7 +415,7 @@ class Triangle(Face):
       if (a > (b + c)) or (b > (a + c)) or (c > (a + b)):
         raise ArithmeticError("Side lengths do not make a triangle")
     except TypeError:
-      print 'Sympyicized variable detected - ignoring edge length check'
+      #print 'Sympyicized variable detected - ignoring edge length check'
       isSympy = True
 
       pt1 = (0,0)

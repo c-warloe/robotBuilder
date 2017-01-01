@@ -69,8 +69,11 @@ function splitComponent()
 
 
 function downloadYaml(){
-    if(UrlExists("models/" + componentName + "/" + componentName +".yaml"))
-	window.open("models/" + componentName + "/" + componentName +".yaml");
+    var name = componentName + ".yaml"
+    getYamlDownload(function(response){
+        var data = JSON.parse(response).response;
+        download(name, data)
+    })
 }
 
 function fixEdgeInterface(){
@@ -204,16 +207,24 @@ function loadSymbolic(obj, n){
     subcomponents.push(objMesh);
     highlightInterfaces(objMesh);
     comp.subcomponents[objMesh.name] = comp.subcomponents.addFolder(objMesh.name);
-    var constrs = comp.subcomponents[objMesh.name].addFolder("Constraints");
-
+    var constrs = comp.subcomponents[objMesh.name].addFolder("Parameters");
 	objMesh.parameters = obj['parameters'];
-	for(i in objMesh.parameters){
-	    var f = constrs.addFolder(i);
-	    if(objMesh.parameters[i] == null)
-		objMesh.parameters[i] = "";
-	    objMesh.parameterfuncs[i] = "";
-	    f.add(objMesh.parameters,i).name("Value");
-	    f.add(objMesh.parameterfuncs,i).name("Function");
+	for(var pars in objMesh.parameters){
+	    var constraintButton = {
+	        c: pars,
+		    constrain:function(){
+		        var value = window.prompt("Set " + objMesh.name + "_" + this.c + " to: ");
+                constrainParameter(objMesh.name, this.c, value);
+		    }
+		}
+	    constrs.add(constraintButton, "constrain").name(pars);
+	    //if(objMesh.parameters[i] == null)
+		//    objMesh.parameters[i] = "";
+
+	    //objMesh.parameterfuncs[i] = "";
+	    //f.add(constraintButton, "constrain").name("Constrain");
+	    //f.add(objMesh.parameters,i).name("Value");
+	    //f.add(objMesh.parameterfuncs,i).name("Function");
 	}
 
     for(i in componentLibrary[objMesh.className].interfaces){
@@ -552,9 +563,11 @@ function loadGui() {
 		var folder = comp.connections.addFolder(newConn.name);
 		newConn.args = "";
 		var connFixButton = {
+		    s1pname: s1pname,
+		    s1name: s1name,
 		    fixConnection:function(){
 		        var value = window.prompt("Value to fix interface to");
-                fixComponentEdgeInterface(s1pname, s1name, value);
+                fixComponentEdgeInterface(this.s1pname, this.s1name, value);
 		    }
 		}
 		folder.add(newConn,"interface2").name(newConn.interface1);
@@ -591,8 +604,12 @@ function loadGui() {
 		window.alert('Parameter "' + fieldName + '" already exists');
 		return;
 	    }
-	    parameters[fieldName] = "";
+	    var pdef = window.prompt("Default value: ");
+	    if(pdef == "")
+	        return;
+	    parameters[fieldName] = pdef;
 	    comp.parameters.add(parameters, fieldName).name(fieldName);
+	    addParameter(fieldName, pdef);
 	},
 	parameterDelete:function(){
 	    var delName = window.prompt("Name of parameter to delete","");
@@ -704,7 +721,7 @@ function buildComponent(){
 	//	stl_loader.load('models/' + componentName + '/graph-model.stl',onComponentSTL);
 	//	document.getElementById('svg-view').src = 'models/' + componentName + '/graph-print.svg';
 
-	    //document.getElementById('dYaml').disabled = false;
+	    document.getElementById('dYaml').disabled = false;
 	    //document.getElementById('dModel').disabled = false;
 	    //document.getElementById('sComp').disabled = false;
 	    $('#overlay').remove();

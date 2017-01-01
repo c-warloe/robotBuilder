@@ -1,5 +1,8 @@
 from svggen.utils import mymath as np
 from svggen.api.composables.graph.Joint import Joint
+import svggen.utils.mymath as math
+import sympy
+
 
 
 class HyperEdge:
@@ -38,6 +41,14 @@ class HyperEdge:
       self.faces = {face: (angle, flip)}
     else:
       self.faces = {}
+
+  def updateSubs(self, subs):
+    if isinstance(self.length, math.Symbol):
+      self.length = self.length.subs(subs)
+    if self.pts2D is not None and len(self.pts2D) == 2 and len(self.pts2D[0]) == 2:
+      self.pts2D = tuple(sympy.ImmutableMatrix([dim.subs(subs) if isinstance(dim, sympy.Basic) else dim for dim in p]) for p in self.pts2D)
+    if self.pts3D is not None and len(self.pts3D) == 2 and len(self.pts3D[0]) == 3:
+      self.pts3D = tuple(sympy.ImmutableMatrix([dim.subs(subs) if isinstance(dim, sympy.Basic) else dim for dim in p]) for p in self.pts3D)
 
   def remove(self, face):
     if face in self.faces:

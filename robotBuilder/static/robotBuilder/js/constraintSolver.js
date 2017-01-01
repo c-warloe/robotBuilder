@@ -49,6 +49,13 @@ function Equation(){
 		this.derivatives[v] = 1./(1.+Math.pow(op1.value,2)) * op1.derivatives[v];
 	    }
 	    break;
+	case 'Abs':
+	case 'abs':
+	    this.value = Math.abs(op1.value);
+	    for(var v in op1.derivatives){
+	    this.derivatives[v] = Math.abs(op1.value)/op1.value;
+	    }
+	    break;
 	}
     }
     this.build = function(op1,op2,operator){

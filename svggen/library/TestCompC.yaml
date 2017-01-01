@@ -1,0 +1,38 @@
+connections:
+- - [r1, l]
+  - [r2, r]
+  - {angle: 90}
+- - [r2, l]
+  - [r4, r]
+  - {angle: 90}
+- - [r4, l]
+  - [r3, r]
+  - {angle: 90}
+- - [r3, l]
+  - [r1, r]
+  - {angle: 90}
+constants: {}
+constraints: []
+interfaces:
+  e1: {interface: t, subcomponent: r1}
+  e2: {interface: t, subcomponent: r2}
+  e3: {interface: t, subcomponent: r3}
+  e4: {interface: t, subcomponent: r4}
+parameters: {dx: 0, dy: 0, dz: 0, length: '50', q_a: 1, q_i: 0, q_j: 0, q_k: 0, width: '100'}
+subcomponents:
+  r1:
+    class: Rectangle
+    constants: {}
+    parameters: {l: length, w: width}
+  r2:
+    class: Rectangle
+    constants: {}
+    parameters: {l: length, w: width}
+  r3:
+    class: Rectangle
+    constants: {}
+    parameters: {l: length, w: width}
+  r4:
+    class: Rectangle
+    constants: {}
+    parameters: {l: length, w: width}

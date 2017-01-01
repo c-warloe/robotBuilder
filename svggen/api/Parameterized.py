@@ -1,5 +1,6 @@
 import svggen.utils.mymath as math
 from svggen.utils.utils import prefix as prefixString
+from sympy import Symbol
 
 
 class Parameterized(object):
@@ -49,6 +50,9 @@ class Parameterized(object):
     Sets a k/v pair to the internal store if the key has been added previously
     Raises KeyError if the key has not been added before
     """
+    subs = {y.name: x for (x, y) in self.getVariableSubs().iteritems()}
+    for s in v.atoms(Symbol):
+      v = v.subs(s, subs[s.name])
     if n in self.parameters:
       if isinstance(self.parameters[n], math.Symbol):
         #self.addSemanticConstraint(self.parameters[n], "==", v)
@@ -121,10 +125,12 @@ class Parameterized(object):
     return d
 
   def getAllSubs(self):
-    for p in sorted(self.subs.iteritems(), reverse=True, key=lambda x : x[0].count('.')):
-      yield p[1]
+    d = {}
     for p in self.allParameters:
-      yield (p, self.getVariableSub(p))
+      d[p] = self.getVariableSub(p)
+    #for p in sorted(self.subs.iteritems(), reverse=True, key=lambda x : x[0].count('.')):
+    #  d[p[1][0]] = p[1][1].subs(self.getVariableSubs())
+    return d
 
   def getVariables(self):
     for p in self.allParameters:
