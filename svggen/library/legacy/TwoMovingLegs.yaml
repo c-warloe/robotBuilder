@@ -1,0 +1,66 @@
+connections:
+- - [servo, slotedge]
+  - [move1, topedge]
+  - {angle: 0}
+- - [move1, botedge]
+  - [panel, t]
+  - {angle: 0}
+- - [move2, botedge]
+  - [panel, b]
+  - {angle: 0}
+interfaces:
+  botface: {interface: botface, subcomponent: servo}
+  topface: {interface: topface, subcomponent: servo}
+  botedge0: {interface: botedge0, subcomponent: servo}
+  botedge1: {interface: botedge1, subcomponent: servo}
+  botedge2: {interface: botedge2, subcomponent: servo}
+  botedge3: {interface: botedge3, subcomponent: servo}
+  topedge0: {interface: topedge0, subcomponent: servo}
+  topedge1: {interface: topedge1, subcomponent: servo}
+  topedge2: {interface: topedge2, subcomponent: servo}
+  topedge3: {interface: topedge3, subcomponent: servo}
+parameters: {depth: null, flexwidth: 5,
+  height: null, leg.beamwidth: 7, length: null, servo: null,
+  width: null}
+subcomponents:
+  panel:
+    object: Rectangle
+    parameters:
+      l: {parameter: length}
+      w: {parameter: width}
+  move2:
+    object: TwoFourBarLegs
+    parameters:
+      dl:
+        function: x[0]/2 + x[1].getParameter("hornoffset") - x[1].getParameter("shoulderlength") - x[1].getParameter("motorlength")
+        parameter: [length, servo]
+      depth: {parameter: depth}
+      flexlengthx:
+        function: 2*x.getParameter("hornheight")
+        parameter: servo
+      flexwidth: {parameter: flexwidth}
+      height: {parameter: height}
+      leg.beamwidth: {parameter: leg.beamwidth}
+      length: {parameter: length}
+  move1:
+    object: TwoFourBarLegs
+    parameters:
+      dl:
+        function: x[0]/2 + x[1].getParameter("hornoffset") - x[1].getParameter("shoulderlength") - x[1].getParameter("motorlength")
+        parameter: [length, servo]
+      depth: {parameter: depth}
+      flexlengthx:
+        function: 2*x.getParameter("hornheight")
+        parameter: servo
+      flexwidth: {parameter: flexwidth}
+      height: {parameter: height}
+      leg.beamwidth: {parameter: leg.beamwidth}
+      length: {parameter: length}
+  servo:
+    object: TwoServoMount
+    parameters:
+      depth: {parameter: depth}
+      faces: [0, 1, 2, 3]
+      length: {parameter: length}
+      servo: {parameter: servo}
+      width: {parameter: width}

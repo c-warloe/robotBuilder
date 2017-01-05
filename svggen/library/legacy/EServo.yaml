@@ -1,0 +1,20 @@
+connections: []
+interfaces:
+  control: {interface: control, subcomponent: driver}
+  ground: {interface: ground, subcomponent: device}
+  power: {interface: power, subcomponent: device}
+  signal: {interface: signal, subcomponent: device}
+parameters: {autoPoll: null, controller: null, controllerPin: null, motionType: null}
+subcomponents:
+  device:
+    object: EServoDevice
+    parameters:
+      controller: {parameter: controller}
+      signal.controllerPin: {parameter: controllerPin}
+  driver:
+    object: EServoDriver
+    parameters:
+      control.autoPoll: {parameter: autoPoll}
+      controller: {parameter: controller}
+      drivenComponent: device
+      motionType: {parameter: motionType}

@@ -1,0 +1,51 @@
+connections:
+- - [servo, slotedge]
+  - [move, topedge]
+  - {angle: 0}
+interfaces:
+  botedge0: {interface: botedge0, subcomponent: servo}
+  botedge1: {interface: botedge1, subcomponent: servo}
+  botedge2: {interface: botedge2, subcomponent: servo}
+  botedge3: {interface: botedge3, subcomponent: servo}
+  botface: {interface: botface, subcomponent: servo}
+  ground: {interface: ground, subcomponent: servo}
+  legControl: {interface: servoControl, subcomponent: servo}
+  power: {interface: power, subcomponent: servo}
+  signal: {interface: signal, subcomponent: servo}
+  tabedge: {interface: tabedge, subcomponent: servo}
+  topedge0: {interface: topedge0, subcomponent: servo}
+  topedge1: {interface: topedge1, subcomponent: servo}
+  topedge2: {interface: topedge2, subcomponent: servo}
+  topedge3: {interface: topedge3, subcomponent: servo}
+  topface: {interface: topface, subcomponent: servo}
+parameters: {autoPoll: null, controller: null, controllerPin: null, depth: null, flexwidth: 5,
+  flip: false, height: null, label: generic, leg.beamwidth: 7, length: null, servo: null,
+  width: null}
+subcomponents:
+  move:
+    object: FourBarLegs
+    parameters:
+      depth: {parameter: depth}
+      flexlengthx: {function: 2*x.getParameter("hornheight"), parameter: servo}
+      flexwidth: {parameter: flexwidth}
+      height: {parameter: height}
+      leg.beamwidth: {parameter: leg.beamwidth}
+      length: {parameter: length}
+  servo:
+    object: Servo
+    parameters:
+      autoPoll: {parameter: autoPoll}
+      controller: {parameter: controller}
+      controllerPin: {parameter: controllerPin}
+      default: 0
+      depth: {parameter: depth}
+      faces: [0, 1, 2, 3]
+      flip: {parameter: flip}
+      label: {parameter: label}
+      length: {parameter: length}
+      max: 50
+      min: -50
+      motionType: continuous
+      servo: {parameter: servo}
+      servoFunction: {function: '''input'' if x else ''input*-1''', parameter: flip}
+      width: {parameter: width}

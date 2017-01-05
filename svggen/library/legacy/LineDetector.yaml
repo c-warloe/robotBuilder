@@ -1,0 +1,20 @@
+connections: []
+interfaces:
+  curValue: {interface: curValue, subcomponent: driver}
+  ground: {interface: ground, subcomponent: device}
+  ledSignal: {interface: ledSignal, subcomponent: device}
+  seeLine: {interface: seeLine, subcomponent: driver}
+  sensorSignal: {interface: sensorSignal, subcomponent: device}
+parameters: {controller: null, ledControllerPin: null, sensorControllerPin: null}
+subcomponents:
+  device:
+    object: LineDetectorDevice
+    parameters:
+      controller: {parameter: controller}
+      ledSignal.controllerPin: {parameter: ledControllerPin}
+      sensorSignal.controllerPin: {parameter: sensorControllerPin}
+  driver:
+    object: LineDetectorDriver
+    parameters:
+      controller: {parameter: controller}
+      drivenComponent: device

@@ -1,0 +1,25 @@
+connections:
+- - [ext, topedge]
+  - [prox, botedge]
+  - {angle: 180}
+- - [prox, topedge]
+  - [dist, botedge]
+  - {angle: angle}
+constants: {}
+constraints: []
+interfaces:
+  botedge: {interface: botedge, subcomponent: ext}
+parameters: {angle: 0, length: 100, ratio: 0.5}
+subcomponents:
+  dist:
+    class: Beam
+    constants: {bangle: 45, phase: 2, shape: 3, tangle: 45}
+    parameters: {length: length*ratio/(ratio + 1)}
+  ext:
+    class: Extension
+    constants: {}
+    parameters: {}
+  prox:
+    class: Beam
+    constants: {bangle: -45, phase: 2, shape: 3, tangle: 45}
+    parameters: {length: length/(ratio + 1)}

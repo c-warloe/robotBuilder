@@ -1,0 +1,66 @@
+connections:
+- - [t, leftedge0]
+  - [left, botedge0]
+  - {angle: 0}
+- - [t, rightedge0]
+  - [right, topedge0]
+  - {angle: 0}
+- - [t, leftedge1]
+  - [left, botedge1]
+  - {angle: 0}
+- - [t, rightedge1]
+  - [right, topedge1]
+  - {angle: 0}
+- - [t, leftedge2]
+  - [left, botedge2]
+  - {angle: 0}
+- - [t, rightedge2]
+  - [right, topedge2]
+  - {angle: 0}
+- - [t, stemedge]
+  - [stem, topedge1]
+  - {angle: -35.25}
+- - [t, stemtab]
+  - [stem, topedge3]
+  - {angle: -35.25, tabWidth: 10}
+interfaces:
+  leftface: {interface: topface, subcomponent: left}
+  lefttab: {interface: tabedge, subcomponent: left}
+  rightface: {interface: botface, subcomponent: right}
+  stemedge0: {interface: botedge0, subcomponent: stem}
+  stemedge1: {interface: botedge1, subcomponent: stem}
+  stemedge2: {interface: botedge2, subcomponent: stem}
+  stemedge3: {interface: botedge3, subcomponent: stem}
+parameters: {crosswidth: null, leftlength: null, rightlength: null, stemwidth: null,
+  thickness: null}
+subcomponents:
+  left:
+    object: RectBeam
+    parameters:
+      depth: {parameter: thickness}
+      length: {parameter: leftlength}
+      width: {parameter: crosswidth}
+  right:
+    object: RectBeam
+    parameters:
+      depth: {parameter: thickness}
+      length: {parameter: rightlength}
+      width: {parameter: crosswidth}
+  stem:
+    object: Hinge
+    parameters:
+      bot:
+        function: (x[1]-x[0]) * 1.0 / sum(x)
+        parameter: [stemwidth, thickness]
+      perimeter:
+        function: 2 * sum(x)
+        parameter: [stemwidth, thickness]
+      top:
+        function: (x[1]-x[0]) * 1.0 / sum(x)
+        parameter: [stemwidth, thickness]
+  t:
+    object: TJoint
+    parameters:
+      crosswidth: {parameter: crosswidth}
+      stemwidth: {parameter: stemwidth}
+      thickness: {parameter: thickness}

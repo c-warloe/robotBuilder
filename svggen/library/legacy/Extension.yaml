@@ -1,0 +1,19 @@
+connections:
+- - [top, b]
+  - [bot, t]
+  - {angle: -180}
+constants: {}
+constraints: []
+interfaces:
+  botedge: {interface: b, subcomponent: bot}
+  topedge: {interface: t, subcomponent: top}
+parameters: {length: 100}
+subcomponents:
+  bot:
+    class: Rectangle
+    constants: {}
+    parameters: {l: length/2}
+  top:
+    class: Rectangle
+    constants: {}
+    parameters: {l: length/2}

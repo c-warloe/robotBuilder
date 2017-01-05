@@ -1,0 +1,56 @@
+connections:
+- - [t, leftedge0]
+  - [left, botedge0]
+  - {angle: 0}
+- - [t, rightedge0]
+  - [right, topedge0]
+  - {angle: 0}
+- - [t, leftedge1]
+  - [left, botedge1]
+  - {angle: 0}
+- - [t, rightedge1]
+  - [right, topedge1]
+  - {angle: 0}
+- - [t, leftedge2]
+  - [left, botedge2]
+  - {angle: 0}
+- - [t, rightedge2]
+  - [right, topedge2]
+  - {angle: 0}
+- - [t, stemedge]
+  - [stem, topedge0]
+  - {angle: 0}
+- - [t, stemtab]
+  - [stem, topedge2]
+  - {angle: 0, tabWidth: 10}
+interfaces:
+  leftface: {interface: topface, subcomponent: left}
+  rightface: {interface: botface, subcomponent: right}
+  stemface: {interface: botface, subcomponent: stem}
+parameters: {crosswidth: null, leftlength: null, rightlength: null, stemlength: null,
+  stemwidth: null, thickness: null}
+subcomponents:
+  left:
+    object: RectBeam
+    parameters:
+      depth: {parameter: thickness}
+      length: {parameter: leftlength}
+      width: {parameter: crosswidth}
+  right:
+    object: RectBeam
+    parameters:
+      depth: {parameter: thickness}
+      length: {parameter: rightlength}
+      width: {parameter: crosswidth}
+  stem:
+    object: RectBeam
+    parameters:
+      depth: {parameter: thickness}
+      length: {parameter: stemlength}
+      width: {parameter: stemwidth}
+  t:
+    object: TJoint
+    parameters:
+      crosswidth: {parameter: crosswidth}
+      stemwidth: {parameter: stemwidth}
+      thickness: {parameter: thickness}

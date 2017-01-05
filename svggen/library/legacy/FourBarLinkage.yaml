@@ -1,0 +1,24 @@
+connections:
+- - [l0, p1]
+  - [l1, p0]
+  - {}
+- - [l1, p1]
+  - [l2, p0]
+  - {angle: 0}
+constants: {}
+constraints: []
+interfaces: {}
+parameters: {}
+subcomponents:
+  l0:
+    class: Link
+    constants: {}
+    parameters: {}
+  l1:
+    class: Link
+    constants: {}
+    parameters: {}
+  l2:
+    class: Link
+    constants: {}
+    parameters: {}

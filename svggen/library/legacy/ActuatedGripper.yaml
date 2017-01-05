@@ -1,0 +1,37 @@
+connections:
+- - [servo, topedge0]
+  - [gripper, botedge1]
+  - {angle: 35.25}
+- - [servo, topedge1]
+  - [gripper, botedge2]
+  - {angle: -35.25}
+- - [servo, topedge2]
+  - [gripper, botedge3]
+  - {angle: 35.25}
+interfaces:
+  botedge0: {interface: botedge0, subcomponent: servo}
+  botedge1: {interface: botedge1, subcomponent: servo}
+  botedge2: {interface: botedge2, subcomponent: servo}
+  botedge3: {interface: botedge3, subcomponent: servo}
+  botface: {interface: botface, subcomponent: servo}
+parameters: {controller: null, depth: null, fingerlength: null, fingerwidth: null,
+  length: null, ratio: 1.5, servo: null, width: null}
+subcomponents:
+  gripper:
+    object: Gripper
+    parameters:
+      depth: {parameter: depth}
+      fingerlength: {parameter: fingerlength}
+      fingerwidth: {parameter: fingerwidth}
+      ratio: {parameter: ratio}
+      width: {parameter: width}
+  servo:
+    object: Servo
+    parameters:
+      center: false
+      controller: {parameter: controller}
+      depth: {parameter: depth}
+      length: {parameter: length}
+      phase: 1
+      servo: {parameter: servo}
+      width: {parameter: width}

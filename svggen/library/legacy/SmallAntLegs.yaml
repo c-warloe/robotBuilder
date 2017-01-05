@@ -1,0 +1,54 @@
+connections:
+- - [base, topedge1]
+  - [leg1, top]
+  - {angle: 0}
+- - [base, topedge3]
+  - [leg2, top]
+  - {angle: 0}
+- - [base, botedge3]
+  - [leg3, top]
+  - {angle: 0}
+- - [base, botedge1]
+  - [leg4, top]
+  - {angle: 0}
+interfaces:
+  slotedge: {interface: slotedge, subcomponent: base}
+parameters: {depth: null, flexwidth: 5, height: null, leg.beamwidth: 7, length: null,
+  servo: null, width: null}
+subcomponents:
+  base:
+    object: TwoMovingLegs
+    parameters:
+      depth: {parameter: depth}
+      flexwidth: {parameter: flexwidth}
+      height: {parameter: height}
+      leg.beamwidth: {parameter: leg.beamwidth}
+      length: {parameter: length}
+      servo: {parameter: servo}
+      width: {parameter: width}
+  leg1:
+    object: PointedLeg
+    parameters:
+      beamwidth: {parameter: leg.beamwidth}
+      length: {parameter: height}
+      top: {parameter: depth}
+  leg2:
+    object: PointedLeg
+    parameters:
+      beamwidth: {parameter: leg.beamwidth}
+      length: {parameter: height}
+      phase: 'True'
+      top: {parameter: depth}
+  leg3:
+    object: PointedLeg
+    parameters:
+      beamwidth: {parameter: leg.beamwidth}
+      length: {parameter: height}
+      top: {parameter: depth}
+  leg4:
+    object: PointedLeg
+    parameters:
+      beamwidth: {parameter: leg.beamwidth}
+      length: {parameter: height}
+      phase: 'True'
+      top: {parameter: depth}

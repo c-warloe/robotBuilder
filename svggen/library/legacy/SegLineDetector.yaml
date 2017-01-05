@@ -1,0 +1,19 @@
+connections: []
+interfaces: {}
+parameters: {controller: null, driveservo: null, height: null, length: null, lineDetector.controller: null,
+  lineDetector.ledControllerPin: A1, lineDetector.sensorControllerPin: A0, tailservo: null}
+subcomponents:
+  lineDetector:
+    object: LineDetector
+    parameters:
+      controller: {parameter: controller}
+      ledControllerPin: {parameter: lineDetector.ledControllerPin}
+      sensorControllerPin: {parameter: lineDetector.sensorControllerPin}
+  seg:
+    object: Seg
+    parameters:
+      controller: {parameter: controller}
+      driveservo: {parameter: driveservo}
+      height: {parameter: height}
+      length: {parameter: length}
+      tailservo: {parameter: tailservo}

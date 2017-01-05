@@ -1,0 +1,53 @@
+parameters: {microcontroller: null, flexwidth: 5, height: null,
+  leg.beamwidth: 5, length: null, servo: null, depth: null}
+
+subcomponents:
+  brain:
+    object: RectBeam
+    parameters:
+      length: {parameter: length}
+      width:
+        function: x.getDimension('width')
+        parameter: microcontroller
+      depth: {parameter: depth}
+      faces: [0, 1, 2, 3]
+  legs:
+    object: SmallAntLegs
+    parameters:
+      leg.beamwidth: {parameter: leg.beamwidth}
+      length: {parameter: length}
+      servo: {parameter: servo}
+      flexwidth: {parameter: flexwidth}
+      height: {parameter: height}
+      width:
+        function: x.getDimension('width')
+        parameter: microcontroller
+      depth:
+        function: x.getParameter('motorwidth')
+        parameter: servo
+  header:
+    object: Header
+    parameters:
+      colsep:
+        function: x.getDimension('colsep')
+        parameter: microcontroller
+      ncols:
+        function: x.getDimension('ncols')
+        parameter: microcontroller
+      nrows:
+        function: x.getDimension('nrows')
+        parameter: microcontroller
+      rowsep:
+        function: x.getDimension('rowsep')
+        parameter: microcontroller
+
+connections:
+- - [brain, tabedge]
+  - [legs, slotedge]
+  - {angle: -180}
+#- - [legs, botface.2]
+  #- [brain, slotedge]
+  #- {angle: -180, tabWidth: 5}
+
+interfaces: {}
+

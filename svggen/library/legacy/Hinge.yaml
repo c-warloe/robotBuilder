@@ -1,0 +1,51 @@
+connections:
+- - [top, endedge0]
+  - [bot, startedge0]
+  - angle: {function: -70.5+x, parameter: angle}
+- - [top, endedge1]
+  - [bot, startedge1]
+  - angle: {function: '70.5', parameter: angle}
+- - [top, endedge2]
+  - [bot, startedge2]
+  - angle: {function: -70.5-x, parameter: angle}
+- - [top, endedge3]
+  - [bot, startedge3]
+  - angle: {function: '70.5', parameter: angle}
+- - [top, endedge4]
+  - [bot, startedge4]
+  - angle: {function: -70.5+x, parameter: angle}
+interfaces:
+  botedge0: {interface: endedge0, subcomponent: bot}
+  botedge1: {interface: endedge1, subcomponent: bot}
+  botedge2: {interface: endedge2, subcomponent: bot}
+  botedge3: {interface: endedge3, subcomponent: bot}
+  botedge4: {interface: endedge4, subcomponent: bot}
+  topedge0: {interface: startedge0, subcomponent: top}
+  topedge1: {interface: startedge1, subcomponent: top}
+  topedge2: {interface: startedge2, subcomponent: top}
+  topedge3: {interface: startedge3, subcomponent: top}
+  topedge4: {interface: startedge4, subcomponent: top}
+parameters: {angle: 0, bot: 0, perimeter: null, tetheroffset: 0, tetherwidth: 0, top: 0}
+subcomponents:
+  bot:
+    object: Tetrahedron
+    parameters:
+      end: {parameter: bot}
+      min:
+        function: min(x)
+        parameter: [top, bot]
+      perimeter: {parameter: perimeter}
+      start: 1
+      tetheroffset: {parameter: tetheroffset}
+      tetherwidth: {parameter: tetherwidth}
+  top:
+    object: Tetrahedron
+    parameters:
+      end: 1
+      min:
+        function: min(x)
+        parameter: [top, bot]
+      perimeter: {parameter: perimeter}
+      start: {parameter: top}
+      tetheroffset: {parameter: tetheroffset}
+      tetherwidth: {parameter: tetherwidth}

@@ -1,0 +1,20 @@
+connections: []
+interfaces:
+  control: {interface: control, subcomponent: driver}
+  ground: {interface: ground, subcomponent: device}
+  signal: {interface: signal, subcomponent: device}
+parameters: {autoPoll: null, controller: null, controllerPin: null, type: null}
+subcomponents:
+  device:
+    object: LEDDevice
+    parameters:
+      controller: {parameter: controller}
+      signal.controllerPin: {parameter: controllerPin}
+      type: {parameter: type}
+  driver:
+    object: LEDDriver
+    parameters:
+      control.autoPoll: {parameter: autoPoll}
+      controller: {parameter: controller}
+      drivenComponent: device
+      type: {parameter: type}

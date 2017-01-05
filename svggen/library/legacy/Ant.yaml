@@ -1,0 +1,79 @@
+connections:
+- - [slider, curPosition]
+  - [front, legControl]
+  - {}
+- - [slider, curPosition]
+  - [back, legControl]
+  - {}
+- - [brain, botedge0]
+  - [front, topedge1]
+  - {angle: -180}
+- - [brain, topedge2]
+  - [back, topedge1]
+  - {angle: -180}
+- - [front, botedge1]
+  - [back, topedge3]
+  - {angle: -180, tabWidth: 6}
+- - [back, botedge1]
+  - [front, topedge3]
+  - {angle: -180, tabWidth: 6}
+interfaces: {}
+parameters: {autoPoll: null, controller: null, controllerPin: null, depth: null, flexwidth: 5,
+  flip: false, height: null, label: generic, leg.beamwidth: null, length: null, servo: null,
+  width: null}
+subcomponents:
+  back:
+    object: LegPair
+    parameters:
+      autoPoll: {parameter: autoPoll}
+      controller: {parameter: controller}
+      controllerPin: 9
+      depth: {parameter: depth}
+      flexwidth: {parameter: flexwidth}
+      flip: {parameter: flip}
+      height: {parameter: height}
+      label: Back Leg
+      leg.beamwidth: {parameter: leg.beamwidth}
+      length: {parameter: length}
+      servo: {parameter: servo}
+      width:
+        function: x[0].getDimension('width') + x[1].getParameter('motorheight') *
+          2
+        parameter: [controller, servo]
+  bluetooth:
+    object: BluetoothModule
+    parameters:
+      RX.controllerPin: 10
+      TX.controllerPin: 11
+      controller: {parameter: controller}
+  brain:
+    object: Brains
+    parameters:
+      brain: {parameter: controller}
+      length: {parameter: length}
+  front:
+    object: LegPair
+    parameters:
+      autoPoll: {parameter: autoPoll}
+      controller: {parameter: controller}
+      controllerPin: 3
+      depth: {parameter: depth}
+      flexwidth: {parameter: flexwidth}
+      flip: true
+      height: {parameter: height}
+      label: Front Leg
+      leg.beamwidth: {parameter: leg.beamwidth}
+      length: {parameter: length}
+      servo: {parameter: servo}
+      width:
+        function: x[0].getDimension('width') + x[1].getParameter('motorheight') *
+          2
+        parameter: [controller, servo]
+  slider:
+    object: UISlider
+    parameters:
+      controller: {parameter: controller}
+      default: 0
+      label: Both Legs
+      max: 50
+      min: -50

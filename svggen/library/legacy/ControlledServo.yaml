@@ -1,0 +1,39 @@
+connections:
+- - [servo, control]
+  - [dataFunction, output]
+  - {}
+- - [dataFunction, input]
+  - [slider, curPosition]
+  - {}
+interfaces:
+  ground: {interface: ground, subcomponent: servo}
+  power: {interface: power, subcomponent: servo}
+  servoControl: {interface: input, subcomponent: dataFunction}
+  signal: {interface: power, subcomponent: servo}
+parameters: {autoPoll: null, controller: null, controllerPin: null, curPosition.autoPoll: null,
+  default: 50, label: generic, max: 100, min: 0, motionType: null, newPosition.autoPoll: null,
+  protocol: bluetooth, servoFunction: null}
+subcomponents:
+  dataFunction:
+    object: DataFunction
+    parameters:
+      controller: {parameter: controller}
+      function: {parameter: servoFunction}
+  servo:
+    object: EServo
+    parameters:
+      autoPoll: {parameter: autoPoll}
+      controller: {parameter: controller}
+      controllerPin: {parameter: controllerPin}
+      motionType: {parameter: motionType}
+  slider:
+    object: UISlider
+    parameters:
+      controller: {parameter: controller}
+      curPosition.autoPoll: {parameter: curPosition.autoPoll}
+      default: {parameter: default}
+      label: {parameter: label}
+      max: {parameter: max}
+      min: {parameter: min}
+      newPosition.autoPoll: {parameter: newPosition.autoPoll}
+      protocol: {parameter: protocol}

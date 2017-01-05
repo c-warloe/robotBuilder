@@ -1,0 +1,42 @@
+connections:
+- - [lfinger, botedge]
+  - [base, startedge2]
+  - {angle: 0}
+- - [rfinger, botedge]
+  - [base, startedge4]
+  - {angle: 0}
+interfaces:
+  botedge0: {interface: endedge0, subcomponent: base}
+  botedge1: {interface: endedge1, subcomponent: base}
+  botedge2: {interface: endedge2, subcomponent: base}
+  botedge3: {interface: endedge3, subcomponent: base}
+parameters: {depth: null, fingerlength: null, fingerwidth: null, ratio: 1.5, width: null}
+subcomponents:
+  base:
+    object: Tetrahedron
+    parameters:
+      end:
+        function: (x[1]-x[0]) * 1.0 / sum(x)
+        parameter: [depth, width]
+      perimeter:
+        function: sum(x)*2
+        parameter: [depth, width]
+      start:
+        function: (2*x[2]-x[1]-x[0]) * 1.0 / (x[0]+x[1])
+        parameter: [depth, width, fingerwidth]
+  lfinger:
+    object: Finger
+    parameters:
+      beamwidth: {parameter: fingerwidth}
+      length: {parameter: fingerlength}
+      phase: 1
+      ratio: {parameter: ratio}
+      shape: 3
+  rfinger:
+    object: Finger
+    parameters:
+      beamwidth: {parameter: fingerwidth}
+      length: {parameter: fingerlength}
+      phase: -3
+      ratio: {parameter: ratio}
+      shape: 3
