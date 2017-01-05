@@ -161,13 +161,16 @@ class Component(Parameterized):
         toDelete = []
 
         # delete edges connecting components
-        for i, ((fromComp, _), (toComp, _), _, _) in enumerate(self.connections):
+        for i, ((fromComp, _), (toComp, _), _) in enumerate(self.connections):
             if name in (fromComp, toComp):
                 toDelete.append(i)
         for i in reversed(toDelete):
             self.connections.pop(i)
-
         self.subcomponents.pop(name)
+        del self.composables['graph']
+        for sc in self.subcomponents:
+            if 'graph' in self.subcomponents[sc]['component'].composables:
+                self.subcomponents[sc]['component'].composables['graph'].placed = False
 
     def addParameterConstraint(self, (subComponent, parameterName), constr):
         self.subcomponents[subComponent]["parameters"][parameterName] = constr
@@ -467,12 +470,18 @@ class Component(Parameterized):
             composble.addInterface(self.getInterface(name))
 
     def evalConnections(self):
+
         for ((fromComponent, fromPort), (toComponent, toPort), kwargs) in self.connections:
             self.attach((fromComponent, fromPort),
                         (toComponent, toPort),
                         kwargs)
 
+    def reset(self):
+        self.semanticConstraints = []
+        self.localSemanticConstraints = []
+
     def make(self):
+        self.reset()
         self.modifyParameters()
         self.resolveSubcomponents()
         self.evalConstraints()

@@ -6,6 +6,7 @@ var componentObj;
 var componentLibrary = {};
 var componentMenus = {};
 var parameters = {};
+var interfaces = {};
 var connections = [];
 var tempParams = {};
 var componentCount = 0;
@@ -21,7 +22,7 @@ componentName = ""
 do{
     componentName = window.prompt("Name the component", "");
 }
-while(componentName == "");
+while(componentName == "" || componentName == null);
 init();
 render();
 
@@ -74,6 +75,10 @@ function downloadYaml(){
         var data = JSON.parse(response).response;
         download(name, data)
     })
+}
+
+function saveComponent(){
+    componentSave(componentName, function(){})
 }
 
 function fixEdgeInterface(){
@@ -207,17 +212,21 @@ function loadSymbolic(obj, n){
     subcomponents.push(objMesh);
     highlightInterfaces(objMesh);
     comp.subcomponents[objMesh.name] = comp.subcomponents.addFolder(objMesh.name);
-    var constrs = comp.subcomponents[objMesh.name].addFolder("Parameters");
+    var constrs = comp.subcomponents[objMesh.name].addFolder("Constrain Parameters");
 	objMesh.parameters = obj['parameters'];
 	for(var pars in objMesh.parameters){
 	    var constraintButton = {
+	        controller: undefined,
 	        c: pars,
 		    constrain:function(){
 		        var value = window.prompt("Set " + objMesh.name + "_" + this.c + " to: ");
                 constrainParameter(objMesh.name, this.c, value);
+                this.controller.name(this.c + " = " + value);
 		    }
 		}
-	    constrs.add(constraintButton, "constrain").name(pars);
+	    var controller = constrs.add(constraintButton, "constrain");
+	    constraintButton.controller = controller;
+	    controller.name(pars);
 	    //if(objMesh.parameters[i] == null)
 		//    objMesh.parameters[i] = "";
 
@@ -226,16 +235,85 @@ function loadSymbolic(obj, n){
 	    //f.add(objMesh.parameters,i).name("Value");
 	    //f.add(objMesh.parameterfuncs,i).name("Function");
 	}
-
-    for(i in componentLibrary[objMesh.className].interfaces){
-	objMesh.interfaces[componentLibrary[objMesh.className].interfaces[i]] = false;
-    }
+    /*var ints = comp.subcomponents[objMesh.name].addFolder("Inherit Interfaces");
+    for(var i in componentLibrary[objMesh.className].interfaces){
+        var inheritButton = {
+            controller: undefined,
+            name: objMesh.name,
+            interface: componentLibrary[objMesh.className].interfaces[i],
+            inherit: function(){
+                var intName = window.prompt("Name for inherited interface: ");
+                this.controller.name(this.interface + ": Inherited as " + intName);
+                inheritInterface(intName, this.name, this.interface);
+            }
+        }
+        var controller = ints.add(inheritButton, "inherit");
+        inheritButton.controller = controller;
+        controller.name(inheritButton.interface);
+	    //objMesh.interfaces[componentLibrary[objMesh.className].interfaces[i]] = false;
+    }*/
     scene.add(objMesh);
-    var ints = comp.subcomponents[objMesh.name].addFolder("Inherit Interfaces");
-    for(i in objMesh.interfaces){
-	var contr = ints.add(objMesh.interfaces,i)
-	contr.name(i);
+    /*for(i in objMesh.interfaces){
+	    var contr = ints.add(objMesh.interfaces,i)
+	    contr.name(i);
+    }*/
+    var removeButton = {
+        delName: objMesh.name,
+        remove: function(){
+            for(var i = 0, len = subcomponents.length; i < len; i++){
+		        if(subcomponents[i].name == this.delName){
+		            if(SELECTED != undefined && SELECTED.name == subcomponents[i].name){
+			            control.detach(subcomponents[i].name);
+			            SELECTED = undefined;
+		            }
+		            scene.remove(subcomponents[i]);
+		            subcomponents.splice(i,1);
+		            break;
+		        }
+	        }
+	        removeByName(connectedSubcomponents,this.delName);
+	        comp.subcomponents.removeFolder(this.delName);
+	        for(var i = 0, len = connections.length; i < len; i++){
+	            if(connections[i].interface1.substr(0,connections[i].interface1.indexOf(".")) == this.delName)
+	            {
+	                var otherName = connections[i].interface2.substr(0,connections[i].interface2.indexOf("."));
+	                console.log(otherName);
+	                for(var j = 0, slen = subcomponents.length; j < slen; j++){
+	                    if(subcomponents[j].name == otherName)
+	                        delete subcomponents[j].connectedInterfaces[connections[i].interface2.substr(connections[i].interface2.indexOf(".")+1)];
+	                }
+	                for(var j = 0, slen = connectedSubcomponents.length; j < slen; j++){
+	                    if(connectedSubcomponents[j].name == otherName)
+	                        delete connectedSubcomponents[j].connectedInterfaces[connections[i].interface1.substr(connections[i].interface1.indexOf(".")+1)];
+	                }
+	                comp.connections.removeFolder(connections[i].name);
+	                connections.splice(i, 1);
+	                i--;
+	                len--;
+                }
+                else if(connections[i].interface2.substr(0,connections[i].interface2.indexOf(".")) == this.delName)
+                {
+                    var otherName = connections[i].interface1.substr(0,connections[i].interface1.indexOf("."));
+                    console.log(otherName);
+	                for(var j = 0, slen = subcomponents.length; j < slen; j++){
+	                    if(subcomponents[j].name == otherName)
+	                        delete subcomponents[j].connectedInterfaces[connections[i].interface1.substr(connections[i].interface1.indexOf(".")+1)];
+	                }
+	                for(var j = 0, slen = connectedSubcomponents.length; j < slen; j++){
+	                    if(connectedSubcomponents[j].name == otherName)
+	                        delete connectedSubcomponents[j].connectedInterfaces[connections[i].interface1.substr(connections[i].interface1.indexOf(".")+1)];
+	                }
+	                comp.connections.removeFolder(connections[i].name);
+	                connections.splice(i, 1);
+	                i--;
+	                len--;
+                }
+	        }
+	        console.log("deleting: " + this.delName);
+	        delSubcomponent(this.delName);
+        }
     }
+    comp.subcomponents[objMesh.name].add(removeButton, "remove").name("Delete");
 }
 
 function highlightInterfaces(objMesh)
@@ -277,7 +355,7 @@ function highlightInterfaces(objMesh)
 
 function onLoadSTL(geometry){
     var n = window.prompt("Subcomponent Name","");
-    if(n == "")
+    if(n == "" || n == null)
 	return;
     var joined = subcomponents.concat(connectedSubcomponents);
     for(var iter = 0,len=joined.length; iter < len; iter++){
@@ -355,7 +433,7 @@ function handleError(e){
 	}
 	for(var i = 0, len = param.length; i < len; i++){
 	    var val = window.prompt("Set value for parameter " + param[i]);
-	    if(val == "")
+	    if(val == "" || val == null)
 		return;
 	    tempParams[param[i]] = parseInt(val);
 	}
@@ -373,23 +451,19 @@ function handleError(e){
 
 function getComponents()
 {
-	for(var key in componentMenus){
-	    getComponentList(key ,function(response){
+	//for(var key in componentMenus){
+	    getComponentList("" ,function(response){
 	    response = JSON.parse(response).response;
 		for(i = 0; i < response.length; i++){
 		    componentLibrary[response[i][0]] = { interfaces: response[i][1] };
 		    var button = {
 			compName: response[i][0],
 			add: function(){
-			    var over = '<div id="overlay">' +
-                    '<span class="blink_me">LOADING...</span>' +
-                    '</div>';
-                $(over).appendTo('body');
 			    compName = this.compName;
 			    var args = [this.compName,tempParams];
 			    componentCount++;
 			    var n = window.prompt("Subcomponent Name","");
-                if(n == "")
+                if(n == "" || n == null)
 	                return;
                 var joined = subcomponents.concat(connectedSubcomponents);
                 for(var iter = 0,len=joined.length; iter < len; iter++){
@@ -398,6 +472,10 @@ function getComponents()
 	                return;
 	            }
                 }
+                var over = '<div id="overlay">' +
+                    '<span class="blink_me">LOADING...</span>' +
+                    '</div>';
+                $(over).appendTo('body');
 			    addSubcomponent(n,compName, function(response){
 			    response = JSON.parse(response).response;
 				tempParams = {};
@@ -408,10 +486,10 @@ function getComponents()
 			    });
 			}
 		    }
-		    componentMenus[key].add(button,"add").name(response[i][0]);
+		    componentsFolder.add(button,"add").name(response[i][0]);
 		}
 	    });
-	}
+	//}
 
 }
 
@@ -490,23 +568,24 @@ function loadGui() {
     searchFilters.add(filters, "Software");
     componentsFolder = gui.addFolder('Components');
     componentsFolder.open();
-    componentMenus["mechanical"] = componentsFolder.addFolder("Mechanical");
-    componentMenus["device"] = componentsFolder.addFolder("Device");
-    componentMenus["actuator"] = componentsFolder.addFolder("Actuators");
-    componentMenus["sensor"] = componentsFolder.addFolder("Sensors");
-    componentMenus["UI"] = componentsFolder.addFolder("UI");
+    //componentMenus["mechanical"] = componentsFolder.addFolder("Mechanical");
+    //componentMenus["device"] = componentsFolder.addFolder("Device");
+    //componentMenus["actuator"] = componentsFolder.addFolder("Actuators");
+    //componentMenus["sensor"] = componentsFolder.addFolder("Sensors");
+    //componentMenus["UI"] = componentsFolder.addFolder("UI");
     rightpanel = new dat.GUI({ autoPlace: false, width: document.getElementById('right-panel').clientWidth, scrollable: true });
     rightpanel.domElement.removeChild(rightpanel.__closeButton);
     document.getElementById('right-panel').appendChild(rightpanel.domElement);
     comp = rightpanel.addFolder(componentName);
     comp.open();
     comp.parameters = comp.addFolder("Parameters");
+    comp.interfaces = comp.addFolder("Interfaces");
     comp.subcomponents = comp.addFolder("Subcomponents");
     comp.connections = comp.addFolder("Connections");
     var objectbuttons = {
 	subcomponentDelete:function(){
 	    var delName = window.prompt("Name of subcomponent to delete","");
-	    if(delName == "")
+	    if(delName == "" || delName == null)
 		return;
 	    for(var i = 0, len = subcomponents.length; i < len; i++){
 		if(subcomponents[i].name == delName){
@@ -527,6 +606,8 @@ function loadGui() {
 	    {
 		var newConn = {};
 		newConn.name = window.prompt("Connection Name: ");
+		if(newConn.name == "" || newConn.name == null)
+		    return;
 		for(var iter = 0, len = connections.length; iter < len; iter++){
 		    if(connections[iter].name == newConn.name){
 			window.alert('Connection with name "' + newConn.name + '" already exists');
@@ -534,6 +615,8 @@ function loadGui() {
 		    }
 		}
 		angle = window.prompt("Connection Angle: ");
+		if(angle == "" || angle == null || isNaN(angle))
+            return;
 		if(SELECTED.parent.type == "MasterComponent"){
 		    newConn.interface1 = SELECTED.name.replaceAll("_", ".");
 		    var spl = SELECTED.name.split("_");
@@ -591,21 +674,21 @@ function loadGui() {
 	},
 	connectionDelete:function(){
 	    var delName = window.prompt("Name of connection to delete","");
-	    if(delName == "")
+	    if(delName == "" || delName == null)
 		return;
 	    removeByName(connections,delName);
 	    comp.connections.removeFolder(delName);
 	},
 	parameterAdd:function(){
 	    var fieldName = window.prompt("Parameter name","");
-	    if(fieldName == "")
+	    if(fieldName == "" || fieldName == null)
 		return;
 	    if(parameters[fieldName] != undefined){
 		window.alert('Parameter "' + fieldName + '" already exists');
 		return;
 	    }
 	    var pdef = window.prompt("Default value: ");
-	    if(pdef == "")
+	    if(pdef == "" || pdef == null || isNaN(pdef))
 	        return;
 	    parameters[fieldName] = pdef;
 	    comp.parameters.add(parameters, fieldName).name(fieldName);
@@ -613,20 +696,54 @@ function loadGui() {
 	},
 	parameterDelete:function(){
 	    var delName = window.prompt("Name of parameter to delete","");
-	    if(delName == "")
+	    if(delName == "" || delName == null)
 		return;
 	    delete parameters[delName];
 	    for(var i = 2, len = comp.parameters.__controllers.length; i < len; i++){
 		if(comp.parameters.__controllers[i].__li.firstElementChild.firstElementChild.innerHTML == delName)
 		    comp.parameters.remove(comp.parameters.__controllers[i]);
 	    }
+	    delParameter(delName);
+	},
+	interfaceAdd:function(){
+	    if(SELECTED != undefined && SELECTED.parent != "Scene")
+	    {
+	        var name = window.prompt("Name for inherited interface: ");
+	        if(name == "" || name == null)
+	            return;
+            if(SELECTED.parent.type == "MasterComponent"){
+                var spl = SELECTED.name.split("_");
+                s1pname = spl[0];
+                s1name = spl[1];
+            }
+            else {
+                s1pname = SELECTED.parent.name;
+                s1name = SELECTED.name;
+            }
+            interfaces[name] = s1pname + "." + s1name;
+            comp.interfaces.add(interfaces, name).name(name);
+            inheritInterface(name, s1pname, s1name);
+		}
+	},
+	interfaceDelete:function(){
+	    var delName = window.prompt("Name of interface to delete","");
+	    if(delName == "" || delName == null)
+		return;
+		delete interfaces[delName];
+		for(var i = 2, len = comp.interfaces.__controllers.length; i < len; i++){
+		if(comp.interfaces.__controllers[i].__li.firstElementChild.firstElementChild.innerHTML == delName)
+		    comp.interfaces.remove(comp.interfaces.__controllers[i]);
+	    }
+	    delInterface(delName);
 	}
     }
-    comp.subcomponents.add(objectbuttons,'subcomponentDelete').name("Remove");
+    //comp.subcomponents.add(objectbuttons,'subcomponentDelete').name("Remove");
     comp.parameters.add(objectbuttons,'parameterAdd').name("Add");
-    comp.parameters.add(objectbuttons,'parameterDelete').name("Remove");
+    comp.parameters.add(objectbuttons,'parameterDelete').name("Delete");
     comp.connections.add(objectbuttons,'connectionAdd').name("Add");
-    comp.connections.add(objectbuttons,'connectionDelete').name("Remove");
+    comp.interfaces.add(objectbuttons, 'interfaceAdd').name("Add");
+    comp.interfaces.add(objectbuttons, 'interfaceDelete').name("Delete");
+    //comp.connections.add(objectbuttons,'connectionDelete').name("Remove");
 }
 
 function stripObjects(list, strippedList){
@@ -721,7 +838,7 @@ function buildComponent(){
 	//	stl_loader.load('models/' + componentName + '/graph-model.stl',onComponentSTL);
 	//	document.getElementById('svg-view').src = 'models/' + componentName + '/graph-print.svg';
 
-	    document.getElementById('dYaml').disabled = false;
+	    document.getElementById('sComp').disabled = false;
 	    //document.getElementById('dModel').disabled = false;
 	    //document.getElementById('sComp').disabled = false;
 	    $('#overlay').remove();
@@ -835,13 +952,11 @@ function onDocumentMouseDown( event ) {
 	    control.attach(intersects[0].object);
 	    scene.add(control);
 	    comp.subcomponents.open();
-	    if(SELECTED != undefined)
-		comp.subcomponents[SELECTED.name].close();
-	    if(SELECTED != componentObj)
-		comp.subcomponents[intersects[0].object.name].open();
-	    //	    var string = "models/" + intersects[0].object.className + "/graph-print.svg";
-	    //	    document.getElementById('svg-view').src = string;
+	    if(SELECTED != undefined && SELECTED != componentObj)
+		    comp.subcomponents[SELECTED.name].close();
 	    SELECTED = intersects[0].object;
+	    if(SELECTED != componentObj)
+		    comp.subcomponents[intersects[0].object.name].open();
 	}
     }
 }
@@ -882,5 +997,3 @@ String.prototype.replaceAll = function(search, replacement) {
     var target = this;
     return target.split(search).join(replacement);
 };
-
-

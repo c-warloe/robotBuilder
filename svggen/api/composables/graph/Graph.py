@@ -93,6 +93,7 @@ class Graph():
     self.faces = []
     self.edges = []
     self.placed = False
+    self.prefixed = False
     self.component = component
     self.transform3D = transform or np.eye(4)
 

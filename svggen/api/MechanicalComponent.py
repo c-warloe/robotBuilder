@@ -7,7 +7,7 @@ class MechanicalComponent(Component):
   def __init__(self, yamlFile=None, **kwargs):
     Component.__init__(self, yamlFile, **kwargs)
 
-  def define(self, origin=True, euler=None, quat=True, **kwargs):
+  def define(self, origin=False, euler=None, quat=False, **kwargs):
     Component.define(self, **kwargs)
 
     if origin:

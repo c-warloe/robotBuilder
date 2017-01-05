@@ -25,7 +25,7 @@ class FoldedComponent(MechanicalComponent):
     self.subcomponents.setdefault(name, sc)
     self.resolveSubcomponent(name)
 
-  def define(self, origin=True, euler=None, quat=True, **kwargs):
+  def define(self, origin=False, euler=None, quat=False, **kwargs):
     MechanicalComponent.define(self, origin, euler, quat, **kwargs)
     g = Graph(transform = self.transform3D,component=self)
     self.composables[self.GRAPH] = g

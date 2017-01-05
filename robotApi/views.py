@@ -3,7 +3,7 @@ from django.http import HttpResponse
 from rest_framework.decorators import api_view
 from rest_framework.renderers import JSONRenderer
 from rest_framework.parsers import JSONParser
-from svggen.library import allComponents, getComponent, filterComponents
+from svggen.library import allComponents, getComponent, buildDatabase, filterComponents, filterDatabase
 from svggen.api import FoldedComponent
 from svggen.api.ports import EdgePort
 import copy_reg
@@ -28,22 +28,23 @@ def componentList(request):
     Returns a list of the avaliable components with their interfaces
     '''
     if request.method == 'GET' or request.method == 'POST':
-        '''data = ast.literal_eval(request.body)
+        data = ast.literal_eval(request.body)
         try:
             filter = [data['key']]
         except:
             filter = ["actuator","mechanical"]
-        l = []
-        for c in filterComponents(filter):
-            l.append(c)
-        response = json.dumps({"response": l})
-        print response'''
-        '''components = filterDatabase('mechanical')
+        #l = []
+        #for c in filterComponents(filter):
+         #   l.append(c)
+        #response = json.dumps({"response": l})
+        #print response
+        components = filterDatabase()
         response = []
         for c in components:
-            response.append([c.name, c.interfaces.keys])
-        response = response.__str__().replace("'",'"')'''
-        response = '{"response": [["TestCompC", ["e1", "e2", "e3", "e4"]], ["Cube", ["edge"]], ["Trapezoid", ["t", "b"]], ["Trapezoid2", ["t", "b", "s1", "s2"]], ["Rectangle", ["r", "b", "l", "t"]], ["Triangle", ["a", "b", "c"]], ["BeamHinge", ["t_A", "b_A", "r_A", "l_A", "t_B", "b_B", "r_B", "l_B"]], ["RectBeam", ["botedge3", "topedge2", "botedge0", "botedge1", "topedge0", "topedge1", "botedge2", "topedge3"]]]}'
+            response.append([c.name, [x.encode('ascii','ignore') for x in c.interfaces.keys()]])
+        response = {"response": response}.__str__().replace("'", '"')
+        #print response
+        #response = '{"response": [["TestCompC", ["e1", "e2", "e3", "e4"]], ["Cube", ["edge"]], ["Trapezoid", ["t", "b"]], ["Trapezoid2", ["t", "b", "s1", "s2"]], ["Rectangle", ["r", "b", "l", "t"]], ["Triangle", ["a", "b", "c"]], ["BeamHinge", ["t_A", "b_A", "r_A", "l_A", "t_B", "b_B", "r_B", "l_B"]], ["RectBeam", ["botedge3", "topedge2", "botedge0", "botedge1", "topedge0", "topedge1", "botedge2", "topedge3"]]]}'
         return HttpResponse(response, content_type="application/json")
     return HttpResponse(status=501)
 
@@ -126,11 +127,29 @@ def addSubcomponent(request):
             return HttpResponse(status=501)
     return HttpResponse(status=501)
 
+@api_view(['GET', 'POST'])
+def delSubcomponent(request):
+    """
+    Add subcomponent to component
+    """
+    if request.method == 'GET' or request.method == 'POST':
+        try:
+            #pdb.set_trace()
+            #Get arguments from HTTP request
+            data = ast.literal_eval(request.body)
+            scname = data['name']
+
+            sessionComponent = request.session['component']
+            sessionComponent.delSubcomponent(scname)
+
+            print "Subcomponent {} deleted".format(scname)
+            return HttpResponse("Subcomponent {} deleted".format(scname))
+        except:
+            return HttpResponse(status=501)
+    return HttpResponse(status=501)
+
 @api_view(['GET','POST'])
 def addConnection(request):
-    """
-    Create a new Component
-    """
     if request.method == 'GET' or request.method == 'POST':
         try:
             data = ast.literal_eval(request.body)
@@ -158,6 +177,34 @@ def addParameter(request):
             fc.addParameter(name, default)
             print 'Parameter ' + name + ' added with default value ' + default
             return HttpResponse('Parameter ' + name + ' added with default value ' + default)
+        except KeyError:
+            return HttpResponse(status=501)
+    return HttpResponse(status=501)
+
+@api_view(['GET','POST'])
+def delParameter(request):
+    if request.method == 'GET' or request.method == 'POST':
+        try:
+            data = ast.literal_eval(request.body)
+            fc = request.session['component']
+            name = data['name']
+            fc.delParameter(name)
+            print 'Parameter ' + name + ' deleted'
+            return HttpResponse('Parameter ' + name + ' deleted')
+        except KeyError:
+            return HttpResponse(status=501)
+    return HttpResponse(status=501)
+
+@api_view(['GET','POST'])
+def delInterface(request):
+    if request.method == 'GET' or request.method == 'POST':
+        try:
+            data = ast.literal_eval(request.body)
+            fc = request.session['component']
+            name = data['name']
+            fc.delInterface(name)
+            print 'Interface ' + name + ' deleted'
+            return HttpResponse('Interface ' + name + ' deleted')
         except KeyError:
             return HttpResponse(status=501)
     return HttpResponse(status=501)
@@ -233,10 +280,6 @@ def downloadSVG(request):
 
 @api_view(['GET','POST'])
 def downloadYaml(request):
-    """
-    Create a new Component
-    """
-    #pdb.set_trace()
     if request.method == 'GET' or request.method == 'POST':
         try:
             yaml = request.session['component'].toYaml()
@@ -244,6 +287,41 @@ def downloadYaml(request):
             yaml = yaml.replace('\n', '\\n')
             response = '{"response": "' + yaml +'"}'
             return HttpResponse(response, content_type="application/json")
+        except Exception as e:
+            print '%s (%s)' % (e.message, type(e))
+            traceback.print_exc()
+            return HttpResponse(status=611)
+    return HttpResponse(status=611)
+
+@api_view(['GET','POST'])
+def componentSave(request):
+    if request.method == 'GET' or request.method == 'POST':
+        try:
+            data = ast.literal_eval(request.body)
+            fc = request.session['component']
+            name = data['name']
+            fc.toYaml("library/" + name + ".yaml")
+            buildDatabase([getComponent(name, baseclass="FoldedComponent")])
+            print "{} saved to library".format(name)
+            return HttpResponse("{} saved to library".format(name))
+        except Exception as e:
+            print '%s (%s)' % (e.message, type(e))
+            traceback.print_exc()
+            return HttpResponse(status=611)
+    return HttpResponse(status=611)
+
+@api_view(['GET','POST'])
+def inheritInterface(request):
+    if request.method == 'GET' or request.method == 'POST':
+        try:
+            data = ast.literal_eval(request.body)
+            fc = request.session['component']
+            name = data['name']
+            scname = data['scname']
+            interface = data['interface']
+            fc.inheritInterface(name, (scname, interface))
+            print "Interface {} from {} inherited as {}".format(interface, scname, name)
+            return HttpResponse("Interface {} from {} inherited as {}".format(interface, scname, name))
         except Exception as e:
             print '%s (%s)' % (e.message, type(e))
             traceback.print_exc()

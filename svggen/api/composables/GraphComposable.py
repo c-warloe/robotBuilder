@@ -20,10 +20,12 @@ class Graph(Composable, BaseGraph):
 
   def append(self, g2, prefix2):
     if not g2.placed:
-      g2.prefix(prefix2)
+      if not g2.prefixed:
+        g2.prefix(prefix2)
       self.faces.extend(g2.faces)
       self.edges.extend(g2.edges)
       g2.placed = True
+      g2.prefixed = True
 
 
   def attach(self, port1, port2, kwargs):

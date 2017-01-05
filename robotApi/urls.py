@@ -12,5 +12,10 @@ urlpatterns = [
     url(r'^api/component/fixEdgeInterface/$', views.fixEdgeInterface),
     url(r'^api/component/constrainParameter/$', views.constrainParameter),
     url(r'^api/component/download/yaml/$', views.downloadYaml),
-    url(r'^api/component/addParameter/$', views.addParameter)
+    url(r'^api/component/addParameter/$', views.addParameter),
+    url(r'^api/component/delSubcomponent/$', views.delSubcomponent),
+    url(r'^api/component/delParameter/$', views.delParameter),
+    url(r'^api/component/delInterface/$', views.delInterface),
+    url(r'^api/component/inheritInterface/$', views.inheritInterface),
+    url(r'^api/component/save/$', views.componentSave)
 ]

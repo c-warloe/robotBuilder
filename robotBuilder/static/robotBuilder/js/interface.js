@@ -9,6 +9,11 @@ var fEdgeURL    = "/api/component/fixEdgeInterface/"
 var cParameterURL = "/api/component/constrainParameter/"
 var yamlDlURL   = "/api/component/download/yaml/"
 var addParameterURL = "/api/component/addParameter/"
+var delSubcomponentURL = "/api/component/delSubcomponent/"
+var delParameterURL = "/api/component/delParameter/"
+var delInterfaceURL = "/api/component/delInterface/"
+var inheritInterfaceURL = "/api/component/inheritInterface/"
+var componentSaveURL = "/api/component/save/"
 
 function getComponentList(key, callback)
 {
@@ -27,7 +32,7 @@ function addSubcomponent(name, type, callback)
 
 function fixComponentEdgeInterface(name, interface, value)
 {
-    httpPostAsync(fEdgeURL, "{'name': '" + name + "', 'interface': '" + interface + "', 'value': '" + value + "'}");
+    httpPostAsync(fEdgeURL, "{'name': '" + name + "', 'interface': '" + interface + "', 'value': '" + value + "'}", function(){});
 }
 
 function addComponentConnection(sc1, port1, sc2, port2, args)
@@ -37,7 +42,7 @@ function addComponentConnection(sc1, port1, sc2, port2, args)
 
 function constrainParameter(sc, parameter, constr)
 {
-    httpPostAsync(cParameterURL, "{'sc': '" + sc + "', 'parameter': '" + parameter + "', 'constraint': '" + constr + "'}");
+    httpPostAsync(cParameterURL, "{'sc': '" + sc + "', 'parameter': '" + parameter + "', 'constraint': '" + constr + "'}", function(){});
 }
 
 function makeComponent(callback)
@@ -62,9 +67,33 @@ function getYamlDownload(callback)
 
 function addParameter(name, def)
 {
-    httpPostAsync(addParameterURL, "{'name': '" + name + "', 'def': '" + def + "'}");
+    httpPostAsync(addParameterURL, "{'name': '" + name + "', 'def': '" + def + "'}", function(){});
 }
 
+function delSubcomponent(name)
+{
+    httpPostAsync(delSubcomponentURL, "{'name': '" + name + "'}", function(){});
+}
+
+function delParameter(name)
+{
+    httpPostAsync(delParameterURL, "{'name': '" + name + "'}", function(){});
+}
+
+function delInterface(name)
+{
+    httpPostAsync(delInterfaceURL, "{'name': '" + name + "'}", function(){});
+}
+
+function inheritInterface(name, scname, interface)
+{
+    httpPostAsync(inheritInterfaceURL, "{'name': '" + name + "', 'scname': '" + scname + "', 'interface': '" + interface + "'}", function(){});
+}
+
+function componentSave(name, callback)
+{
+    httpPostAsync(componentSaveURL, "{'name': '" + name + "'}", callback)
+}
 
 function httpPostAsync(theUrl, data, callback)
 {
