@@ -196,7 +196,9 @@ class Drawing:
       placed = {'faces': [], 'edges': {}, 'overlapping': []}
       checkForOverlap = True
 
-
+    for e in face.get2DDecorations():
+      print e
+      self.edges[e[0]] = Edge(e[0], [self.component.evalEquation(x) for x in e[1]], [self.component.evalEquation(x) for x in e[2]], EdgeType(e[3]))
 
     if edgeFrom is not None:
       r = face.preTransform(edgeFrom)  # Get Rotation angle of previous edge

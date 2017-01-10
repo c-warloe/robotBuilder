@@ -11,7 +11,12 @@ NON_PARAM_LEN = 1
 class Face(object):
   allNames = []
 
-  def __init__(self, name, pts, lens, edgeNames=True, edgeAngles=None, edgeFlips=None, allEdges=None, decorations=None, recenter=False):
+  def __init__(self, name, pts, lens=[1], edgeNames=True, edgeAngles=None, edgeFlips=None, allEdges=None, decorations=None, recenter=False):
+    if len(pts) > len(lens):
+      if len(lens) is 1:
+        lens = lens * len(pts)
+      else:
+        raise Exception("The number of side lengths and the number of pts do not match!")
     if name:
       self.name = name
     else:

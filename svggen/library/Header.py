@@ -2,13 +2,13 @@ from svggen.api.component import Component
 from svggen.api.composables.GraphComposable import Decoration
 from svggen.api.composables.graph.Face import Face
 from svggen.utils.utils import decorateGraph
-
+from svggen.api.ports.MountPort import MountPort
 
 class Header(Component):
 
   def define(self):
-      self.addParameter("nrows", 0)
-      self.addParameter("ncols", 0)
+      self.addParameter("nrows", 10)
+      self.addParameter("ncols", 10)
       self.addParameter("rowsep", 2.54)
       self.addParameter("colsep", 2.54)
       self.addParameter("diameter", 1)
@@ -17,16 +17,17 @@ class Header(Component):
     d = self.getParameter("diameter")/2.
 
     def hole(i, j):
-      dx = (j - (self.getParameter("ncols")-1)/2.)*self.getParameter("colsep")
-      dy = (i - (self.getParameter("nrows")-1)/2.)*self.getParameter("rowsep")
+      dx = (j - (self.getParameter("ncols").getValue()-1)/2.)*self.getParameter("colsep").getValue()
+      dy = (i - (self.getParameter("nrows").getValue()-1)/2.)*self.getParameter("rowsep").getValue()
       return Face("r-%d-%d" % (i,j),
                         ((dx-d, dy-d), (dx+d, dy-d), (dx+d, dy+d), (dx-d, dy+d)),
                         recenter=False)
 
     graph = Decoration()
-    for i in range(self.getParameter("nrows")):
-      for j in range(self.getParameter("ncols")):
+    for i in range(self.getParameter("nrows").getValue()):
+      for j in range(self.getParameter("ncols").getValue()):
         graph.addFace(hole(i,j), prefix="r-%d-%d" % (i,j))
+    self.addInterface("mount", MountPort(self, graph))
     self.composables["decoration"] = graph
 
 if __name__ == "__main__":

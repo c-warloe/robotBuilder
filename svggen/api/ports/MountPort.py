@@ -1,8 +1,8 @@
-from SixDOFPort import SixDOFPort
+from Port import  Port
 
-class MountPort(SixDOFPort):
+class MountPort(Port):
   def __init__(self, parent, decoration):
-    SixDOFPort.__init__(self, parent, parent)
+    Port.__init__(self, parent, {})
     self.decoration = decoration
 
   def getDecoration(self):
