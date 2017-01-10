@@ -35,9 +35,9 @@ function fixComponentEdgeInterface(name, interface, value)
     httpPostAsync(fEdgeURL, "{'name': '" + name + "', 'interface': '" + interface + "', 'value': '" + value + "'}", function(){});
 }
 
-function addComponentConnection(sc1, port1, sc2, port2, args)
+function addComponentConnection(sc1, port1, sc2, port2, args, callback)
 {
-    httpPostAsync(addCnURL,"{'sc1': '" + sc1 + "','sc2': '" + sc2 + "','port1': '" + port1 + "','port2': '" + port2 + "','angle': '" + args + "'}",function(){});
+    httpPostAsync(addCnURL,"{'sc1': '" + sc1 + "','sc2': '" + sc2 + "','port1': '" + port1 + "','port2': '" + port2 + "','angle': '" + args + "'}",callback);
 }
 
 function constrainParameter(sc, parameter, constr)

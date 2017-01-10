@@ -37,6 +37,9 @@ class Port(Parameterized):
     for key, value in kwargs.iteritems():
       self.setParameter(key, value)
 
+  def update(self):
+    # Override to handle updates
+    pass
 
   def prefix(self, prefix=""):
     # Override to handle prefixing

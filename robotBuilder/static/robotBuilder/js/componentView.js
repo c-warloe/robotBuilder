@@ -639,7 +639,7 @@ function loadGui() {
 		    s2pname = SELECTED_2.parent.name;
 		    s2name = SELECTED_2.name;
 		}
-		addComponentConnection(s1pname,s1name,s2pname,s2name, angle);
+		addComponentConnection(s1pname,s1name,s2pname,s2name, angle, function(){buildComponent()});
 		connections.push(newConn);
 		SELECTED.parent.connectedInterfaces[SELECTED.name] = newConn.interface2;
 		SELECTED_2.parent.connectedInterfaces[SELECTED_2.name] = newConn.interface1;
@@ -656,7 +656,7 @@ function loadGui() {
 		folder.add(newConn,"interface2").name(newConn.interface1);
 		folder.add(connFixButton, "fixConnection").name("Set Length");
 	    }
-	    else{
+	    /*else{
 		var joinedList = subcomponents.concat(connectedSubcomponents);
 		for(i in joinedList){
 		    for(inter in joinedList[i].interfaces){
@@ -670,7 +670,7 @@ function loadGui() {
 		    }
 		}
 		$("#dialog").dialog("open");
-	    }
+	    }*/
 	},
 	connectionDelete:function(){
 	    var delName = window.prompt("Name of connection to delete","");

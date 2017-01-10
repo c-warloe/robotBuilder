@@ -7,7 +7,7 @@ class EdgePort(Port):
 
     graph = parent.getGraph()
     self.edge = graph.getEdge(edgeName)
-    self.placed = False
+    #self.placed = False
     params = {}
     try:
       params = {'length': self.edge.length}
@@ -28,13 +28,19 @@ class EdgePort(Port):
     return self.edge.pts3D
 
   def prefix(self, prefix=""):
-    if self.placed:
-      return
+    #if self.placed:
+    #  return
     self.edgeName = prefixString(prefix, self.edgeName)
-    self.placed = True
+    #self.placed = True
 
   def toString(self):
     return str(self.getEdges())
+
+  def update(self):
+    try:
+      self.parameters['length'] = self.edge.length
+    except AttributeError:
+      raise AttributeError("Unplaced edge: " + self.edge.name)
 
   def constrain(self, parent, toPort, **kwargs):
     """
@@ -49,7 +55,8 @@ class EdgePort(Port):
     # Can't use default constrain function because pt1 connects to pt2 and vice versa
     constraints = []
     try:
-      constraints.append((Eq(self.getParameter("length"), toPort.getParameter("length"))))
+      if(self.getParameter("length") != toPort.getParameter("length")):
+        constraints.append((Eq(self.getParameter("length"), toPort.getParameter("length"))))
 #      for i in range(2):
  #       for x in ["x", "y", "z"]:
  #         constraints.append(Eq(self.getParameter("pt%d%s" % (i, x)), toPort.getParameter("pt%d%s" % (1-i, x))))

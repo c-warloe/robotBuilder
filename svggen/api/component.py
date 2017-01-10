@@ -14,6 +14,7 @@ from svggen.utils import solver
 from svggen.utils.io import load_yaml
 from svggen.api import unfolder
 from sympy import Symbol, Eq, StrictGreaterThan, GreaterThan, StrictLessThan, LessThan
+from svggen.api.ports.Port import Port
 
 def getSubcomponentObject(component, baseclass, name=None, **kwargs):
     try:
@@ -320,19 +321,24 @@ class Component(Parameterized):
         component = self.getComponent(name)
 
         allPorts = set()
-        for key in component.interfaces:
-          try:
-            allPorts.update(component.getInterface(key))
-          except TypeError:
-            # interface is not iterable, i.e. a single port
-            allPorts.add(component.getInterface(key))
-        for port in allPorts:
-          port.prefix(prefix)
         if 'graph' in component.composables:
             for face in component.composables['graph'].faces:
                 face.updateSubs(self.subs.values())
             for edge in component.composables['graph'].edges:
                 edge.updateSubs(self.subs.values())
+        for key in component.interfaces:
+          ports = component.getInterface(key)
+          if isinstance(ports, Port):
+              if ports not in allPorts:
+                  allPorts.add(component.getInterface(key))
+                  ports.prefix(prefix)
+                  ports.update()
+          else:
+              if not allPorts.issuperset(ports):
+                  allPorts.update(component.getInterface(key))
+                  for port in ports:
+                      port.prefix(prefix)
+                      port.update()
         for (key, composable) in component.composables.iteritems():
             self.composables[key].append(composable, prefix)
 
@@ -387,7 +393,11 @@ class Component(Parameterized):
                 #print "Constraint " + constraint.__str__() + " satisfied."
 
     def evalEquation(self,eqn):
-        eqnEval = eqn.subs(self.getAllSubs())
+        #eqnEval = eqn.xreplace(self.getAllSubs())
+
+        d = {x: x.getValue() for x in self.allParameters.keys()}
+        return eqn.evalf(subs=d)
+        eqnEval = eqn
         for s in eqnEval.atoms(Symbol):
             #print "EQN EVAL: " + s.name + ": " + str(s.getValue())
             eqnEval = eqnEval.subs(s, s.getValue())

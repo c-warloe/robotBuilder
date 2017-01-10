@@ -6,6 +6,7 @@ from rest_framework.parsers import JSONParser
 from svggen.library import allComponents, getComponent, buildDatabase, filterComponents, filterDatabase
 from svggen.api import FoldedComponent
 from svggen.api.ports import EdgePort
+import sympy
 import copy_reg
 import types
 import ast
@@ -122,8 +123,9 @@ def addSubcomponent(request):
             try:
                 return HttpResponse(response, content_type="application/json")
             except Exception as e:
-                print e.strerror
-        except:
+                traceback.print_exc()
+        except Exception as e:
+            traceback.print_exc()
             return HttpResponse(status=501)
     return HttpResponse(status=501)
 
@@ -341,8 +343,10 @@ def extractFromComponent(c):
             try:
                 tpl = tdict["vertices"][vertex]
                 tdict["vertices"][vertex] = [tpl[0], tpl[1]]
-                tdict["vertices"][vertex][0] = str(tdict["vertices"][vertex][0].xreplace(vsubs))
-                tdict["vertices"][vertex][1] = str(tdict["vertices"][vertex][1].xreplace(vsubs))
+                if isinstance(tdict["vertices"][vertex][0], sympy.Basic):
+                    tdict["vertices"][vertex][0] = str(tdict["vertices"][vertex][0].xreplace(vsubs))
+                if isinstance(tdict["vertices"][vertex][1], sympy.Basic):
+                    tdict["vertices"][vertex][1] = str(tdict["vertices"][vertex][1].xreplace(vsubs))
             except:
                 try:
                     tdict["vertices"][vertex][1] = str(tdict["vertices"][vertex][1].xreplace(vsubs))
@@ -361,7 +365,8 @@ def extractFromComponent(c):
             output["edges"][i.name].append([])
             for x in range(3):
                 try:
-                    output["edges"][i.name][v].append(str(i.pts3D[v][x].xreplace(vsubs)))
+                    if isinstance(i.pts3D[v][x], sympy.Basic):
+                        output["edges"][i.name][v].append(str(i.pts3D[v][x].xreplace(vsubs)))
                 except:
                     pass
     output["interfaceEdges"] = {}

@@ -2,7 +2,7 @@ from MechanicalComponent import MechanicalComponent
 from sets import Set
 from svggen.api.composables.GraphComposable import Graph
 from svggen.api.ports.EdgePort import EdgePort
-
+from sympy.logic.boolalg import BooleanTrue
 import svggen.utils.mymath as math
 
 
@@ -65,6 +65,8 @@ class FoldedComponent(MechanicalComponent):
     classnum = 0
     for i in range(len(self.semanticConstraints)):
       constraint = self.semanticConstraints[i]
+      if isinstance(constraint, BooleanTrue):
+        continue
       if not isinstance(constraint.lhs, math.Symbol) or not isinstance(constraint.rhs, math.Symbol):
         raise Exception("Constraints are not simple parameters.")
       lhsSub = self.getVariableSub(constraint.lhs)
