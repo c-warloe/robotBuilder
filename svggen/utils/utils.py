@@ -1,3 +1,32 @@
+import collections
+import functools
+
+class memoized(object):
+   '''Decorator. Caches a function's return value each time it is called.
+   If called later with the same arguments, the cached value is returned
+   (not reevaluated).
+   '''
+   def __init__(self, func):
+      self.func = func
+      self.cache = {}
+   def __call__(self, *args):
+      if not isinstance(args, collections.Hashable):
+         # uncacheable. a list, for instance.
+         # better to not cache than blow up.
+         return self.func(*args)
+      if args in self.cache:
+         return self.cache[args]
+      else:
+         value = self.func(*args)
+         self.cache[args] = value
+         return value
+   def __repr__(self):
+      '''Return the function's docstring.'''
+      return self.func.__doc__
+   def __get__(self, obj, objtype):
+      '''Support instance methods.'''
+      return functools.partial(self.__call__, obj)
+
 def prefix(s1, s2):
   if s1 and s2:
     return s1 + "_" + s2
@@ -53,25 +82,25 @@ def schemeString(expr, prefix=""):
     printPrefix(a, "  " + prefix)
   print prefix, ")"
 
+@memoized
 def schemeList(expr):
   if expr.is_Rational and expr.q != 1:
     return ["/", repr(expr.p), repr(expr.q)]
   elif expr.is_Number or expr.is_Symbol or expr.is_NumberSymbol:
     return repr(expr)
-    
   elif expr.is_Add:
     elist = ["+"]
   elif expr.is_Mul:
-    elist = ["*"] 
+    elist = ["*"]
   elif expr.is_Pow:
-    elist = ["^"] 
+    elist = ["^"]
   elif expr.is_Equality:
-    elist = ["=="] 
+    elist = ["=="]
   elif expr.is_Relational:
-    elist = [expr.rel_op] 
+    elist = [expr.rel_op]
   else:
     elist = [repr(type(expr))]
-    
+
   for a in expr.args:
     elist.append(schemeList(a))
   

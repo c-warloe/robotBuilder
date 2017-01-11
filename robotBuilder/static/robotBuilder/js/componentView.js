@@ -129,8 +129,8 @@ function createMeshFromObject(obj)
     var geometry = new THREE.Geometry();
     for(var face in obj["faces"]){
         transf = new THREE.Matrix4();
-        obj["faces"][face][0] = obj["faces"][face][0].map(function(i){return i.replaceAll("**","^").replaceAll("[","(").replaceAll("]",")")})
-        transf.elements = obj["faces"][face][0].map(function(i){return evalExpression(i,obj["solved"]).value});
+        //obj["faces"][face][0] = obj["faces"][face][0].map(function(i){return i.replaceAll("**","^").replaceAll("[","(").replaceAll("]",")")})
+        transf.elements = obj["faces"][face][0].map(function(i){return evalPrefix(i,obj["solved"]).value});
         transf.transpose();
         console.log(transf);
         var vertices = [];
@@ -138,10 +138,10 @@ function createMeshFromObject(obj)
         var holes = [];
         for(var v = 0, len = obj["faces"][face][1]["vertices"].length; v < len; v++){
             try{
-            obj["faces"][face][1]["vertices"][v] = obj["faces"][face][1]["vertices"][v].map(function(i){if(typeof i == 'string' || i instanceof String)return i.replaceAll("**","^").replaceAll("[","(").replaceAll("]",")"); else return i;});
+            //obj["faces"][face][1]["vertices"][v] = obj["faces"][face][1]["vertices"][v].map(function(i){if(typeof i == 'string' || i instanceof String)return i.replaceAll("**","^").replaceAll("[","(").replaceAll("]",")"); else return i;});
             } catch (err){console.log(face + " " +v);}
             console.log(obj["faces"][face][1]["vertices"][v]);
-            var arr = obj["faces"][face][1]["vertices"][v].map(function(i){return evalExpression(i,obj["solved"]).value});
+            var arr = obj["faces"][face][1]["vertices"][v].map(function(i){return evalPrefix(i,obj["solved"]).value});
             console.log(arr);
             set.add(arr[0] + ","+arr[1]);
         }
@@ -332,12 +332,12 @@ function highlightInterfaces(objMesh)
 		for(var p = 0; p < 2; p++){
 		    for(var c = 0; c < 3; c++){
 			//objMesh["edges"][k][p][c] = objMesh["edges"][k][p][c]
-			objMesh["edges"][k][p][c] = objMesh["edges"][k][p][c].replaceAll("**","^").replaceAll("[", "(").replaceAll("]", ")");
+			//objMesh["edges"][k][p][c] = objMesh["edges"][k][p][c].replaceAll("**","^").replaceAll("[", "(").replaceAll("]", ")");
 			//.replaceAll("**","^");
 			if(p == 0)
-			    p1.push(evalExpression(objMesh["edges"][k][p][c],objMesh["solved"]).value);
+			    p1.push(evalPrefix(objMesh["edges"][k][p][c],objMesh["solved"]).value);
 			else
-			    p2.push(evalExpression(objMesh["edges"][k][p][c],objMesh["solved"]).value);
+			    p2.push(evalPrefix(objMesh["edges"][k][p][c],objMesh["solved"]).value);
 		    }
 		}
 		geometry.vertices.push(
@@ -500,6 +500,7 @@ function init(){
     scene = new THREE.Scene();
     svgscene = new THREE.Scene();
     camera = new THREE.PerspectiveCamera( 75, container.clientWidth / container.clientHeight, 0.1, 100000 );
+    //camera = new THREE.OrthographicCamera(container.offsetWidth / -2, container.offsetWidth / 2, container.offsetHeight / 2, container.offsetHeight / -2, 0.1, 100000);
     svgcamera = new THREE.OrthographicCamera(svgcontainer.offsetWidth / -2, svgcontainer.offsetWidth / 2, svgcontainer.offsetHeight / 2, svgcontainer.offsetHeight / -2, 1, 1000);
 
     stl_loader = new THREE.STLLoader();
@@ -639,7 +640,7 @@ function loadGui() {
 		    s2pname = SELECTED_2.parent.name;
 		    s2name = SELECTED_2.name;
 		}
-		addComponentConnection(s1pname,s1name,s2pname,s2name, angle, function(){buildComponent()});
+		addComponentConnection(s1pname,s1name,s2pname,s2name, angle, function(){});//function(){buildComponent()});
 		connections.push(newConn);
 		SELECTED.parent.connectedInterfaces[SELECTED.name] = newConn.interface2;
 		SELECTED_2.parent.connectedInterfaces[SELECTED_2.name] = newConn.interface1;

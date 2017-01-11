@@ -118,10 +118,70 @@ function Equation(){
 }
 
 function evalExpression(eq, map){
-    return evalExpressionTree(math.parse(eq),map);
+    return evalPrefix(eq, map);
+    //return evalExpressionTree(math.parse(eq),map);
+}
+
+function isOperator(v) {
+    return v == "*" || v == "+" || v == "^" || v == "/";
+}
+
+function evalPrefix(eq, map) {
+    if(eq === undefined)
+        return undefined;
+    var curr = new Equation();
+    if(isOperator(eq[0]))
+    {
+        var left, right;
+        if(eq.length > 3){
+            left = evalPrefix(eq[1], map);
+            var extra = [];
+            extra.push(eq[0]);
+            extra = extra.concat(eq.slice(2, eq.length));
+            right = evalPrefix(extra, map);
+        }
+	    else if(eq.length == 2){
+	        left = new Equation();
+	        left.value = 0;
+	        right = evalPrefix(eq[1],map);
+	    }
+	    else{
+	        left = evalPrefix(eq[1],map);
+	        right = evalPrefix(eq[2],map);
+	    }
+	    curr.build(left,right,eq[0]);
+    }
+    else if(eq == "pi")
+    {
+        curr.value = Math.PI;
+    }
+    else if(eq in map)
+    {
+        curr.name = eq;
+	    curr.value = map[eq];
+	    curr.derivatives[eq] = 1;
+    }
+    else if(!isNaN(eq))
+    {
+        if(Number(eq) < 0) {
+            left = new Equation();
+            left.value = 0;
+            right = evalPrefix(-1*Number(eq), map);
+            curr.build(left, right, "-");
+        }
+        else {
+            curr.value = Number(eq);
+        }
+    }
+    else {
+        var operand = evalPrefix(eq[1],map);
+        curr.functionBuild(eq[0],operand);
+    }
+    return curr;
 }
 
 function evalExpressionTree(tree,map){
+
     if(tree == undefined)
 	return undefined;
     var curr = new Equation();

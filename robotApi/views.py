@@ -6,6 +6,7 @@ from rest_framework.parsers import JSONParser
 from svggen.library import allComponents, getComponent, buildDatabase, filterComponents, filterDatabase
 from svggen.api import FoldedComponent
 from svggen.api.ports import EdgePort
+from svggen.utils.utils import schemeList
 import sympy
 import copy_reg
 import types
@@ -344,18 +345,18 @@ def extractFromComponent(c):
                 tpl = tdict["vertices"][vertex]
                 tdict["vertices"][vertex] = [tpl[0], tpl[1]]
                 if isinstance(tdict["vertices"][vertex][0], sympy.Basic):
-                    tdict["vertices"][vertex][0] = str(tdict["vertices"][vertex][0].xreplace(vsubs))
+                    tdict["vertices"][vertex][0] = schemeList(tdict["vertices"][vertex][0].xreplace(vsubs))
                 if isinstance(tdict["vertices"][vertex][1], sympy.Basic):
-                    tdict["vertices"][vertex][1] = str(tdict["vertices"][vertex][1].xreplace(vsubs))
+                    tdict["vertices"][vertex][1] = schemeList(tdict["vertices"][vertex][1].xreplace(vsubs))
             except:
                 try:
-                    tdict["vertices"][vertex][1] = str(tdict["vertices"][vertex][1].xreplace(vsubs))
+                    tdict["vertices"][vertex][1] = schemeList(tdict["vertices"][vertex][1].xreplace(vsubs))
                 except:
 
                     pass
-        output["faces"][i.name] = [[str(i.transform3D[x].xreplace(vsubs)) for x in range(len(i.transform3D))], tdict]
+        output["faces"][i.name] = [[schemeList(i.transform3D[x].xreplace(vsubs)) for x in range(len(i.transform3D))], tdict]
         #print i.transform2D.tolist()
-        trans2D = [[str(p.xreplace(vsubs)) for p in j] for j in i.transform2D.tolist()]
+        trans2D = [[schemeList(p.xreplace(vsubs)) for p in j] for j in i.transform2D.tolist()]
         #print trans2D
         output["faces"][i.name].append(trans2D)
     output["edges"] = {}
@@ -366,7 +367,7 @@ def extractFromComponent(c):
             for x in range(3):
                 try:
                     if isinstance(i.pts3D[v][x], sympy.Basic):
-                        output["edges"][i.name][v].append(str(i.pts3D[v][x].xreplace(vsubs)))
+                        output["edges"][i.name][v].append(schemeList(i.pts3D[v][x].xreplace(vsubs)))
                 except:
                     pass
     output["interfaceEdges"] = {}
