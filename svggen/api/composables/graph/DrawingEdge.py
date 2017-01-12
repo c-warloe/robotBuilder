@@ -1,5 +1,6 @@
 import svggen.utils.mymath as np
 from sympy import Symbol
+from svgwrite import Drawing
 
 
 class EdgeType:
@@ -315,6 +316,10 @@ class Edge:
           drawing.add_layer(str(self.edgetype.angle))
 
       if dpi: self.transform(scale=(dpi/25.4))
+      if "FOLD" in self.edgetype.__repr__() and isinstance(engine,Drawing):
+        print type(engine)
+        kwargs["stroke-dasharray"] = "2 6"
+        kwargs["stroke-dashoffset"] = "2"
       drawing.add(engine.line((float(self.x1), float(self.y1)), (float(self.x2), float(self.y2)), **kwargs))
       if dpi: self.transform(scale=(25.4/dpi)) # scale back to mm
 

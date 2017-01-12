@@ -28,7 +28,7 @@ class Graph(Composable, BaseGraph):
       g2.prefixed = True
 
 
-  def attach(self, port1, port2, kwargs):
+  def attach(self, port1, port2, **kwargs):
     # Test whether ports are of right type --
     # Attach if both ports contain edges to attach along
     try:
@@ -47,10 +47,18 @@ class Graph(Composable, BaseGraph):
       for i in range(len(label1)):
         newargs = {}
         for key, value in kwargs.iteritems():
+          if key is 'tab':
+            continue
           if isinstance(value, (list, tuple)):
             newargs[key] = value[i]
           else:
             newargs[key] = value
+        try:
+          if kwargs['tab'] is True:
+            self.addTab(label1[i], label2[i], **newargs)
+            continue
+        except:
+          pass
         self.mergeEdge(label1[i], label2[i], **newargs)
     # Attach if one port contains a Face and the other contains a Decoration
     try:

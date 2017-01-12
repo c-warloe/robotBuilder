@@ -37,6 +37,13 @@ def BeamTabSlotHelper(face, faceEdge, thick, widget, **kwargs):
     except:
       noflap = False
 
+    try:
+        component = kwargs['component']
+        length = float(component.evalEquation(length))
+    except:
+        #not sympy
+        pass
+
     n = 0
     tw = thick * 3
     while (tw > thick * 2):

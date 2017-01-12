@@ -217,16 +217,16 @@ class Graph():
           if flip:
             #print "-- tab on: ", edgename, face.name
             if tabFace is not None:
-              self.attachFace(edgename, tabFace(length, e.tabWidth), "tabedge", prefix=edgename, angle=0)
+              self.attachFace(edgename, tabFace(length, e.tabWidth,component=self.component), "tabedge", prefix=edgename, angle=0)
             if tabDecoration is not None:
-              tabDecoration(face, edgename, e.tabWidth)
+              tabDecoration(face, edgename, e.tabWidth,component=self.component)
           else:
             #print "-- slot on: ", edgename, face.name
             if slotFace is not None:
               # XXX TODO: set angle appropriately
-              self.attachFace(edgename, slotFace(length, e.tabWidth), "slotedge", prefix=edgename, angle=0)
+              self.attachFace(edgename, slotFace(length, e.tabWidth,component=self.component), "slotedge", prefix=edgename, angle=0)
             if slotDecoration is not None:
-              slotDecoration(face, edgename, e.tabWidth)
+              slotDecoration(face, edgename, e.tabWidth,component=self.component)
 
     #TODO: extend this to three+ edges
     #component.addConnectors((conn, cname), new_edges[0], new_edges[1], depth, tabattachment=None, angle=0)

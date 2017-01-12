@@ -41,6 +41,7 @@ class Component(Parameterized):
 
         self.subcomponents = {}
         self.connections = []
+        self.tabs = []
         self.interfaces = {}
 
         self.composables = OrderedDict()
@@ -206,6 +207,9 @@ class Component(Parameterized):
     def addConnection(self, fromInterface, toInterface, **kwargs):
         self.connections.append([fromInterface, toInterface, kwargs])
 
+    def addTabConnection(self, fromInterface, toInterface, **kwargs):
+        self.tabs.append([fromInterface, toInterface, kwargs])
+
     '''
     # TODO : delete Connection
     # TODO : remove constraints that involve this parameter?
@@ -342,7 +346,7 @@ class Component(Parameterized):
         for (key, composable) in component.composables.iteritems():
             self.composables[key].append(composable, prefix)
 
-    def attach(self, (fromName, fromPort), (toName, toPort), kwargs):
+    def attach(self, (fromName, fromPort), (toName, toPort), **kwargs):
         interface1 = self.getInterfaces(fromName, fromPort)
         interface2 = self.getInterfaces(toName, toPort)
 
@@ -363,7 +367,7 @@ class Component(Parameterized):
           self.extendSemanticConstraints(port1.constrain(self, port2, **kwargs))
           for (key, composable) in self.composables.iteritems():
             try:
-                composable.attach(port1, port2, kwargs)
+                composable.attach(port1, port2, **kwargs)
             except:
                 print "Error in attach:"
                 print (fromName, fromPort),
@@ -396,12 +400,16 @@ class Component(Parameterized):
         #eqnEval = eqn.xreplace(self.getAllSubs())
 
         d = {x: x.getValue() for x in self.allParameters.keys()}
-        return eqn.evalf(subs=d)
+        try:
+            return eqn.evalf(subs=d)
+        except:
+            return eqn
+        '''
         eqnEval = eqn
         for s in eqnEval.atoms(Symbol):
             #print "EQN EVAL: " + s.name + ": " + str(s.getValue())
             eqnEval = eqnEval.subs(s, s.getValue())
-        return eqnEval
+        return eqnEval'''
 
     ###
     # BUILD PHASE
@@ -484,7 +492,14 @@ class Component(Parameterized):
         for ((fromComponent, fromPort), (toComponent, toPort), kwargs) in self.connections:
             self.attach((fromComponent, fromPort),
                         (toComponent, toPort),
-                        kwargs)
+                        **kwargs)
+
+    def evalTabs(self):
+        for ((fromComponent, fromPort), (toComponent, toPort), kwargs) in self.tabs:
+            self.attach((fromComponent, fromPort),
+                (toComponent, toPort),
+                tab = True,
+                **kwargs)
 
     def reset(self):
         self.semanticConstraints = []
@@ -502,6 +517,7 @@ class Component(Parameterized):
         self.assemble()
         self.solve()
         self.checkConstraints()
+        self.evalTabs()
         #self.unfoldComponent()
 
     ###

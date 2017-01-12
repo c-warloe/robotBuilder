@@ -30,9 +30,7 @@ class BeamHinge(FoldedComponent):
     rs.append(Trapezoid('', trapBase, trapTop, height))
     rs.append(IsoscelesTriangle('', triBase, height))
 
-
-
-    self.attachFace(None, rs[0], "e0", prefix="t1", angle=109.5)
+    self.attachFace(None, rs[0], "e1", prefix="t1", angle=0)
     self.attachFace(prefix('t1','e2'), rs[1], "e0", prefix="tr1", angle=109.5)
     self.attachFace(prefix('tr1', 'e2'), rs[2], "e0", prefix="t2", angle=109.5)
     self.attachFace(prefix('t2', 'e2'), rs[3], "e0", prefix="tr2", angle=109.5)
@@ -40,6 +38,9 @@ class BeamHinge(FoldedComponent):
     self.attachFace(prefix('tr3', 'e2'), rs[5], "e0", prefix="t3", angle=109.5)
     self.attachFace(prefix('t3', 'e2'), rs[6], "e0", prefix="tr4", angle=109.5)
     self.attachFace(prefix('tr4', 'e2'), rs[7], "e0", prefix="t4", angle=109.5)
+    self.mergeEdge(prefix('tr1', 'e3'), prefix('tr4', 'e3'), angle=-70)
+    self.mergeEdge(prefix('tr2', 'e2'), prefix('t1', 'e0'), angle=109.5)
+    self.mergeEdge(prefix('tr3', 'e0'), prefix('t4', 'e2'), angle=109.5)
 
 
 
