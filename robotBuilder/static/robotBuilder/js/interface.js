@@ -2,6 +2,7 @@ var listURL     = "/api/component/list/"
 var createURL   = "/api/component/create/"
 var addScURL    = "/api/component/addSubcomponent/"
 var addCnURL    = "/api/component/addConnection/"
+var addTabURL    = "/api/component/addTab/"
 var makeURL     = "/api/component/make/"
 var svgURL      = "/api/component/svg/"
 var svgDlURL    = "/api/component/download/svg/"
@@ -38,6 +39,11 @@ function fixComponentEdgeInterface(name, interface, value)
 function addComponentConnection(sc1, port1, sc2, port2, args, callback)
 {
     httpPostAsync(addCnURL,"{'sc1': '" + sc1 + "','sc2': '" + sc2 + "','port1': '" + port1 + "','port2': '" + port2 + "','angle': '" + args + "'}",callback);
+}
+
+function addTabConnection(sc1, port1, sc2, port2, args, callback)
+{
+    httpPostAsync(addTabURL,"{'sc1': '" + sc1 + "','sc2': '" + sc2 + "','port1': '" + port1 + "','port2': '" + port2 + "','angle': '" + args + "'}",callback);
 }
 
 function constrainParameter(sc, parameter, constr)

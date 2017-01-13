@@ -516,10 +516,11 @@ class Component(Parameterized):
         self.evalComponents()    # Merge composables from all subcomponents and tell them my components exist
         self.evalInterfaces()    # Tell composables that my interfaces exist
         self.evalConnections()   # Tell composables which interfaces are connected
+        self.evalTabs()
         self.assemble()
         self.solve()
         self.checkConstraints()
-        self.evalTabs()
+
         #self.unfoldComponent()
 
     ###

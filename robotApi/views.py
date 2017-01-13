@@ -171,6 +171,24 @@ def addConnection(request):
     return HttpResponse(status=501)
 
 @api_view(['GET','POST'])
+def addTabConnection(request):
+    if request.method == 'GET' or request.method == 'POST':
+        try:
+            data = ast.literal_eval(request.body)
+            fc = request.session['component']
+            sc1 = data['sc1']
+            port1 = data['port1']
+            sc2 = data['sc2']
+            port2 = data['port2']
+            angle = int(data['angle'])
+            fc.addTabConnection((sc1,port1),(sc2,port2), angle=angle)
+            print 'Connection from {}:{} to {}:{} Added to Component {}'.format(sc1,port1,sc2,port2,"")
+            return HttpResponse('Connection from {}:{} to {}:{} Added to Component {}'.format(sc1,port1,sc2,port2,""))
+        except KeyError:
+            return HttpResponse(status=501)
+    return HttpResponse(status=501)
+
+@api_view(['GET','POST'])
 def addParameter(request):
     if request.method == 'GET' or request.method == 'POST':
         try:
@@ -333,6 +351,18 @@ def inheritInterface(request):
             return HttpResponse(status=611)
     return HttpResponse(status=611)
 
+def getLen(object):
+    try:
+        return len(object)
+    except:
+        return 0
+
+def getList(object):
+    try:
+        return object.toList()
+    except:
+        return []
+
 def extractFromComponent(c):
     output = {}
     output["variables"] = [x.name for x in c.getVariables()]
@@ -356,9 +386,9 @@ def extractFromComponent(c):
                 except:
 
                     pass
-        output["faces"][i.name] = [[schemeList(i.transform3D[x].xreplace(vsubs)) for x in range(len(i.transform3D))], tdict]
+        output["faces"][i.name] = [[schemeList(i.transform3D[x].xreplace(vsubs)) for x in range(getLen(i.transform3D))], tdict]
         #print i.transform2D.tolist()
-        trans2D = [[schemeList(p.xreplace(vsubs)) for p in j] for j in i.transform2D.tolist()]
+        trans2D = [[schemeList(p.xreplace(vsubs)) for p in j] for j in getList(i.transform2D)]
         #print trans2D
         output["faces"][i.name].append(trans2D)
     output["edges"] = {}
