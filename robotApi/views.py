@@ -187,6 +187,7 @@ def addTabConnection(request):
             port2 = data['port2']
             angle = int(data['angle'])
             fc.addTabConnection((sc1,port1),(sc2,port2), angle=angle)
+            request.session.modified = True
             print 'Connection from {}:{} to {}:{} Added to Component {}'.format(sc1,port1,sc2,port2,"")
             return HttpResponse('Connection from {}:{} to {}:{} Added to Component {}'.format(sc1,port1,sc2,port2,""))
         except KeyError:
