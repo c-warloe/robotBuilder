@@ -310,7 +310,11 @@ function loadSymbolic(obj, n){
                 }
 	        }
 	        console.log("deleting: " + this.delName);
-	        delSubcomponent(this.delName);
+	        var over = '<div id="overlay">' +
+                    '<span class="blink_me">LOADING...</span>' +
+                    '</div>';
+            $(over).appendTo('body');
+	        delSubcomponent(this.delName, function(response){$('#overlay').remove();});
         }
     }
     comp.subcomponents[objMesh.name].add(removeButton, "remove").name("Delete");
@@ -640,7 +644,11 @@ function loadGui() {
 		    s2pname = SELECTED_2.parent.name;
 		    s2name = SELECTED_2.name;
 		}
-		addComponentConnection(s1pname,s1name,s2pname,s2name, angle, function(){});//function(){buildComponent()});
+		var over = '<div id="overlay">' +
+                    '<span class="blink_me">LOADING...</span>' +
+                    '</div>';
+            $(over).appendTo('body');
+		addComponentConnection(s1pname,s1name,s2pname,s2name, angle, function(){$('#overlay').remove();});//function(){buildComponent()});
 		connections.push(newConn);
 		SELECTED.parent.connectedInterfaces[SELECTED.name] = newConn.interface2;
 		SELECTED_2.parent.connectedInterfaces[SELECTED_2.name] = newConn.interface1;
@@ -973,6 +981,10 @@ function render() {
 }
 
 function viewSVG(){
+    var over = '<div id="overlay">' +
+                    '<span class="blink_me">LOADING...</span>' +
+                    '</div>';
+    $(over).appendTo('body');
     var drawing_div = document.getElementById('svg-view');
      getSVG(function(response){
         response = JSON.parse(response).response;
@@ -980,6 +992,7 @@ function viewSVG(){
         //drawing_div.style.padding = "2%";
         drawing_div.innerHTML = response;
         document.getElementById('dSVG').disabled = false;
+        $('#overlay').remove();
       });
 }
 

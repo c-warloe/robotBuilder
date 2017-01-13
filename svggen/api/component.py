@@ -43,7 +43,7 @@ class Component(Parameterized):
         self.connections = []
         self.tabs = []
         self.interfaces = {}
-        self._appended = {}
+        self._prefixed = {}
         self.composables = OrderedDict()
 
         if yamlFile:
@@ -168,8 +168,12 @@ class Component(Parameterized):
                 toDelete.append(i)
         for i in reversed(toDelete):
             self.connections.pop(i)
+        if self.subcomponents[name]['component'] and 'graph' in self.subcomponents[name]['component'].composables:
+            self.subcomponents[name]['component'].composables['graph'].splitMergedEdges()
         self.subcomponents.pop(name)
         del self.composables['graph']
+        if name in self._prefixed:
+            del self._prefixed[name]
         for sc in self.subcomponents:
             if 'graph' in self.subcomponents[sc]['component'].composables:
                 self.subcomponents[sc]['component'].composables['graph'].placed = False
@@ -333,19 +337,23 @@ class Component(Parameterized):
         for key in component.interfaces:
           ports = component.getInterface(key)
           if isinstance(ports, Port):
-              if ports not in allPorts:
-                  allPorts.add(component.getInterface(key))
+              allPorts.add(component.getInterface(key))
+              if name not in self._prefixed:
                   ports.prefix(prefix)
-                  ports.update()
+              ports.update()
           else:
-              if not allPorts.issuperset(ports):
-                  allPorts.update(component.getInterface(key))
-                  for port in ports:
-                      port.prefix(prefix)
-                      port.update()
+              allPorts.update(component.getInterface(key))
+              for port in ports:
+                  if name not in self._prefixed:
+                      ports.prefix(prefix)
+                  port.update()
         for (key, composable) in component.composables.iteritems():
+            if name not in self._prefixed:
+                composable.prefixed = False
+            else:
+                composable.prefixed = True
             self.composables[key].append(composable, prefix)
-        self._appended[name] = component
+        self._prefixed[name] = component
 
     def attach(self, (fromName, fromPort), (toName, toPort), **kwargs):
         interface1 = self.getInterfaces(fromName, fromPort)
@@ -397,8 +405,17 @@ class Component(Parameterized):
                 pass
                 #print "Constraint " + constraint.__str__() + " satisfied."
 
+
     def evalEquation(self,eqn):
         #eqnEval = eqn.xreplace(self.getAllSubs())
+        #print eqn
+        #x = self.allParameters.keys()
+        #y = [v.getValue() for v in x]
+        #try:
+        #    f = lambdify(x, eqn)
+        #    return f(*y)
+        #except:
+        #    return eqn
 
         d = {x: x.getValue() for x in self.allParameters.keys()}
         try:
@@ -471,8 +488,7 @@ class Component(Parameterized):
                     if key not in self.composables:
                         self.composables[key] = composable.new()
                         self.composables[key].setComponent(self)
-                if name not in self._appended:
-                    self.append(name, name)
+                self.append(name, name)
             except:
                 print "Error in subclass %s, instance %s" % (classname, name)
                 raise

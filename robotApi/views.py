@@ -59,6 +59,7 @@ def fixEdgeInterface(request):
         interface = data['interface']
         value = int(data['value'])
         fc.fixEdgeInterface(compName, interface, value)
+        request.session.modified = True
         return HttpResponse('Edge associated with interface {}.{} fixed to {}'.format(compName, interface, value))
     return HttpResponse(status=501)
 
@@ -71,6 +72,7 @@ def constrainParameter(request):
         parameter = data['parameter']
         constraint = data['constraint']
         fc.addParameterConstraint((sc, parameter), fc._strToSympy(constraint))
+        request.session.modified = True
         return HttpResponse(sc + "_" + "parameter" + " constrained to " + constraint)
     return HttpResponse(status=501)
 
@@ -86,11 +88,11 @@ def createComponent(request):
         try:
             #Delete old components stored in session if they still exist
             del request.session['component']
-        except:
-            pass
-
+        except Exception as e:
+            traceback.print_exc()
         #Store session component
         request.session['component'] = sessionComponent
+        request.session.modified = True
         return HttpResponse('FoldedComponent {} Created'.format(name))
 
 
@@ -122,6 +124,7 @@ def addSubcomponent(request):
             #print responseDict
             response = compDictToJSON(responseDict, c)
             #print "Jsonified"
+            request.session.modified = True
             try:
                 return HttpResponse(response, content_type="application/json")
             except Exception as e:
@@ -145,10 +148,11 @@ def delSubcomponent(request):
 
             sessionComponent = request.session['component']
             sessionComponent.delSubcomponent(scname)
-
+            request.session.modified = True
             print "Subcomponent {} deleted".format(scname)
             return HttpResponse("Subcomponent {} deleted".format(scname))
-        except:
+        except Exception as e:
+            traceback.print_exc()
             return HttpResponse(status=501)
     return HttpResponse(status=501)
 
@@ -164,6 +168,7 @@ def addConnection(request):
             port2 = data['port2']
             angle = int(data['angle'])
             fc.addConnection((sc1,port1),(sc2,port2), angle=angle)
+            request.session.modified = True
             print 'Connection from {}:{} to {}:{} Added to Component {}'.format(sc1,port1,sc2,port2,"")
             return HttpResponse('Connection from {}:{} to {}:{} Added to Component {}'.format(sc1,port1,sc2,port2,""))
         except KeyError:
@@ -179,6 +184,7 @@ def addParameter(request):
             name = data['name']
             default = data['def']
             fc.addParameter(name, default)
+            request.session.modified = True
             print 'Parameter ' + name + ' added with default value ' + default
             return HttpResponse('Parameter ' + name + ' added with default value ' + default)
         except KeyError:
@@ -193,6 +199,7 @@ def delParameter(request):
             fc = request.session['component']
             name = data['name']
             fc.delParameter(name)
+            request.session.modified = True
             print 'Parameter ' + name + ' deleted'
             return HttpResponse('Parameter ' + name + ' deleted')
         except KeyError:
@@ -207,6 +214,7 @@ def delInterface(request):
             fc = request.session['component']
             name = data['name']
             fc.delInterface(name)
+            request.session.modified = Trues
             print 'Interface ' + name + ' deleted'
             return HttpResponse('Interface ' + name + ' deleted')
         except KeyError:
@@ -220,6 +228,7 @@ def make(request):
     """
     if request.method == 'GET' or request.method == 'POST':
         try:
+            #pdb.set_trace()
             fc = request.session['component']
             fc.makeOutput(placeOnly=True)
             #print fc.__dict__
@@ -234,6 +243,7 @@ def make(request):
             responseDict['variables'] = []
             response = {"response": responseDict}.__str__().replace("'", '"').replace('(', '[').replace(')', ']').replace('False', '0').replace('True', '1')
             #print response
+            request.session.modified = True
             return HttpResponse(response, content_type="application/json")
         except Exception as e:
             print '%s (%s)' % (e.message, type(e))
@@ -257,6 +267,7 @@ def getSVG(request):
             svg = svg[1].__str__().replace('"',"'")
             response = '{"response": "' + svg +'"}'
             #print response
+            request.session.modified = True
             return HttpResponse(response, content_type="application/json")
         except Exception as e:
             print '%s (%s)' % (e.message, type(e))
@@ -325,6 +336,7 @@ def inheritInterface(request):
             scname = data['scname']
             interface = data['interface']
             fc.inheritInterface(name, (scname, interface))
+            request.session.modified = True
             print "Interface {} from {} inherited as {}".format(interface, scname, name)
             return HttpResponse("Interface {} from {} inherited as {}".format(interface, scname, name))
         except Exception as e:

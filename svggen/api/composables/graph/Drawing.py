@@ -197,7 +197,6 @@ class Drawing:
       checkForOverlap = True
 
     for e in face.get2DDecorations():
-      print e
       self.edges[e[0]] = Edge(e[0], [self.component.evalEquation(x) for x in e[1]], [self.component.evalEquation(x) for x in e[2]], EdgeType(e[3]))
 
     if edgeFrom is not None:
@@ -219,7 +218,6 @@ class Drawing:
 
     facepts2d = []
     faceedges = []
-
     coords2D = self.component.evalEquation(coords2D)
     #print coords2D
     #print self.component.evalEquation(pts2d), self.component.evalEquation(face.pts4d), self.component.evalEquation(coords2D)
