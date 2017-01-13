@@ -47,7 +47,7 @@ function download(filename, text) {
     document.body.removeChild(element);
 }
 function downloadSVG() {
-    var name = componentName + ".svg"
+    var name = componentName + ".dxf"
     getSVGDownload(function(response){
         var data = JSON.parse(response).response;
         download(name, data)

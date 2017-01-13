@@ -115,6 +115,7 @@ class Graph(Composable, BaseGraph):
 
     if kw("svgString", False):
       self.component.drawing = d
+      d.toDXF(filedir + "/silhouette.dxf", mode="silhouette")
       return d.toSVG('nofile', toFile=False)
 
     if kw("display"):

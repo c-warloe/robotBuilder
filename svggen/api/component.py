@@ -43,7 +43,7 @@ class Component(Parameterized):
         self.connections = []
         self.tabs = []
         self.interfaces = {}
-
+        self._appended = {}
         self.composables = OrderedDict()
 
         if yamlFile:
@@ -345,6 +345,7 @@ class Component(Parameterized):
                       port.update()
         for (key, composable) in component.composables.iteritems():
             self.composables[key].append(composable, prefix)
+        self._appended[name] = component
 
     def attach(self, (fromName, fromPort), (toName, toPort), **kwargs):
         interface1 = self.getInterfaces(fromName, fromPort)
@@ -470,7 +471,8 @@ class Component(Parameterized):
                     if key not in self.composables:
                         self.composables[key] = composable.new()
                         self.composables[key].setComponent(self)
-                self.append(name, name)
+                if name not in self._appended:
+                    self.append(name, name)
             except:
                 print "Error in subclass %s, instance %s" % (classname, name)
                 raise

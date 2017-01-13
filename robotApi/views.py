@@ -271,9 +271,10 @@ def downloadSVG(request):
     #pdb.set_trace()
     if request.method == 'GET' or request.method == 'POST':
         try:
-            svg = request.session['svg']
-            svg = svg.__str__().replace('"',"'")
-            response = '{"response": "' + svg +'"}'
+            dxf = open('silhouette.dxf', 'r')
+            #svg = request.session['svg']
+            dxf = dxf.read().replace('"',"'").replace('\n', '\\n')
+            response = '{"response": "' + dxf +'"}'
             return HttpResponse(response, content_type="application/json")
         except Exception as e:
             print '%s (%s)' % (e.message, type(e))

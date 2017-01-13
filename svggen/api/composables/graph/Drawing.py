@@ -364,7 +364,7 @@ class Drawing:
     if checkForOverlap and len(placed['overlapping']):
       raise Exception('One or more faces could not be placed without overlap!')
 
-  def toDXF(self, filename, labels=False, mode="dxf"):
+  def toDXF(self, filename=None, labels=False, mode="dxf"):
     from dxfwrite import DXFEngine as dxf
     '''
     if mode == "silhouette":
@@ -372,6 +372,7 @@ class Drawing:
     '''
 
     dwg = dxf.drawing(filename)
+    EdgeType.makeLinetypes(dwg, dxf)
     for e in self.edges.items():
       e[1].toDrawing(dwg, e[0] if labels else "", mode=mode, engine=dxf)
     dwg.save()

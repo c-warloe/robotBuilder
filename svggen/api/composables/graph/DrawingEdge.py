@@ -1,6 +1,4 @@
 import svggen.utils.mymath as np
-from sympy import Symbol
-from svgwrite import Drawing
 
 
 class EdgeType:
@@ -37,6 +35,10 @@ class EdgeType:
   def invert(self):
     self.angle = -self.angle
 
+  @classmethod
+  def makeLinetypes(cls, drawing, dxf):
+      drawing.add_linetype("FOLD", pattern=dxf.linepattern([1, 0, -1]))
+
   def drawArgs(self, name, mode):
     if self.edgetype in (EdgeType.FLAT, EdgeType.NOEDGE):
       return
@@ -46,12 +48,19 @@ class EdgeType:
     layerArgs = [{"layer": c} for c in ["Registration", "Cut", "xxx", "Flex"]]
 
     if mode == "dxf":
-      return dxfArgs[self.edgetype]
+      ret = dxfArgs[self.edgetype]
+      if self.edgetype in (EdgeType.FOLD, EdgeType.FLEX) :
+        ret["linetype"] = "FOLD"
+      return ret
+
     elif mode == "silhouette":
       et = self.edgetype
       if et in (EdgeType.FOLD, EdgeType.FLEX) and self.angle % 360 > 180:
         et = 4
-      return dxfArgs[et]
+      ret = dxfArgs[et]
+      if self.edgetype in (EdgeType.FOLD, EdgeType.FLEX) :
+        ret["linetype"] = "FOLD"
+      return ret
     elif mode == "autofold":
       ret = dxfArgs[self.edgetype]
       ret.update(layerArgs[self.edgetype])
@@ -67,7 +76,9 @@ class EdgeType:
         if self.angle % 360 > 180:
           kwargs["stroke"] = "#00ff00"
         else:
-          kwargs["stroke"] = "#ff0000"
+          kwargs["stroke"] = "#0000ff"
+        kwargs["stroke-dasharray"] = "2 6"
+        kwargs["stroke-dashoffset"] = "5"
       if mode == "foldanimate":
         kwargs["stroke"] ='#%02x0000' % (256*self.angle / 180)
       else:
@@ -103,7 +114,6 @@ def Flex(angle=0):
 def diag(dx, dy):
   """
   Returns the diagonal distance between two points.
-
   :param dx: the change in x distance between the two points
   :type dx: real number
   :param dy: the change in y distance between the two points
@@ -121,9 +131,7 @@ class Edge:
   def __init__(self, name, pt1, pt2, edgetype):
     """
     Initializes an Edge object with pt1 and pt2 in the form ((x1,y1),(x2,y2))
-
     The Edge can have 5 different types: CUT, FLAT, BEND, FOLD, TAB
-
     :param pt1: location of point one in the form (x1, y1)
     :type pt1: tuple
     :param pt2: location of point one in the form (x2, y2)
@@ -141,14 +149,13 @@ class Edge:
       edgetype = Cut()
     self.edgetype = edgetype
 
-
   def coords(self):
     """
     :returns: a list of the coordinates of the Edge instance endpoints
     :rtype: list of [[x1,y1],[x2,y2]] rounded to the nearest 1e-6
     """
 
-    coords = [[round(self.x1, 6), round(self.y1, 6)], [round(self.x2, 6), round(self.y2, 6)]]
+    coords  = [[round(self.x1, 6),round(self.y1,6)],[round(self.x2,6),round(self.y2,6)]]
     for i in coords:
       if i[0] == -0.0:
         i[0] = 0.0
@@ -159,7 +166,6 @@ class Edge:
   def length(self):
     """
     Uses the diag() function
-
     :returns: the length of the edge
     :rtype: np.float64
     """
@@ -171,7 +177,6 @@ class Edge:
     """
     :param deg: sets the angle return type to be deg or rad
     :type deg: boolean
-
     :returns: angle of the Edge instance wrt the positive x axis
     :rtype: numpy.float64
     """
@@ -187,12 +192,10 @@ class Edge:
     """
     Returns a list of Edge instances that extend out from the endpoint of another Edge instance.
     Mode of all smaller edges is the same as the original Edge instance.
-
     :param lengths: list of lengths to split the Edge instance into
     :type lengths: list
     :param otherway: boolean specifying where to start from (pt2 if otherway == False, pt1 if otherway == True)
     :type otherway: boolean
-
     :returns: a list of Edge instances that extend out from the endpoint of another Edge instance
     :rtype: a list of Edge instances
     """
@@ -219,7 +222,6 @@ class Edge:
   def transform(self, scale=1, angle=0, origin=(0,0)):
     """
     Scales, rotates, and translates an Edge instance.
-
     :param scale: scaling factor
     :type scale: float
     :param angle: angle to rotate in radians
@@ -290,7 +292,6 @@ class Edge:
   def toDrawing(self, drawing, label="", mode=None, engine=None):
     """
     Draws an Edge instance to a CAD file.
-
     :type drawing:
     :param drawing:
     :type label: tuple
@@ -316,10 +317,6 @@ class Edge:
           drawing.add_layer(str(self.edgetype.angle))
 
       if dpi: self.transform(scale=(dpi/25.4))
-      if "FOLD" in self.edgetype.__repr__() and isinstance(engine,Drawing):
-        print type(engine)
-        kwargs["stroke-dasharray"] = "2 6"
-        kwargs["stroke-dashoffset"] = "2"
       drawing.add(engine.line((float(self.x1), float(self.y1)), (float(self.x2), float(self.y2)), **kwargs))
       if dpi: self.transform(scale=(25.4/dpi)) # scale back to mm
 
@@ -340,4 +337,3 @@ if __name__ == "__main__":
   svg = dxf.drawing("testedge.dxf")
   e.toDrawing(svg, mode="dxf", engine=dxf)
   svg.save()
-
