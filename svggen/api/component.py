@@ -10,7 +10,7 @@ from svggen import SVGGEN_DIR
 from svggen.api.Parameterized import Parameterized
 from svggen.utils.utils import prefix as prefixString
 from svggen.utils.utils import tryImport
-from svggen.utils import solver
+#from svggen.utils import solver
 from svggen.utils.io import load_yaml
 from svggen.api import unfolder
 from sympy import Symbol, Eq, StrictGreaterThan, GreaterThan, StrictLessThan, LessThan

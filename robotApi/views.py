@@ -80,6 +80,7 @@ def createComponent(request):
     Create a new Component
     """
     if request.method == 'GET' or request.method == 'POST':
+        #pdb.set_trace()
         sessionComponent = FoldedComponent.FoldedComponent() #Create component
         name = id(sessionComponent)
         try:
