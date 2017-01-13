@@ -681,6 +681,77 @@ function loadGui() {
 		$("#dialog").dialog("open");
 	    }*/
 	},
+	connectionAddTab:function(){
+	    if(SELECTED != undefined && SELECTED_2 != undefined && SELECTED.parent != "Scene" && SELECTED_2.parent != "Scene")
+	    {
+		var newConn = {};
+		newConn.name = window.prompt("Connection Name: ");
+		if(newConn.name == "" || newConn.name == null)
+		    return;
+		for(var iter = 0, len = connections.length; iter < len; iter++){
+		    if(connections[iter].name == newConn.name){
+			window.alert('Connection with name "' + newConn.name + '" already exists');
+			return;
+		    }
+		}
+		angle = window.prompt("Connection Angle: ");
+		if(angle == "" || angle == null || isNaN(angle))
+            return;
+		if(SELECTED.parent.type == "MasterComponent"){
+		    newConn.interface1 = SELECTED.name.replaceAll("_", ".");
+		    var spl = SELECTED.name.split("_");
+		    s1pname = spl[0];
+		    s1name = spl[1];
+		}
+		else {
+		    newConn.interface1 = SELECTED.parent.name + "." + SELECTED.name;
+		    s1pname = SELECTED.parent.name;
+		    s1name = SELECTED.name;
+		}
+		if(SELECTED_2.parent.type == "MasterComponent") {
+		    newConn.interface2 = SELECTED_2.name.replaceAll("_", ".");
+		    var spl = SELECTED_2.name.split("_");
+		    s2pname = spl[0];
+		    s2name = spl[1];
+		}
+		else {
+		    newConn.interface2 = SELECTED_2.parent.name + "." + SELECTED_2.name;
+		    s2pname = SELECTED_2.parent.name;
+		    s2name = SELECTED_2.name;
+		}
+		addTabConnection(s1pname,s1name,s2pname,s2name, angle, function(){});//function(){buildComponent()});
+		connections.push(newConn);
+		SELECTED.parent.connectedInterfaces[SELECTED.name] = newConn.interface2;
+		SELECTED_2.parent.connectedInterfaces[SELECTED_2.name] = newConn.interface1;
+		var folder = comp.connections.addFolder(newConn.name);
+		newConn.args = "";
+		var connFixButton = {
+		    s1pname: s1pname,
+		    s1name: s1name,
+		    fixConnection:function(){
+		        var value = window.prompt("Value to fix interface to");
+                fixComponentEdgeInterface(this.s1pname, this.s1name, value);
+		    }
+		}
+		folder.add(newConn,"interface2").name(newConn.interface1);
+		folder.add(connFixButton, "fixConnection").name("Set Length");
+	    }
+	    /*else{
+		var joinedList = subcomponents.concat(connectedSubcomponents);
+		for(i in joinedList){
+		    for(inter in joinedList[i].interfaces){
+			var opt = document.createElement("option");
+			var opt2 = document.createElement("option");
+			var str = joinedList[i].name + "." + inter;
+			opt.val = str; opt2.val = str;
+			opt.innerHTML = str; opt2.innerHTML = str;
+			document.getElementById('interface1').appendChild(opt);
+			document.getElementById('interface2').appendChild(opt2);
+		    }
+		}
+		$("#dialog").dialog("open");
+	    }*/
+	},
 	connectionDelete:function(){
 	    var delName = window.prompt("Name of connection to delete","");
 	    if(delName == "" || delName == null)
@@ -750,6 +821,7 @@ function loadGui() {
     comp.parameters.add(objectbuttons,'parameterAdd').name("Add");
     comp.parameters.add(objectbuttons,'parameterDelete').name("Delete");
     comp.connections.add(objectbuttons,'connectionAdd').name("Add");
+    comp.connections.add(objectbuttons,'connectionAddTab').name("Add Tab");
     comp.interfaces.add(objectbuttons, 'interfaceAdd').name("Add");
     comp.interfaces.add(objectbuttons, 'interfaceDelete').name("Delete");
     //comp.connections.add(objectbuttons,'connectionDelete').name("Remove");
