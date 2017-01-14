@@ -345,7 +345,7 @@ class Component(Parameterized):
               allPorts.update(component.getInterface(key))
               for port in ports:
                   if name not in self._prefixed:
-                      ports.prefix(prefix)
+                      port.prefix(prefix)
                   port.update()
         for (key, composable) in component.composables.iteritems():
             if name not in self._prefixed:
