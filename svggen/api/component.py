@@ -41,7 +41,6 @@ class Component(Parameterized):
 
         self.subcomponents = {}
         self.connections = []
-        self.tabs = []
         self.interfaces = {}
         self._prefixed = {}
         self.composables = OrderedDict()
@@ -212,7 +211,8 @@ class Component(Parameterized):
         self.connections.append([fromInterface, toInterface, kwargs])
 
     def addTabConnection(self, fromInterface, toInterface, **kwargs):
-        self.tabs.append([fromInterface, toInterface, kwargs])
+        kwargs['tab'] = True
+        self.connections.append([fromInterface, toInterface, kwargs])
 
     '''
     # TODO : delete Connection
@@ -508,16 +508,18 @@ class Component(Parameterized):
     def evalConnections(self):
 
         for ((fromComponent, fromPort), (toComponent, toPort), kwargs) in self.connections:
+            print "kwargs"
+            print kwargs
             self.attach((fromComponent, fromPort),
                         (toComponent, toPort),
                         **kwargs)
 
-    def evalTabs(self):
-        for ((fromComponent, fromPort), (toComponent, toPort), kwargs) in self.tabs:
-            self.attach((fromComponent, fromPort),
-                (toComponent, toPort),
-                tab = True,
-                **kwargs)
+#    def evalTabs(self):
+#        for ((fromComponent, fromPort), (toComponent, toPort), kwargs) in self.tabs:
+#            self.attach((fromComponent, fromPort),
+#                (toComponent, toPort),
+#                tab = True,
+#               **kwargs)
 
     def reset(self):
         self.semanticConstraints = []
@@ -532,7 +534,7 @@ class Component(Parameterized):
         self.evalComponents()    # Merge composables from all subcomponents and tell them my components exist
         self.evalInterfaces()    # Tell composables that my interfaces exist
         self.evalConnections()   # Tell composables which interfaces are connected
-        self.evalTabs()
+#        self.evalTabs()
         self.assemble()
         self.solve()
         self.checkConstraints()

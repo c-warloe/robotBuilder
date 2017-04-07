@@ -1,0 +1,42 @@
+connections:
+- - [r4, l]
+  - [r1, r]
+  - {angle: 90}
+- - [r2, l]
+  - [r4, r]
+  - {angle: 90}
+- - [r3, l]
+  - [r2, r]
+  - {angle: 90}
+- - [r3, r]
+  - [r1, l]
+  - {angle: 90, tab: true}
+constants: {}
+constraints: []
+interfaces:
+  botedge0: {interface: b, subcomponent: r4}
+  botedge1: {interface: b, subcomponent: r2}
+  botedge2: {interface: b, subcomponent: r3}
+  botedge3: {interface: b, subcomponent: r1}
+  topedge0: {interface: t, subcomponent: r4}
+  topedge1: {interface: t, subcomponent: r2}
+  topedge2: {interface: t, subcomponent: r3}
+  topedge3: {interface: t, subcomponent: r1}
+parameters: {depth: '50', length: '50', width: '50'}
+subcomponents:
+  r1:
+    class: Rectangle
+    constants: {}
+    parameters: {w: length, l: width}
+  r2:
+    class: Rectangle
+    constants: {}
+    parameters: {w: length, l: width}
+  r3:
+    class: Rectangle
+    constants: {}
+    parameters: {w: length, l: depth}
+  r4:
+    class: Rectangle
+    constants: {}
+    parameters: {w: length, l: depth}

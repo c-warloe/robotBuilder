@@ -47,14 +47,14 @@ class Graph(Composable, BaseGraph):
       for i in range(len(label1)):
         newargs = {}
         for key, value in kwargs.iteritems():
-          if key is 'tab':
+          if key == 'tab':
             continue
           if isinstance(value, (list, tuple)):
             newargs[key] = value[i]
           else:
             newargs[key] = value
         try:
-          if kwargs['tab'] is True:
+          if kwargs['tab'] == True:
             self.addTab(label1[i], label2[i], **newargs)
             continue
         except:
